@@ -1,0 +1,54 @@
+<br/><span style='font-size:8pt;'></span><a href="/manager.php?action=list_contacts" style="font-size:8pt;color:black;text-decoration:underline;">Все сотрудники</a><br/>
+<div style='margin:25px 0 0 80px;font-size:8pt;'>
+	<a href='{previous}' style='color:black;text-decoration:underline;'><img src='/images/left.png' /></a>
+		&nbsp;&nbsp;&nbsp;&nbsp;{current}&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href='{next}' style='color:black;text-decoration:underline;'><img src='/images/right.png' /></a>
+</div>
+<div style="float:left;margin:10px 30px 15px 0px;">
+	{photo}
+</div>
+<div style="float:left;padding-top:5px;">
+	<h2>Карточка сотрудника</h2>
+	{editcontact}
+	<table cellspacing=5 cellpadding=0 border=0 style='margin-top:10px;'>
+		<tr>
+			<td style='width:220px;'>ФИО</td>
+			<td>{name}</td>
+		</tr>
+		<tr>
+			<td>Должность</td>
+			<td>{occupation}</td>
+		</tr>
+		{mychief}
+		{employees}
+		<tr>
+			<td>Офис/склад</td>
+			<td>{point}</td>
+		</tr>
+		<tr>
+			<td>E-mail</td>
+			<td>{email}</td>
+		</tr>
+		<tr>
+			<td>Скайп</td>
+			<td>{skype}</td>
+		</tr>
+		<tr>
+			<td>Телефон офиса</td>
+			<td>{officephone}</td>
+		</tr>
+		<tr>
+			<td>Добавочный номер</td>
+			<td>{extphone}</td>
+		</tr>
+		{mobilephones}
+		<tr>
+			<td valign='top'>Статус</td>
+			<td>{status}</td>
+		</tr>
+	</table>
+	{uchet_rabochego_vremeni}
+</div>
+<div class="clear"></div>
+
+

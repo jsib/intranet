@@ -1,0 +1,200 @@
+<style>
+	#edit_form a:link, #edit_form a:active, #edit_form a:visited, #edit_form a:hover{
+		color:#000;
+		text-decoration:none;
+	}
+</style>
+<br/><span style='font-size:8pt;'></span><a href="/manager.php?action=list_contacts" style="font-size:8pt;color:black;text-decoration:underline;">Все сотрудники</a><br/>
+<div style='margin:25px 0 0 80px;font-size:8pt;'>
+	<a href='{previous}' style='color:black;text-decoration:underline;'><img src='/images/left.png' /></a>
+		&nbsp;&nbsp;&nbsp;&nbsp;{current}&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href='{next}' style='color:black;text-decoration:underline;'><img src='/images/right.png' /></a>
+</div>
+<div style="float:left;margin:25px 30px 15px 0px;">
+	{photo}
+	<form enctype="multipart/form-data" action='{action}' method='post' style='padding:10px 0 0 0;'>	
+		<br/>
+		<input type='file' name='file' style='width:350px;' onChange="if(this.value!=''){document.getElementById('submit').style.display='block';}else{document.getElementById('submit').style.display='none';}"/><br/><br/>
+		{photomessage}
+		<input id='submit' type='submit' value='Загрузить' style='display:none;width:100px;'/>
+	</form>
+</div>
+<div style="float:left;padding-top:5px;">
+	<h2 style="padding-top:0;margin-top:10px;">Редактировать карточку сотрудника</h2>
+	{showcontact}
+	{message}
+	<form action="{action}" method='post' id='edit_form'>
+		<table border='0'>
+			<tr>
+				<td style='width:250px;'>
+					Имя:
+				</td>
+				<td>
+					<input type='text' name='name' value='{name}' readonly />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Должность:
+				</td>
+				<td>
+					<input type='text' name='user_occ' value='{occupation}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Руководитель:
+				</td>
+				<td>
+					<select name='mychief' style='margin:2px 0;'>
+						{mychiefs}
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Есть подчиненные:
+				</td>
+				<td>
+					<input type='checkbox' name='chief' style='width:20px;' {chief} />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Мой график работ редактирует:
+				</td>
+				<td>
+					<select name='my_timetable_editor' style='margin:2px 0;'>
+						{timetable_editors}
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Я могу редактировать графики работ:
+				</td>
+				<td>
+					<input type='checkbox' name='timetable_editor' style='width:20px;' {timetable_editor} />
+				</td>
+			</tr>
+			{hrmanager_alias}
+			<tr>
+				<td style='width:100px;'>
+					Подразделение:
+				</td>
+				<td>
+					<select name='point' style='margin:2px 0;'>
+						{points}
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Устроился на работу:
+				</td>
+				<td>
+					<select name='hire_month'>{hire_months_options}</select>
+					<select name='hire_year'>{hire_years_options}</select>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					<a href="#" title="Даный сотрудник будет виден в списке, только если установлена галка 'Показывать скрытые контакты'">
+						Не показывать в контактах:
+					</a>
+				</td>
+				<td>
+					<input type='checkbox' name='nocontact' style='width:20px;' {nocontact} />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Не показывать в графиках работ:
+				</td>
+				<td>
+					<input type='checkbox' name='notimetable' style='width:20px;' {notimetable} />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					<a href="#" title="Подчиненные данного руководителя в графиках работ будут иметь дополнительные статусы 'Дежурство' и 'Дежурство + явка'">
+						Руководитель инженеров:
+					</a>
+				</td>
+				<td>
+					<input type='checkbox' name='engineer_chief' style='width:20px;' {engineer_chief} />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					<a href="#" title="Данный сотрудники в графиках работ будут иметь дополнительный статус 'Простой за счет фирмы'">
+						Специальный сотрудник производства:
+					</a>
+				</td>
+				<td>
+					<input type='checkbox' name='spec_prod_staff' style='width:20px;' {spec_prod_staff} />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					E-mail:
+				</td>
+				<td>
+					<input type='text' name='user_email' value='{email}'/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Скайп:
+				</td>
+				<td>
+					<input type='text' name='user_skype' value='{skype}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:100px;'>
+					Добавочный номер:
+				</td>
+				<td>
+					<input type='text' name='user_extphone' value='{extphone}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:100px;'>
+					Мобильный (рабочий):
+				</td>
+				<td>
+					<input type='text' name='user_workmobilephone' value='{workmobilephone}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:100px;'>
+					Мобильный (личный):
+				</td>
+				<td>
+					<input type='text' name='user_privatemobilephone' value='{privatemobilephone}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:100px;'>
+					Статус:
+				</td>
+				<td>
+					<input type='text' name='status' value='{status}'/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<br/>
+					Пароль:
+				</td>
+				<td>
+					<br/>
+					<input type='text' name='password' value='' style='border:#5ACE5A double;'/> <span style='font-size:8pt'>*Если поле не заполнено, то пароль изменен не будет</span>
+				</td>
+			</tr>
+		</table><br/>
+		<input type='submit' value='Сохранить'/>
+	</form>
+</div>
+<div class="clear"></div>

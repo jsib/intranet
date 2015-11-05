@@ -1,0 +1,9 @@
+Options +FollowSymLinks
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} robots.txt$ [NC]
+RewriteRule ^([^/]+) $1 [L]
+
+RewriteCond %{HTTP_HOST} ^intranet\.acoustic\.ru
+RewriteRule ^(.*)$ http://intranet.acoustic-group.net/$1 [R=301,L]
+RewriteCond %{HTTP_HOST} ^www.intranet\.acoustic\.ru
+RewriteRule ^(.*)$ http://intranet.acoustic-group.net/$1 [R=301,L]

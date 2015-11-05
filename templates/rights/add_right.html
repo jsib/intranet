@@ -1,0 +1,8 @@
+<h2>Добавить право</h2><br/>
+<form method='post' action='/manager.php?action=add_right'>
+	Право: {right_name}<br/><br/>
+	Имя пользователя: <select name='user'>{users}</select>
+	<input type='hidden' name='right' value='{right_id}' />
+	<br/><br/>
+	<input type='submit' value='Добавить' style='width:100px;'/>
+</form>

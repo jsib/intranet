@@ -1,0 +1,15 @@
+<h2>Добавить сотрудника</h2>
+{message}
+<form action="/manager.php?action=add_contact" method='post'>
+	<table border='0'>
+		<tr>
+			<td style='width:250px;'>
+				Имя:
+			</td>
+			<td>
+				<input type='text' name='name' value='{name}'/>
+			</td>
+		</tr>
+	</table><br/>
+	<input type='submit' value='Добавить и редактировать остальные поля'/>
+</form>

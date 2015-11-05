@@ -1,0 +1,35 @@
+<br/><span style='font-size:8pt;'></span><a href="/manager.php?action=list_points" style="font-size:8pt;color:black;text-decoration:underline;">Все офисы/склады</a><br/>
+<h2>Редактировать карточку офиса/склада</h2>
+{showpoint}
+{message}
+<form action="{action}" method='post'>
+	<table border='0'>
+		<tr>
+			<td style='width:250px;'>
+				Название:
+			</td>
+			<td>
+				<input type='text' name='name' value='{name}'/>
+			</td>
+		</tr>
+		<tr>
+			<td style='width:250px;'>
+				Город:
+			</td>
+			<td>
+				<select name='branch'/>
+					{branches}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Адрес</td>
+			<td><input type='text' name='address' value='{address}' /></td>
+		</tr>
+		<tr>
+			<td>Телефон</td>
+			<td><input type='text' name='phone' value='{phone}' /></td>
+		</tr>
+	</table><br/>
+	<input type='submit' value='Сохранить'/>
+</form>

@@ -1,0 +1,30 @@
+#
+# Uncomment the statement below if you want to make use of
+# HTTP authentication and it does not already work.
+# This could be required if you are for example using PHP via Apache CGI.
+#
+#<IfModule mod_rewrite.c>
+RewriteEngine on
+
+
+
+
+RewriteRule ^mode=register$ ucp.php?mode=register [L,QSA]
+RewriteRule ^mode=register(.*)$ ucp.php?mode=register$1 [L,QSA]
+ 
+#RewriteCond %{REQUEST_URI} !.(css|jpe?g|gif|png|bmp)$
+#RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization},L]
+#</IfModule>
+
+php_value upload_max_filesize 25M
+php_value post_max_size 25M
+
+<Files "config.php">
+Order Allow,Deny
+Deny from All
+</Files>
+
+<Files "common.php">
+Order Allow,Deny
+Deny from All
+</Files>

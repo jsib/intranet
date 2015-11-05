@@ -1,0 +1,217 @@
+<style>
+	table.timetable{border:1px solid #000;}
+	table.timetable td{padding:2px;height:18px;cursor:default;}
+	table.timetable td[unselectable=on] {-moz-user-select: none;-o-user-select:none;-khtml-user-select: none;-webkit-user-select: none;-ms-user-select: none;user-select: none;}
+	table.timetable td.gfirst{padding-left:7px;padding-right:7px;}
+	table.timetable tr.vfirst{background:#d9ebd3;}
+	table.timetable tr.vfirst td{text-align:center;}
+	table.timetable td.gfirst, .timetable td.gnolast{border-right:1px solid #000;}
+	table.timetable td.gnolast, .timetable td.glast{width:34px;text-align:center;font-size:9pt;}
+	table.timetable tr.vfirst td, table.timetable tr.vnolast td{border-bottom:1px solid #000;}
+	ul#popup_menu{position:absolute;display:block;border:1px solid #555;cursor: pointer;}
+	ul#popup_menu li{list-style-type:none;}
+	li#rabochy{background:#fff;border-bottom:1px solid #555}
+	li#otpusk{background:#ffe599;border-bottom:1px solid #555}
+	li#bolnichny{background:#b6d7a8;border-bottom:1px solid #555}
+	li#zasvoischet{background:#E2B1E2;border-bottom:1px solid #555}
+	li#comandirovka{background:#9fc5e8;}
+	li#prazdnik{background:#FFF;}
+	li#dejurstvo{background:#FAA275;}
+	li#dejurstvo_yavka{background:#7E8591;}
+	li#prostoj{background:#CF596E;}
+	ul.punkt{margin:0;padding:0;}
+	ul.punkt li{display:block;float:left;width:16px;padding:3px 0;border-left:1px solid #555;text-align:center;font-size:9pt;}
+	ul.punkt li.first{width:100px;border-left:0;}
+	ul.punkt li.first-full{width:100%;border-left:0;}
+	ul.punkt li.last{clear:both;float:none;}
+	a.subgroup{display:block;float:left;margin-right:30px;padding:5px 10px;-webkit-border-radius:5px;text-decoration:underline;font-size:8pt;color:#222;background:#b6d7a8;text-align:center;}
+	a.subgroup2{padding-right:50px;text-decoration:underline;font-size:8pt;color:#222;}
+	div.subgroup2{padding:0 0 20px 0;}
+</style>
+<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+
+<script>
+popup_id=false;
+function popup_menu(id){
+	var list=[]
+	list[1]=[true, 'rabochy', 'Рабочий', '#fff', '#fff', 1]
+	list[2]=[false, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
+	list[3]=[false, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
+	list[4]=[false, 'zasvoischet', 'За свой счет', '#C87EC8', '#E2B1E2', 4]
+	if(id.split('-')[4]==1){
+		list[5]=[false, 'dejurstvo', 'Дежурство', '#F56A24 ', '#FAA275', 7]
+		list[6]=[false, 'dejurstvo_yavka', 'Деж. + явк', '#434C5B', '#7E8591', 8]
+	}
+	if(id.split('-')[5]==1){
+		list[7]=[false, 'prostoj', 'Простой ЗСФ', '#AA3147', '#CF596E', 9]
+	}
+	list[8]=[true, 'comandirovka', 'Командировка', '#6FA3D3', '#9fc5e8', 5]
+	list[9]=[true, 'prazdnik', 'Выходной/праздник', '#E33B3F', '#FFF', 6]	
+	
+	popup_html="<ul id='popup_menu'>"
+	
+	for(order in list){
+		//Рабочий
+		popup_html+="<li id='"+list[order][1]+"'><ul class='punkt'>"
+		for(hour=0;hour<=7;hour++){
+			if(hour==0){
+				hour=8
+				name=list[order][2]
+				if(list[order][0]==true){tagclass='first-full'}else{tagclass='first'}
+			}else{
+				name=hour
+				tagclass=''
+			}
+			popup_html+="<li id='"+list[order][1]+"-"+hour+"' class='"+tagclass+"' onMouseOver=\"li_over(this.id, '"+list[order][3]+"')\"  onMouseOut=\"li_out(this.id, '"+list[order][4]+"')\" onClick=\"set_td_remote("+list[order][5]+", "+hour+", '"+list[order][4]+"')\">"+name+"</li>"
+			if(hour==8){
+				hour=0
+				if(list[order][0]==true) break
+			}
+		}
+		popup_html+="<div class='clear'></div></ul></li>"
+	}
+
+	if(popup_id){
+		document.getElementById(popup_id).innerHTML=document.getElementById(popup_id).innerHTML.replace(new RegExp('\<ul.*\<\/ul\>'), '');
+	}
+	popup_id=id
+	mark_td(id)
+	document.getElementById(id).innerHTML+=popup_html;
+}
+function mark_td(id){
+	if(document.getElementById(id).className=='glast'){
+		document.getElementById(id).style.borderRight='1px solid';
+	}else{
+		document.getElementById(id).style.borderRight='2px solid';
+	}
+	if(document.getElementById(id).parentNode.className=='vlast'){
+		document.getElementById(id).style.borderBottom='1px solid';
+	}else{
+		document.getElementById(id).style.borderBottom='2px solid';
+	}
+	document.getElementById(id).style.width='25px';
+	document.getElementById(id).style.height='16px';
+	document.getElementById(id).style.borderTop='1px solid';
+	document.getElementById(id).style.borderLeft='1px solid';
+}
+function unmark_td(id){
+	if(document.getElementById(id).className=='glast'){
+		document.getElementById(id).style.borderRight='0px';	
+	}else{
+		document.getElementById(id).style.borderRight='1px solid';	
+	}
+	if(document.getElementById(id).parentNode.className=='vlast'){
+		document.getElementById(id).style.borderBottom='0px';
+	}else{
+		document.getElementById(id).style.borderBottom='1px solid';
+	}
+	document.getElementById(id).style.width='27px';
+	document.getElementById(id).style.height='18px';
+	document.getElementById(id).style.borderTop='0px';
+	document.getElementById(id).style.borderLeft='0px';
+}
+function close_popup(){
+	if(popup_id){
+		document.getElementById(popup_id).innerHTML=document.getElementById(popup_id).innerHTML.replace(new RegExp('\<ul.*\<\/ul\>'), '');
+		unmark_td(popup_id)
+	} 
+}
+function li_over(id, color){
+	document.getElementById(id).style.background=color;
+	document.getElementById(id).style.fontWeight="bold";
+}
+function li_out(id, color){
+	document.getElementById(id).style.background=color
+	document.getElementById(id).style.fontWeight="normal";
+}
+function set_td_remote(status, hours, color){
+	$.ajax({
+		type: "GET",
+		data: "td="+popup_id+"&status="+status+"&hours="+hours,
+		dataType: "html",
+		url: "/ajax.php?action=set_td_remote",
+		dataType: "text",
+		success: function(result){
+			if(result==1){
+				set_td(status, hours, color)
+			}else{
+				alert('Возникла ошибка при обновлении данных в графике работы (db error).')
+			}
+		},
+		
+		error: function(result, ajax_stat, ajax_error){
+			alert('Возникла ошибка при обновлении данных в графике работы (ajax error).')
+		}
+		
+	});
+}
+function set_td(status, hours, color){
+	if(hours>=1 && hours<=7){addtext='('+hours+')'}else{addtext=''}
+	switch (status){
+		case 1:
+			word=''
+			break
+		case 2:
+			word='от'+addtext
+			break
+		case 3:
+			word='Б'+addtext
+			break
+		case 4:
+			word='до'+addtext
+			break
+		case 5:
+			word='к'+addtext
+			break
+		case 6:
+			word=""
+			break
+		case 7:
+			word="д"+addtext
+			break
+		case 8:
+			word="дя"+addtext
+			break
+		case 9:
+			word="зф"+addtext
+			break
+	}
+	
+	day=new Date(popup_id.split('-')[1]+'-'+popup_id.split('-')[2]+'-'+popup_id.split('-')[3])
+	
+	if(status==6){
+		document.getElementById(popup_id).style.background="url(/images/krestik.png) no-repeat"
+	}else{
+		document.getElementById(popup_id).style.background=color
+	}
+	document.getElementById(popup_id).innerHTML=word
+}
+</script>
+
+<h2>Графики работы</h2>
+<div style="padding:10px 0px 20px 0;">
+	<form id="chooseForm" method='get' action='/manager.php' onchange="document.getElementById('chooseForm').submit();">
+		<input type='hidden' name='action' value='show_timetable' />
+		{additional_hiddens}
+		Год:
+		<select name='year'>
+			{years}
+		</select>
+		<span style='padding:0 10px;'></span>
+		Месяц:
+		<select name='month' {select_disabled}>
+			{months}
+		</select>
+		<span style='padding:0 10px;'></span>
+		{redactors}
+	</form>
+</div>
+<div style="padding:10px 0px 20px 0;">
+	{tablica}
+	<a href='/manager.php?action=show_timetable&regime=report&year={year}&month={month}&redactor={redactor}' class='subgroup' style='{subgroup_link_2}'>Отчет</a>
+	<div class='clear'></div>
+</div>
+{subgroup2}
+<table cellspacing=0 cellpadding=0 border=0 class='timetable'>
+	{table}
+</table>

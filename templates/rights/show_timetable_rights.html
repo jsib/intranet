@@ -1,0 +1,44 @@
+<style>
+	ul.show_timetable_rights{
+		margin:0 0 10px 0;
+		list-style-type:none;
+	}
+	ul.show_timetable_rights li{
+		padding:0 0 3px 15px;
+	}
+	h4{
+		display:inline;
+		padding:0 20px 4px 0;
+		font-size:11pt;font-style:italic;
+		font-weight:normal;
+		font-family:Tahoma;
+	}
+	b.smallheader{
+		display:block;
+		padding:0 0 2px 0;
+		font-style:italic;
+	}
+	div.undersmallheader{
+		display:block;
+		padding:0 0 4px 5px;
+		font-style:italic;
+		font-size:9pt;
+	}
+	div.comment{
+		padding:2px 0 10px 10px;
+		font-size:9pt;
+		font-weight:normal;
+	}
+	select.same_rights{
+		font-size:8pt;
+	}
+	form.same_right{
+		display:inline;
+	}
+
+</style>
+<h2>Просмотр прав на управление графиками работ</h2>
+<br/>
+<h4>Список редакторов</h4>
+<div class='comment'>(Редакторы могут управлять только некоторыми графиками работ в отличие от HR-менеджера, который управляет всеми.<br/> В карточке пользователя указывается, кто из редакторов управляет его правами.)</div>
+{rights}
