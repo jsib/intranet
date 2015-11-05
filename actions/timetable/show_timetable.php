@@ -407,13 +407,13 @@ function create_timetable(){
 						$status_html="";
 						$color="#FFF;";
 						break;
-					case 7:
-						$status_html='д'.$addtext;
-						$color='#FAA275';
+					case 51:
+						$status_html='/-'.$addtext;
+						$color='#fff';
 						break;
-					case 8:
-						$status_html='дя'.$addtext;
-						$color='#7E8591';
+					case 52:
+						$status_html='-/'.$addtext;
+						$color='#fff';
 						break;
 					case 9:
 						$status_html='зф'.$addtext;

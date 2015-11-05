@@ -8,7 +8,7 @@
 	table.timetable td.gfirst, .timetable td.gnolast{border-right:1px solid #000;}
 	table.timetable td.gnolast, .timetable td.glast{width:34px;text-align:center;font-size:9pt;}
 	table.timetable tr.vfirst td, table.timetable tr.vnolast td{border-bottom:1px solid #000;}
-	ul#popup_menu{position:absolute;display:block;border:1px solid #555;cursor: pointer;}
+	ul#popup_menu{position:absolute;display:block;min-width:50px;border:1px solid #555;cursor: pointer;}
 	ul#popup_menu li{list-style-type:none;}
 	li#rabochy{background:#fff;border-bottom:1px solid #555}
 	li#otpusk{background:#ffe599;border-bottom:1px solid #555}
@@ -16,8 +16,7 @@
 	li#zasvoischet{background:#E2B1E2;border-bottom:1px solid #555}
 	li#comandirovka{background:#9fc5e8;}
 	li#prazdnik{background:#FFF;}
-	li#dejurstvo{background:#FAA275;}
-	li#dejurstvo_yavka{background:#7E8591;}
+	li#work_before_lunch, li#comand_engineer, li#prazdn_engineer, li#work_after_lunch{background:#fff;border-bottom:1px solid #555}
 	li#prostoj{background:#CF596E;}
 	ul.punkt{margin:0;padding:0;}
 	ul.punkt li{display:block;float:left;width:16px;padding:3px 0;border-left:1px solid #555;text-align:center;font-size:9pt;}
@@ -34,19 +33,36 @@
 popup_id=false;
 function popup_menu(id){
 	var list=[]
-	list[1]=[true, 'rabochy', 'Рабочий', '#fff', '#fff', 1]
-	list[2]=[false, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
-	list[3]=[false, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
-	list[4]=[false, 'zasvoischet', 'За свой счет', '#C87EC8', '#E2B1E2', 4]
-	if(id.split('-')[4]==1){
-		list[5]=[false, 'dejurstvo', 'Дежурство', '#F56A24 ', '#FAA275', 7]
-		list[6]=[false, 'dejurstvo_yavka', 'Деж. + явк', '#434C5B', '#7E8591', 8]
+	//Engineer flag
+	engineer=id.split('-')[4]
+	
+	//Special production staff flag
+	spec_prod_staff=id.split('-')[5]
+	
+	if(engineer==0){
+		list[1]=[true, 'rabochy', 'Рабочий', '#fff', '#fff', 1]
+		list[2]=[false, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
+		list[3]=[false, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
+		list[4]=[false, 'zasvoischet', 'За свой счет', '#C87EC8', '#E2B1E2', 4]
 	}
-	if(id.split('-')[5]==1){
+	
+	if(engineer==1){
+		list[1]=[true, 'rabochy', '&nbsp;', '#fff', '#fff', 1]
+		list[2]=[true, 'work_before_lunch', '/-', '#fff ', '#fff', 51]
+		list[3]=[true, 'work_after_lunch', '-/', '#fff', '#fff', 52]
+		list[4]=[true, 'comand_engineer', 'к', '#fff', '#fff', 5]
+		list[5]=[true, 'prazdn_engineer', 'выходной', '#fff', '#fff', 6]
+		
+	}
+	
+	if(spec_prod_staff==1){
 		list[7]=[false, 'prostoj', 'Простой ЗСФ', '#AA3147', '#CF596E', 9]
 	}
-	list[8]=[true, 'comandirovka', 'Командировка', '#6FA3D3', '#9fc5e8', 5]
-	list[9]=[true, 'prazdnik', 'Выходной/праздник', '#E33B3F', '#FFF', 6]	
+	
+	if(engineer==0){
+		list[8]=[true, 'comandirovka', 'Командировка', '#6FA3D3', '#9fc5e8', 5]
+		list[9]=[true, 'prazdnik', 'Выходной/праздник', '#E33B3F', '#FFF', 6]	
+	}
 	
 	popup_html="<ul id='popup_menu'>"
 	
@@ -166,11 +182,11 @@ function set_td(status, hours, color){
 		case 6:
 			word=""
 			break
-		case 7:
-			word="д"+addtext
+		case 51:
+			word="/-"+addtext
 			break
-		case 8:
-			word="дя"+addtext
+		case 52:
+			word="-/"+addtext
 			break
 		case 9:
 			word="зф"+addtext
