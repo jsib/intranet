@@ -27,7 +27,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/auth.php");
 $html="";
 $prepared_uri=array();
 $action=$_GET['action'];
-$dir=$_SERVER['DOCUMENT_ROOT']."actions";
+$dir=$_SERVER['DOCUMENT_ROOT']."/actions";
 $dp = opendir($dir);
 while($subdir = readdir($dp)){
 	if($subdir != '.' && $subdir != '..' && is_dir($dir."/".$subdir)){
