@@ -8,7 +8,7 @@
 	table.timetable td.gfirst, .timetable td.gnolast{border-right:1px solid #000;}
 	table.timetable td.gnolast, .timetable td.glast{width:34px;text-align:center;font-size:9pt;}
 	table.timetable tr.vfirst td, table.timetable tr.vnolast td{border-bottom:1px solid #000;}
-	ul#popup_menu{position:absolute;display:block;min-width:50px;border:1px solid #555;cursor: pointer;}
+	ul#popup_menu{position:absolute;display:block;min-width:130px;border:1px solid #555;cursor: pointer;}
 	ul#popup_menu li{list-style-type:none;}
 	li#rabochy{background:#fff;border-bottom:1px solid #555}
 	li#otpusk{background:#ffe599;border-bottom:1px solid #555}
@@ -18,6 +18,7 @@
 	li#prazdnik{background:#FFF;}
 	li#work_before_lunch, li#comand_engineer, li#prazdn_engineer, li#work_after_lunch{background:#fff;border-bottom:1px solid #555}
 	li#prostoj{background:#CF596E;}
+	li.engineer{background:#fff;border-bottom:1px solid #555;}
 	ul.punkt{margin:0;padding:0;}
 	ul.punkt li{display:block;float:left;width:16px;padding:3px 0;border-left:1px solid #555;text-align:center;font-size:9pt;}
 	ul.punkt li.first{width:100px;border-left:0;}
@@ -26,6 +27,7 @@
 	a.subgroup{display:block;float:left;margin-right:30px;padding:5px 10px;-webkit-border-radius:5px;text-decoration:underline;font-size:8pt;color:#222;background:#b6d7a8;text-align:center;}
 	a.subgroup2{padding-right:50px;text-decoration:underline;font-size:8pt;color:#222;}
 	div.subgroup2{padding:0 0 20px 0;}
+	img.krestik{margin-left:3px;}
 </style>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 
@@ -47,12 +49,14 @@ function popup_menu(id){
 	}
 	
 	if(engineer==1){
-		list[1]=[true, 'rabochy', '&nbsp;', '#fff', '#fff', 1]
-		list[2]=[true, 'work_before_lunch', '/-', '#fff ', '#fff', 51]
-		list[3]=[true, 'work_after_lunch', '-/', '#fff', '#fff', 52]
-		list[4]=[true, 'comand_engineer', 'к', '#fff', '#fff', 5]
-		list[5]=[true, 'prazdn_engineer', 'выходной', '#fff', '#fff', 6]
-		
+		list[1]=[true, 'e1', '&nbsp;', '#fff', '#fff', 1, 'engineer']
+		list[2]=[true, 'e2', '/-', '#fff ', '#fff', 51, 'engineer']
+		list[3]=[true, 'e3', '-/', '#fff', '#fff', 52, 'engineer']
+		list[4]=[true, 'e4', '-', '#fff', '#fff', 53, 'engineer']
+		list[5]=[true, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
+		list[6]=[true, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
+		list[7]=[true, 'comandirovka', 'Командировка', '#6FA3D3', '#9fc5e8', 5]
+		list[9]=[true, 'prazdnik', "<img src='/images/krestik2.png' class='krestik'/>", '#FFF', '#FFF', 6, 'engineer']
 	}
 	
 	if(spec_prod_staff==1){
@@ -61,7 +65,8 @@ function popup_menu(id){
 	
 	if(engineer==0){
 		list[8]=[true, 'comandirovka', 'Командировка', '#6FA3D3', '#9fc5e8', 5]
-		list[9]=[true, 'prazdnik', 'Выходной/праздник', '#E33B3F', '#FFF', 6]	
+		//list[9]=[true, 'prazdnik', 'Выходной/праздник', '#E33B3F', '#FFF', 6]
+		list[9]=[true, 'prazdnik', "<img src='/images/krestik2.png' class='krestik'/>", '#FFF', '#FFF', 6, 'engineer']		
 	}
 	
 	popup_html="<ul id='popup_menu'>"
@@ -78,7 +83,7 @@ function popup_menu(id){
 				name=hour
 				tagclass=''
 			}
-			popup_html+="<li id='"+list[order][1]+"-"+hour+"' class='"+tagclass+"' onMouseOver=\"li_over(this.id, '"+list[order][3]+"')\"  onMouseOut=\"li_out(this.id, '"+list[order][4]+"')\" onClick=\"set_td_remote("+list[order][5]+", "+hour+", '"+list[order][4]+"')\">"+name+"</li>"
+			popup_html+="<li id='"+list[order][1]+"-"+hour+"' class='"+tagclass+' '+list[order][6]+"' onMouseOver=\"li_over(this.id, '"+list[order][3]+"')\"  onMouseOut=\"li_out(this.id, '"+list[order][4]+"')\" onClick=\"set_td_remote("+list[order][5]+", "+hour+", '"+list[order][4]+"')\">"+name+"</li>"
 			if(hour==8){
 				hour=0
 				if(list[order][0]==true) break
@@ -187,6 +192,9 @@ function set_td(status, hours, color){
 			break
 		case 52:
 			word="-/"+addtext
+			break
+		case 53:
+			word="-"+addtext
 			break
 		case 9:
 			word="зф"+addtext
