@@ -7,6 +7,9 @@ function show_timetable(){
 	global $user;
 	global $MonthsFull;
 	
+	//Передаем флаг шефа инженеров в cookie
+	setcookie("engineer_chief", $user->data['engineer_chief']);
+	
 	/*Получаем данные от пользователя*/
 	if(isset($_GET['month'])){
 		if(!preg_match("/^[0-9]{1,2}$/", $_GET['month'])){
@@ -330,19 +333,12 @@ function create_timetable(){
 			}else{
 				$chief=false;
 			}
-
-			//Проверяем, имеет ли сотрудник признак инженера (статусы "Дежурство", "Дежурство+явка") или сотрудника производства (статус "Простой за счет фирмы")
-			//Такой признак также может быть у всех подчиненных руководителя, если руководитель в свою очередь имеет признак engineer_chief или spec_prod_staff_chief
-			if($chief['engineer_chief']){
-				$engineer=1;
-			}else{
-				$engineer=0;
-			}
-			if($userWHILE['spec_prod_staff']){
-				$spec_prod_staff=1;
-			}else{
-				$spec_prod_staff=0;
-			}
+			
+			//Флаг инженера
+			$engineer=$userWHILE['engineer'];
+			
+			//Флаг специального сотрудника производства
+			$spec_prod_staff=$userWHILE['spec_prod_staff'];
 			
 			//Проверяем, имеет ли сотрудник при
 		
@@ -419,6 +415,18 @@ function create_timetable(){
 						$status_html='-'.$addtext;
 						$color='#fff';
 						break;						
+					case 54:
+						$status_html='1'.$addtext;
+						$color='#fff';
+						break;						
+					case 55:
+						$status_html='0.5'.$addtext;
+						$color='#fff';
+						break;						
+					case 56:
+						$status_html="<span style='font-size:7pt;'>0.5+<span style='color:red;'>0.5</span></span>".$addtext;
+						$color='#fff';
+						break;						
 					case 9:
 						$status_html='зф'.$addtext;
 						$color='#CF596E';
@@ -433,7 +441,6 @@ function create_timetable(){
 					}else{
 						$backgroundimage="";
 					}
-					
 				}else{
 					$backgroundimage="";
 				}

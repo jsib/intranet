@@ -75,7 +75,7 @@ function edit_contact(){
 		
 		//Checkbox-ы
 		$checkboxes_sql="";
-		foreach(array('chief', 'notimetable', 'timetable_editor', 'engineer_chief', 'spec_prod_staff'
+		foreach(array('chief', 'notimetable', 'timetable_editor', 'engineer', 'engineer_chief', 'spec_prod_staff'
 						) as $nameFOR){
 			if($_POST[$nameFOR]=="on"){
 				$checkboxes_sql.="`$nameFOR`=1, ";
@@ -170,6 +170,9 @@ function show_form_edit_contact($contact=array(), $messages=array(), $photomessa
 	//Переключатель "Есть подчиненные"
 	if($contact['notimetable']==1){$notimetable="checked";}else{$notimetable="";}
 	
+	//Переключатель "Инженер"
+	if($contact['engineer']==1){$engineer="checked";}else{$engineer="";}
+
 	//Переключатель "Руководитель инженеров"
 	if($contact['engineer_chief']==1){$engineer_chief="checked";}else{$engineer_chief="";}
 	
@@ -240,6 +243,7 @@ function show_form_edit_contact($contact=array(), $messages=array(), $photomessa
 															'mychiefs'=>$mychiefs_html,
 															'nocontact'=>$nocontact,
 															'notimetable'=>$notimetable,
+															'engineer'=>$engineer,
 															'engineer_chief'=>$engineer_chief,
 															'spec_prod_staff'=>$spec_prod_staff,
 															'timetable_editor'=>$timetable_editor,

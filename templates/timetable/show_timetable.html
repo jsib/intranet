@@ -32,14 +32,27 @@
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 
 <script>
+function get_cookie ( cookie_name )
+{
+  var results = document.cookie.match ( '(^|;) ?' + cookie_name + '=([^;]*)(;|$)' );
+ 
+  if ( results )
+    return ( unescape ( results[2] ) );
+  else
+    return null;
+}
+
 popup_id=false;
+
 function popup_menu(id){
 	var list=[]
-	//Engineer flag
+	//Engineer flag (for user in table)
 	engineer=id.split('-')[4]
 	
-	//Special production staff flag
+	//Special production staff flag (for user in table)
 	spec_prod_staff=id.split('-')[5]
+	
+	engineer_chief=get_cookie('engineer_chief')
 	
 	if(engineer==0){
 		list[1]=[true, 'rabochy', 'Рабочий', '#fff', '#fff', 1]
@@ -53,10 +66,15 @@ function popup_menu(id){
 		list[2]=[true, 'e2', '/-', '#fff ', '#fff', 51, 'engineer']
 		list[3]=[true, 'e3', '-/', '#fff', '#fff', 52, 'engineer']
 		list[4]=[true, 'e4', '-', '#fff', '#fff', 53, 'engineer']
-		list[5]=[true, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
-		list[6]=[true, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
-		list[7]=[true, 'comandirovka', 'Командировка', '#6FA3D3', '#9fc5e8', 5]
-		list[9]=[true, 'prazdnik', "<img src='/images/krestik2.png' class='krestik'/>", '#FFF', '#FFF', 6, 'engineer']
+		if(engineer_chief==1){
+			list[5]=[true, 'e5', '1', '#fff', '#fff', 54, 'engineer']
+			list[6]=[true, 'e6', '0.5', '#fff', '#fff', 55, 'engineer']
+			list[7]=[true, 'e7', "0.5+<span style='color:red;'>0.5</span>", '#fff', '#fff', 56, 'engineer']
+		}
+		list[50]=[true, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
+		list[60]=[true, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
+		list[70]=[true, 'comandirovka', 'Командировка', '#6FA3D3', '#9fc5e8', 5]
+		list[90]=[true, 'prazdnik', "<img src='/images/krestik2.png' class='krestik'/>", '#FFF', '#FFF', 6, 'engineer']
 	}
 	
 	if(spec_prod_staff==1){
@@ -195,6 +213,15 @@ function set_td(status, hours, color){
 			break
 		case 53:
 			word="-"+addtext
+			break
+		case 54:
+			word="1"+addtext
+			break
+		case 55:
+			word="0.5"+addtext
+			break
+		case 56:
+			word="<span style='font-size:7pt;'>0.5+<span style='color:red;'>0.5</span></span>"+addtext
 			break
 		case 9:
 			word="зф"+addtext
