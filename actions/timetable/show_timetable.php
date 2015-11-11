@@ -284,7 +284,7 @@ function create_timetable(){
 	}
 	
 	/*Строим шапку таблицы*/
-	$html.="<tr class='vfirst'><td rowspan='2' class='gfirst'>Ф.И.</td><td rowspan='2' colspan='2' class='gnolast'>Устроен</td><td colspan='$day_number'>Дата</td></tr>";
+	$html.="<tr class='vfirst'><td rowspan='2' class='gfirst vfirst'>Ф.И.</td><td rowspan='2' colspan='2' class='gnolast vfirst'>Устроен</td><td class='vfirst glast' colspan='$day_number'>Дата</td></tr>";
 	$html.="<tr class='vfirst'>";
 	for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
 		//IF
@@ -315,6 +315,13 @@ function create_timetable(){
 	$engineer=0;
 	$spec_prod_staff=0;
 	
+	//Определяем, является ли редактор шефом инженеров
+	if($Redactor!=-1 && $Redactor!=0){
+		$redactor_engineers_chief=db_short_easy("SELECT `engineer_chief` FROM `phpbb_users` WHERE `user_id`=".$Redactor);
+	}else{
+		$redactor_engineers_chief=0;
+	}
+
 	//IF
 	if(db_count($usersRES)>0){
 		//WHILE
@@ -343,7 +350,11 @@ function create_timetable(){
 			//Проверяем, имеет ли сотрудник при
 		
 			//IF
-			$line==db_count($usersRES) ? $trclass='vlast' : $trclass='vnolast';
+			if($redactor_engineers_chief!=1){
+				$line==db_count($usersRES) ? $trclass='vlast' : $trclass='vnolast';
+			}else{
+				$trclass='vnolast';
+			}
 			
 			//Определяем переменную
 			$line++;
@@ -454,6 +465,21 @@ function create_timetable(){
 			//Определяем переменную
 			$html.="</tr>";
 		}
+		
+		//Добавляем комментарии к столбцам для инженеров
+		if($redactor_engineers_chief==1){
+			$comments_number=3;
+			for($comment_number=1;$comment_number<=$comments_number;$comment_number++){
+				//$comment_number==$comments_number ? $tr_class='vlast' : $tr_class='vnolast';
+				$html.="<tr>";
+				$html.="<td></td><td></td><td class='comment2'></td>";
+				for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
+					$dayFOR==$day_number ? $td_g_class='glast' : $td_g_class='gnolast';
+					$html.="<td class='comment1'> </td>";
+				}
+				$html.="</tr>";
+			}
+		}
 	}
 	/*КОНЕЦ: Строим тело таблицы*/
 	
@@ -514,11 +540,11 @@ function create_report(){
 	}
 	
 	/*Строим шапку таблицы*/
-	$html.="<tr class='vfirst'><td class='gfirst'>Ф.И.</td>
-				<td class='gnolast' style='width:100px;background:#ffe599;'>Отпуска</td>
-				<td class='gnolast' style='width:100px;background:#b6d7a8;'>Больничные</td>
-				<td class='gnolast' style='width:100px;background:#E2B1E2;'>За свой счет</td>
-				<td class='glast' style='width:100px;background:#9fc5e8;'>Командировки</td>
+	$html.="<tr class='vfirst'><td class='gfirst vfirst'>Ф.И.</td>
+				<td class='gnolast vfirst' style='width:100px;background:#ffe599;'>Отпуска</td>
+				<td class='gnolast vfirst' style='width:100px;background:#b6d7a8;'>Больничные</td>
+				<td class='gnolast vfirst' style='width:100px;background:#E2B1E2;'>За свой счет</td>
+				<td class='glast vfirst' style='width:100px;background:#9fc5e8;'>Командировки</td>
 			</tr>";
 	
 	/*НАЧАЛО: Создаем массив ускоряющий работу (чтобы не делать запрос sql на каждое число*/
@@ -633,9 +659,7 @@ function create_report(){
 			//Определяем переменную
 			$html.="</tr>";			
 			
-		}
-		
-		
+		}	
 	}else{
 	}
 	/*КОНЕЦ: Строим тело таблицы*/

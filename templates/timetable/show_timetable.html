@@ -1,13 +1,20 @@
 <style>
-	table.timetable{border:1px solid #000;}
+	table.timetable{border:0px solid #000;}
 	table.timetable td{padding:2px;height:18px;cursor:default;}
 	table.timetable td[unselectable=on] {-moz-user-select: none;-o-user-select:none;-khtml-user-select: none;-webkit-user-select: none;-ms-user-select: none;user-select: none;}
 	table.timetable td.gfirst{padding-left:7px;padding-right:7px;}
 	table.timetable tr.vfirst{background:#d9ebd3;}
 	table.timetable tr.vfirst td{text-align:center;}
+	table.timetable tr.vlast td{border-bottom:1px solid #000;}
 	table.timetable td.gfirst, .timetable td.gnolast{border-right:1px solid #000;}
+	table.timetable td.gfirst{border-left:1px solid #000;}
+	table.timetable td.glast{border-right:1px solid #000;}
 	table.timetable td.gnolast, .timetable td.glast{width:34px;text-align:center;font-size:9pt;}
 	table.timetable tr.vfirst td, table.timetable tr.vnolast td{border-bottom:1px solid #000;}
+	table.timetable td.vfirst{border-top:1px solid #000;}
+	table.timetable td.vnolast{border-bottom:1px solid #000;}
+	table.timetable td.comment1{border-bottom:1px dashed #000;border-right:1px dashed #000;}
+	table.timetable td.comment2{border-right:1px dashed #000;}
 	ul#popup_menu{position:absolute;display:block;min-width:130px;border:1px solid #555;cursor: pointer;}
 	ul#popup_menu li{list-style-type:none;}
 	li#rabochy{background:#fff;border-bottom:1px solid #555}
