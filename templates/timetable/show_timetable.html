@@ -15,8 +15,9 @@
 	table.timetable td.vnolast{border-bottom:1px solid #000;}
 	table.timetable td.comment1{border-bottom:1px dashed #000;border-right:1px dashed #000;}
 	table.timetable td.comment2{border-right:1px dashed #000;}
-	ul#popup_menu{position:absolute;display:block;min-width:130px;border:1px solid #555;cursor: pointer;}
-	ul#popup_menu li{list-style-type:none;}
+	div#popup_menu{position:absolute;display:block;min-width:130px;border:1px solid #555;cursor: pointer;}
+	div#popup_menu li{list-style-type:none;}
+	div#comment{padding:7px;background:#fff;}
 	li#rabochy{background:#fff;border-bottom:1px solid #555}
 	li#otpusk{background:#ffe599;border-bottom:1px solid #555}
 	li#bolnichny{background:#b6d7a8;border-bottom:1px solid #555}
@@ -50,8 +51,20 @@ function get_cookie ( cookie_name )
 }
 
 popup_id=false;
-
 function popup_menu(id){
+	popup_html="<div id='popup_menu'>"
+	if(id.split('-')[0]=='comment'){
+		popup_html+=comment(id)
+	}else{
+		popup_html+=timecell(id)
+	}
+	popup_html+='</div>'
+	popup_id=id
+	mark_td(id)
+	document.getElementById(id).innerHTML+=popup_html;
+}
+function timecell(id){
+	popup_html="<html>"
 	var list=[]
 	//Engineer flag (for user in table)
 	engineer=id.split('-')[4]
@@ -93,9 +106,6 @@ function popup_menu(id){
 		//list[9]=[true, 'prazdnik', 'Выходной/праздник', '#E33B3F', '#FFF', 6]
 		list[9]=[true, 'prazdnik', "<img src='/images/krestik2.png' class='krestik'/>", '#FFF', '#FFF', 6, 'engineer']		
 	}
-	
-	popup_html="<ul id='popup_menu'>"
-	
 	for(order in list){
 		//Рабочий
 		popup_html+="<li id='"+list[order][1]+"'><ul class='punkt'>"
@@ -114,42 +124,55 @@ function popup_menu(id){
 				if(list[order][0]==true) break
 			}
 		}
-		popup_html+="<div class='clear'></div></ul></li>"
+		popup_html+="<div class='clear'></div></ul></li></ul>"
 	}
-
-	if(popup_id){
-		document.getElementById(popup_id).innerHTML=document.getElementById(popup_id).innerHTML.replace(new RegExp('\<ul.*\<\/ul\>'), '');
-	}
-	popup_id=id
-	mark_td(id)
-	document.getElementById(id).innerHTML+=popup_html;
+	
+	return popup_html
 }
+
+function comment(id){
+	popup_html="<div id='comment'>"
+	popup_html+="test"
+	popup_html+="</div>"
+	return popup_html
+}
+
 function mark_td(id){
-	if(document.getElementById(id).className=='glast'){
-		document.getElementById(id).style.borderRight='1px solid';
+	if(id.split('-')[0]=='comment'){
+		line='dashed'
 	}else{
-		document.getElementById(id).style.borderRight='2px solid';
+		line='solid'
+	}
+	if(document.getElementById(id).className=='glast'){
+		document.getElementById(id).style.borderRight='1px '+line;
+	}else{
+		document.getElementById(id).style.borderRight='2px '+line;
 	}
 	if(document.getElementById(id).parentNode.className=='vlast'){
-		document.getElementById(id).style.borderBottom='1px solid';
+		document.getElementById(id).style.borderBottom='1px '+line;
 	}else{
-		document.getElementById(id).style.borderBottom='2px solid';
+		document.getElementById(id).style.borderBottom='2px '+line;
 	}
 	document.getElementById(id).style.width='25px';
 	document.getElementById(id).style.height='16px';
-	document.getElementById(id).style.borderTop='1px solid';
-	document.getElementById(id).style.borderLeft='1px solid';
+	document.getElementById(id).style.borderTop='1px '+line;
+	document.getElementById(id).style.borderLeft='1px '+line;
 }
 function unmark_td(id){
+	if(id.split('-')[0]=='comment'){
+		line='dashed'
+	}else{
+		line='solid'
+	}
 	if(document.getElementById(id).className=='glast'){
 		document.getElementById(id).style.borderRight='0px';	
 	}else{
-		document.getElementById(id).style.borderRight='1px solid';	
+		document.getElementById(id).style.borderRight='1px '+line;	
 	}
 	if(document.getElementById(id).parentNode.className=='vlast'){
 		document.getElementById(id).style.borderBottom='0px';
 	}else{
-		document.getElementById(id).style.borderBottom='1px solid';
+		document.getElementById(id).style.borderBottom='1px '+line;
 	}
 	document.getElementById(id).style.width='27px';
 	document.getElementById(id).style.height='18px';
@@ -158,7 +181,7 @@ function unmark_td(id){
 }
 function close_popup(){
 	if(popup_id){
-		document.getElementById(popup_id).innerHTML=document.getElementById(popup_id).innerHTML.replace(new RegExp('\<ul.*\<\/ul\>'), '');
+		document.getElementById(popup_id).innerHTML=document.getElementById(popup_id).innerHTML.replace(new RegExp('\<div.*\<\/div\>'), '');
 		unmark_td(popup_id)
 	} 
 }
@@ -244,6 +267,7 @@ function set_td(status, hours, color){
 	}
 	document.getElementById(popup_id).innerHTML=word
 }
+
 </script>
 
 <h2>Графики работы</h2>

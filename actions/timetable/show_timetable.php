@@ -468,14 +468,14 @@ function create_timetable(){
 		
 		//Добавляем комментарии к столбцам для инженеров
 		if($redactor_engineers_chief==1){
-			$comments_number=3;
+			$comments_number=1;
 			for($comment_number=1;$comment_number<=$comments_number;$comment_number++){
 				//$comment_number==$comments_number ? $tr_class='vlast' : $tr_class='vnolast';
 				$html.="<tr>";
 				$html.="<td></td><td></td><td class='comment2'></td>";
 				for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
 					$dayFOR==$day_number ? $td_g_class='glast' : $td_g_class='gnolast';
-					$html.="<td class='comment1'> </td>";
+					$html.="<td id='comment-$comment_number-$Year-$Month-$dayFOR' class='comment1' onDblClick=\"popup_menu(this.id)\"> </td>";
 				}
 				$html.="</tr>";
 			}
