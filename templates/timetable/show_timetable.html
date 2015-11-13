@@ -17,7 +17,9 @@
 	table.timetable td.comment2{border-right:1px dashed #000;}
 	div#popup_menu{position:absolute;display:block;min-width:130px;border:1px solid #555;cursor: pointer;}
 	div#popup_menu li{list-style-type:none;}
-	div#comment{padding:7px;background:#fff;}
+	div#comment{padding:5px 10px 15px 10px;background:#fff;}
+	div#comment input{width:200px;border:0;}
+	input#savebutton{margin-top:5px;}
 	li#rabochy{background:#fff;border-bottom:1px solid #555}
 	li#otpusk{background:#ffe599;border-bottom:1px solid #555}
 	li#bolnichny{background:#b6d7a8;border-bottom:1px solid #555}
@@ -52,6 +54,7 @@ function get_cookie ( cookie_name )
 
 popup_id=false;
 function popup_menu(id){
+	close_popup()
 	popup_html="<div id='popup_menu'>"
 	if(id.split('-')[0]=='comment'){
 		popup_html+=comment(id)
@@ -62,6 +65,19 @@ function popup_menu(id){
 	popup_id=id
 	mark_td(id)
 	document.getElementById(id).innerHTML+=popup_html;
+	function remove_html_handler(){
+		document.getElementById('htmltag').removeEventListener("click", close_popup)
+	}
+	function add_html_handler(){
+		document.getElementById('htmltag').addEventListener("click", close_popup)
+	}
+	function helo(){
+		return false;
+	}
+	document.getElementById('htmltag').addEventListener("click", close_popup)
+	document.getElementById('savebutton').addEventListener("click", add_html_handler)
+	document.getElementById('popup_menu').addEventListener("mouseover", remove_html_handler)
+	document.getElementById('popup_menu').addEventListener("mouseout", add_html_handler)
 }
 function timecell(id){
 	popup_html="<html>"
@@ -132,7 +148,11 @@ function timecell(id){
 
 function comment(id){
 	popup_html="<div id='comment'>"
-	popup_html+="test"
+	popup_html+="Комментарий<br/>"
+	popup_html+="1. <input id='comment1' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
+	popup_html+="2. <input id='comment2' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
+	popup_html+="3. <input id='comment3' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
+	popup_html+="<input id='savebutton' type='button' value='Закрыть'>"
 	popup_html+="</div>"
 	return popup_html
 }
@@ -183,6 +203,7 @@ function close_popup(){
 	if(popup_id){
 		document.getElementById(popup_id).innerHTML=document.getElementById(popup_id).innerHTML.replace(new RegExp('\<div.*\<\/div\>'), '');
 		unmark_td(popup_id)
+		popup_id=0
 	} 
 }
 function li_over(id, color){

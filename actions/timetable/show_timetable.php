@@ -475,7 +475,7 @@ function create_timetable(){
 				$html.="<td></td><td></td><td class='comment2'></td>";
 				for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
 					$dayFOR==$day_number ? $td_g_class='glast' : $td_g_class='gnolast';
-					$html.="<td id='comment-$comment_number-$Year-$Month-$dayFOR' class='comment1' onDblClick=\"popup_menu(this.id)\"> </td>";
+					$html.="<td id='comment-$comment_number-$Year-$Month-$dayFOR' class='comment1' onDblClick=\"if(popup_id!=this.id) {popup_menu(this.id);}\"> </td>";
 				}
 				$html.="</tr>";
 			}
