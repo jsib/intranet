@@ -63,6 +63,7 @@ function popup_menu(id){
 	}
 	popup_html+='</div>'
 	popup_id=id
+	popup_id_clone=id
 	mark_td(id)
 	document.getElementById(id).innerHTML+=popup_html;
 	function remove_html_handler(){
@@ -203,7 +204,7 @@ function close_popup(){
 	if(popup_id){
 		document.getElementById(popup_id).innerHTML=document.getElementById(popup_id).innerHTML.replace(new RegExp('\<div.*\<\/div\>'), '');
 		unmark_td(popup_id)
-		popup_id=0
+		popup_id_check=0
 	} 
 }
 function li_over(id, color){
