@@ -53,6 +53,7 @@ function get_cookie ( cookie_name )
 }
 
 popup_id=false;
+popup_id_check=false;
 function popup_menu(id){
 	close_popup()
 	popup_html="<div id='popup_menu'>"
@@ -63,7 +64,7 @@ function popup_menu(id){
 	}
 	popup_html+='</div>'
 	popup_id=id
-	popup_id_clone=id
+	popup_id_check=id
 	mark_td(id)
 	document.getElementById(id).innerHTML+=popup_html;
 	function remove_html_handler(){
@@ -76,9 +77,11 @@ function popup_menu(id){
 		return false;
 	}
 	document.getElementById('htmltag').addEventListener("click", close_popup)
+	document.getElementById('savebutton').addEventListener("click", save_comment)
 	document.getElementById('savebutton').addEventListener("click", add_html_handler)
 	document.getElementById('popup_menu').addEventListener("mouseover", remove_html_handler)
 	document.getElementById('popup_menu').addEventListener("mouseout", add_html_handler)
+	
 }
 function timecell(id){
 	popup_html="<html>"
@@ -150,10 +153,10 @@ function timecell(id){
 function comment(id){
 	popup_html="<div id='comment'>"
 	popup_html+="Комментарий<br/>"
-	popup_html+="1. <input id='comment1' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
-	popup_html+="2. <input id='comment2' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
-	popup_html+="3. <input id='comment3' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
-	popup_html+="<input id='savebutton' type='button' value='Закрыть'>"
+	popup_html+="1. <input id='"+id+"-1' name='comment1' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
+	popup_html+="2. <input id='"+id+"-2' name='comment2' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
+	popup_html+="3. <input id='"+id+"-3' name='comment3' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
+	popup_html+="<input id='savebutton' type='button' value='Сохранить и закрыть'>"
 	popup_html+="</div>"
 	return popup_html
 }
@@ -288,6 +291,30 @@ function set_td(status, hours, color){
 		document.getElementById(popup_id).style.background=color
 	}
 	document.getElementById(popup_id).innerHTML=word
+}
+function save_comment(){
+	$.ajax({
+		type: "POST",
+		data: 	"id="+popup_id+
+				"&comment1="+encodeURIComponent(document.getElementById(popup_id+'-1').value)+
+				"&comment2="+encodeURIComponent(document.getElementById(popup_id+'-2').value)+
+				"&comment3="+encodeURIComponent(document.getElementById(popup_id+'-3').value),
+		dataType: "html",
+		url: "/ajax.php?action=save_comment",
+		dataType: "text",
+		success: function(result){
+			if(result==1){
+				alert("Запрос выполнен успешно")
+			}else{
+				alert('Возникла ошибка при сохранении комментария, result='+result)
+			}
+		},
+		
+		error: function(result, ajax_stat, ajax_error){
+			alert('Возникла ошибка при сохранении комментария (ajax error).')
+		}
+		
+	});	
 }
 
 </script>

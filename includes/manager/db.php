@@ -136,4 +136,8 @@ function sql_dirty($str){
 		return false;
 	}
 }
+//Алиас для mysql_real_escape_string
+function db_escape($val){
+	return mysql_real_escape_string($val);
+}
 ?>
