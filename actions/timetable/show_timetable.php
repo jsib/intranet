@@ -474,8 +474,14 @@ function create_timetable(){
 				$html.="<tr>";
 				$html.="<td></td><td></td><td class='comment2'></td>";
 				for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
+					$commentFOR=db_easy("SELECT * FROM `phpbb_timetable_comments` WHERE `year`=$Year AND `month`=$Month AND `day`=$dayFOR");
+					if($commentFOR['comment1']!='' || $commentFOR['comment2']!='' || $commentFOR['comment3']!=''){
+						$markFOR="+";
+					}else{
+						$markFOR="";
+					}
 					$dayFOR==$day_number ? $td_g_class='glast' : $td_g_class='gnolast';
-					$html.="<td id='comment-$comment_number-$Year-$Month-$dayFOR' class='comment1' onDblClick=\"if(popup_id_check!=this.id) {popup_menu(this.id);}\"> </td>";
+					$html.="<td id='comment-$comment_number-$Year-$Month-$dayFOR' class='comment1' onDblClick=\"if(popup_id_check!=this.id) {popup_comment(this.id);}\" align='center'>$markFOR</td>";
 				}
 				$html.="</tr>";
 			}

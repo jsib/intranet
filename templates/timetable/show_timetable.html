@@ -38,6 +38,8 @@
 	a.subgroup2{padding-right:50px;text-decoration:underline;font-size:8pt;color:#222;}
 	div.subgroup2{padding:0 0 20px 0;}
 	img.krestik{margin-left:3px;}
+	div#preloader{position:absolute;display:none;width:100%;height:100%;background:url('/images/preloader.gif') center center no-repeat;}
+	
 </style>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 
@@ -55,7 +57,9 @@ function get_cookie ( cookie_name )
 popup_id=false;
 popup_id_check=false;
 function popup_menu(id){
-	close_popup()
+	if(popup_id_check!=0){
+		close_popup()
+	}
 	popup_html="<div id='popup_menu'>"
 	if(id.split('-')[0]=='comment'){
 		popup_html+=comment(id)
@@ -77,12 +81,39 @@ function popup_menu(id){
 		return false;
 	}
 	document.getElementById('htmltag').addEventListener("click", close_popup)
-	document.getElementById('savebutton').addEventListener("click", save_comment)
-	document.getElementById('savebutton').addEventListener("click", add_html_handler)
+	if(document.getElementById('savebutton')!=null){
+		document.getElementById('savebutton').addEventListener("click", save_comment)
+		document.getElementById('savebutton').addEventListener("click", add_html_handler)
+	}
 	document.getElementById('popup_menu').addEventListener("mouseover", remove_html_handler)
 	document.getElementById('popup_menu').addEventListener("mouseout", add_html_handler)
 	
 }
+function popup_body(id, html){
+	close_popup()
+	popup_html="<div id='popup_menu'>"
+	popup_html+=html
+	popup_html+='</div>'
+	popup_id=id
+	popup_id_check=id
+	mark_td(id)
+	document.getElementById(id).innerHTML+=popup_html
+	function remove_html_handler(){
+		document.getElementById('htmltag').removeEventListener("click", close_popup)
+	}
+	function add_html_handler(){
+		document.getElementById('htmltag').addEventListener("click", close_popup)
+	}
+	document.getElementById('htmltag').addEventListener("click", close_popup)
+	if(document.getElementById('savebutton')!=null){
+		document.getElementById('savebutton').addEventListener("click", save_comment)
+		document.getElementById('savebutton').addEventListener("click", add_html_handler)
+	}
+	document.getElementById('popup_menu').addEventListener("mouseover", remove_html_handler)
+	document.getElementById('popup_menu').addEventListener("mouseout", add_html_handler)
+	
+}
+
 function timecell(id){
 	popup_html="<html>"
 	var list=[]
@@ -149,16 +180,44 @@ function timecell(id){
 	
 	return popup_html
 }
+function popup_comment(id){
+	$.ajax({
+		type: "POST",
+		data: 	"id="+id,
+		dataType: "html",
+		url: "/ajax.php?action=get_comment",
+		dataType: "text",
+		success: function(result){
+			if(result=='1'){
+				//В БД нет данных о комментарии за указанный день
+				comments=['', '', '']
+			}else{
+				comments=[result.split('\n')[0], result.split('\n')[1], result.split('\n')[2]]
+			}
+			popup_html="<div id='comment'>"
+			popup_html+="Комментарий<br/>"
+			popup_html+="1. <input id='"+id+"-1' name='comment1' type='text' value='"+comments[0]+"' nmouseover=\"this.focus()\" nmouseout=\"this.blur()\"><br/>"
+			popup_html+="2. <input id='"+id+"-2' name='comment2' type='text' value='"+comments[1]+"' nmouseover=\"this.focus()\" nmouseout=\"this.blur()\"><br/>"
+			popup_html+="3. <input id='"+id+"-3' name='comment3' type='text' value='"+comments[2]+"' nmouseover=\"this.focus()\" nmouseout=\"this.blur()\"><br/>"
+			popup_html+="<input id='savebutton' type='button' value='Сохранить и закрыть'>"
+			popup_html+="</div>"
+			popup_body(id, popup_html)
+		},
+		
+		error: function(result, ajax_stat, ajax_error){
+			alert('Возникла ошибка при сохранении комментария (ajax error).')
+		},
+		beforeSend: function(){
+			document.getElementById("preloader").style.display='block';
+		},
+		complete: function(){
+			document.getElementById("preloader").style.display='none';
+		}
+	});	
+}
 
-function comment(id){
-	popup_html="<div id='comment'>"
-	popup_html+="Комментарий<br/>"
-	popup_html+="1. <input id='"+id+"-1' name='comment1' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
-	popup_html+="2. <input id='"+id+"-2' name='comment2' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
-	popup_html+="3. <input id='"+id+"-3' name='comment3' type='text' value='' onmouseover=\"this.focus()\" onmouseout=\"this.blur()\"><br/>"
-	popup_html+="<input id='savebutton' type='button' value='Сохранить и закрыть'>"
-	popup_html+="</div>"
-	return popup_html
+function testfunc(){
+	alert("i'm callback!")
 }
 
 function mark_td(id){
@@ -205,6 +264,20 @@ function unmark_td(id){
 }
 function close_popup(){
 	if(popup_id){
+		if(popup_id.split('-')[0]=="comment"){
+			if(document.getElementById(popup_id+"-1")!=null){
+				comment1=document.getElementById(popup_id+"-1").value.trim()
+				comment2=document.getElementById(popup_id+"-2").value.trim()
+				comment3=document.getElementById(popup_id+"-3").value.trim()
+				//Пишем плюсик в ячейку комментария
+				if(comment1!='' || comment2!='' || comment3!=''){
+					document.getElementById(popup_id).innerHTML="+"
+				}else{
+					document.getElementById(popup_id).innerHTML=""
+				}
+			}
+
+		}
 		document.getElementById(popup_id).innerHTML=document.getElementById(popup_id).innerHTML.replace(new RegExp('\<div.*\<\/div\>'), '');
 		unmark_td(popup_id)
 		popup_id_check=0
@@ -296,15 +369,15 @@ function save_comment(){
 	$.ajax({
 		type: "POST",
 		data: 	"id="+popup_id+
-				"&comment1="+encodeURIComponent(document.getElementById(popup_id+'-1').value)+
-				"&comment2="+encodeURIComponent(document.getElementById(popup_id+'-2').value)+
-				"&comment3="+encodeURIComponent(document.getElementById(popup_id+'-3').value),
+				"&comment1="+encodeURIComponent(document.getElementById(popup_id+'-1').value.trim())+
+				"&comment2="+encodeURIComponent(document.getElementById(popup_id+'-2').value.trim())+
+				"&comment3="+encodeURIComponent(document.getElementById(popup_id+'-3').value.trim()),
 		dataType: "html",
 		url: "/ajax.php?action=save_comment",
 		dataType: "text",
 		success: function(result){
 			if(result==1){
-				alert("Запрос выполнен успешно")
+				//alert("Запрос выполнен успешно")
 			}else{
 				alert('Возникла ошибка при сохранении комментария, result='+result)
 			}
@@ -312,13 +385,20 @@ function save_comment(){
 		
 		error: function(result, ajax_stat, ajax_error){
 			alert('Возникла ошибка при сохранении комментария (ajax error).')
+		},
+		beforeSend: function(){
+			//alert("Начинаем отправку")
+			document.getElementById("preloader").style.display='block';
+		},
+		complete: function(){
+			//alert("Данные получены")
+			document.getElementById("preloader").style.display='none';
 		}
-		
 	});	
 }
 
 </script>
-
+<div id='preloader'></div>
 <h2>Графики работы</h2>
 <div style="padding:10px 0px 20px 0;">
 	<form id="chooseForm" method='get' action='/manager.php' onchange="document.getElementById('chooseForm').submit();">
@@ -342,6 +422,7 @@ function save_comment(){
 	<a href='/manager.php?action=show_timetable&regime=report&year={year}&month={month}&redactor={redactor}' class='subgroup' style='{subgroup_link_2}'>Отчет</a>
 	<div class='clear'></div>
 </div>
+
 {subgroup2}
 <table cellspacing=0 cellpadding=0 border=0 class='timetable'>
 	{table}
