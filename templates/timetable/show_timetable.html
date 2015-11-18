@@ -38,7 +38,7 @@
 	a.subgroup2{padding-right:50px;text-decoration:underline;font-size:8pt;color:#222;}
 	div.subgroup2{padding:0 0 20px 0;}
 	img.krestik{margin-left:3px;}
-	div#preloader{position:absolute;display:none;width:100%;height:100%;background:url('/images/preloader.gif') center center no-repeat;}
+	div#preloader{position:absolute;display:none;width:100%;height:100%;background:url('/images/preloader.gif') center 80px no-repeat;}
 	
 </style>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -98,6 +98,9 @@ function popup_body(id, html){
 	popup_id_check=id
 	mark_td(id)
 	document.getElementById(id).innerHTML+=popup_html
+	if(id.split('-')[0]=='comment'){
+		document.getElementById('popup_menu').style.cursor="default"
+	}
 	function remove_html_handler(){
 		document.getElementById('htmltag').removeEventListener("click", close_popup)
 	}
@@ -196,9 +199,9 @@ function popup_comment(id){
 			}
 			popup_html="<div id='comment'>"
 			popup_html+="Комментарий<br/>"
-			popup_html+="1. <input id='"+id+"-1' name='comment1' type='text' value='"+comments[0]+"' nmouseover=\"this.focus()\" nmouseout=\"this.blur()\"><br/>"
-			popup_html+="2. <input id='"+id+"-2' name='comment2' type='text' value='"+comments[1]+"' nmouseover=\"this.focus()\" nmouseout=\"this.blur()\"><br/>"
-			popup_html+="3. <input id='"+id+"-3' name='comment3' type='text' value='"+comments[2]+"' nmouseover=\"this.focus()\" nmouseout=\"this.blur()\"><br/>"
+			popup_html+="1. <input id='"+id+"-1' name='comment1' type='text' value='"+comments[0]+"'><br/>"
+			popup_html+="2. <input id='"+id+"-2' name='comment2' type='text' value='"+comments[1]+"'><br/>"
+			popup_html+="3. <input id='"+id+"-3' name='comment3' type='text' value='"+comments[2]+"'><br/>"
 			popup_html+="<input id='savebutton' type='button' value='Сохранить и закрыть'>"
 			popup_html+="</div>"
 			popup_body(id, popup_html)
@@ -271,9 +274,12 @@ function close_popup(){
 				comment3=document.getElementById(popup_id+"-3").value.trim()
 				//Пишем плюсик в ячейку комментария
 				if(comment1!='' || comment2!='' || comment3!=''){
-					document.getElementById(popup_id).innerHTML="+"
+					document.getElementById(popup_id).style.background="url('/images/cross.png')"
+					document.getElementById(popup_id).style.backgroundRepeat="no-repeat"
+					document.getElementById(popup_id).style.backgroundPositionX="center"
+					document.getElementById(popup_id).style.backgroundPositionY="center"
 				}else{
-					document.getElementById(popup_id).innerHTML=""
+					document.getElementById(popup_id).style.background=""
 				}
 			}
 
