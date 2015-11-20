@@ -160,20 +160,28 @@ function show_timetable(){
 		}
 		/*КОНЕЦ: Отображение subgroup2*/
 		
-		//НАЧАЛО: Проверка, даны ли вошедшему пользователю права на управления графиками кого-либо из редакторов
-		$same_rightsSQL="SELECT `editor_id` FROM `phpbb_timetable_editors_rights` WHERE `user_id`={$user->data['user_id']}";
-		if(db_easy_count($same_rightsSQL)>0){
-			$editor_id=db_short_easy($same_rightsSQL);
-			if(db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$editor_id}")==1){
-				$timetable_editor_same_rights=1;
-			}else{
-				$timetable_editor_same_rights=0;
-			}
+		//Проверка, даны ли вошедшему пользователю права на управления графиками кого-либо из редакторов{
+			//Случай 1. Пользователь перечислен в таблице БД `phpbb_timetable_editors_rights`{
+				$same_rightsSQL="SELECT `editor_id` FROM `phpbb_timetable_editors_rights` WHERE `user_id`={$user->data['user_id']}";
+				if(db_easy_count($same_rightsSQL)>0){
+					$editor_id=db_short_easy($same_rightsSQL);
+					if(db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$editor_id}")==1){
+						$timetable_editor_same_rights=1;
+					}else{
+						$timetable_editor_same_rights=0;
+					}
+					
+				}else{
+					$timetable_editor_same_rights=0;
+				}
+			//}
+			//Случай 2. Пользователь является подчиненным шефа инженеров{
+				if(is_engineer_chief_employee()){
+					$timetable_editor_same_rights=1;
+				}
+			//}
 			
-		}else{
-			$timetable_editor_same_rights=0;
-		}
-		//КОНЕЦ: Проверка, даны ли вошедшему пользователю права на управления графиками кого-либо из редакторов
+		//}
 		
 		/*НАЧАЛО: Отображение ссылки на раздел "Таблица"*/
 		if(check_rights('timetable_menu_tablica') || db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$user->data['user_id']}")==1 || $timetable_editor_same_rights){
@@ -265,6 +273,8 @@ function create_timetable(){
 	}else{
 		if(db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$user->data['user_id']}")==1){
 			$same_editor_id=$user->data['user_id'];
+		}elseif(is_engineer_chief_employee()){
+			$same_editor_id=$user->data['mychief_id'];
 		}else{
 			$same_editorSQL="SELECT `editor_id` FROM `phpbb_timetable_editors_rights` WHERE `user_id`={$user->data['user_id']}";
 			if(db_easy_count($same_editorSQL)>0){
@@ -437,7 +447,10 @@ function create_timetable(){
 					case 56:
 						$status_html="<span style='font-size:7pt;'>0.5+<span style='color:red;'>0.5</span></span>".$addtext;
 						$color='#fff';
-						break;						
+						break;
+					case 57:
+						$status_html="<span style='color:red;'>1</span>".$addtext;
+						break;
 					case 9:
 						$status_html='зф'.$addtext;
 						$color='#CF596E';
@@ -467,7 +480,7 @@ function create_timetable(){
 		}
 		
 		//Добавляем комментарии к столбцам для инженеров
-		if($redactor_engineers_chief==1){
+		if($redactor_engineers_chief==1 || is_engineer_chief_employee()){
 			$comments_number=1;
 			for($comment_number=1;$comment_number<=$comments_number;$comment_number++){
 				//$comment_number==$comments_number ? $tr_class='vlast' : $tr_class='vnolast';
@@ -672,28 +685,5 @@ function create_report(){
 	
 	//Возвращаем значение функции
 	return $html;
-}
-
-/*Возвращает количество дней/часов в формате строки*/
-function get_time_str($hours){
-	//Приводим тип
-	$hours=(int)$hours;
-	
-	//Определяем переменную
-	$str="";
-	
-	//Определяем переменную
-	$str.=round(($hours-($hours%8))/8, 0).'';
-	
-	//IF
-	if($hours%8!=0){
-		$str.="д ";
-		$str.=($hours%8).'ч';
-	}else{
-		$str.=" ";
-	}
-	
-	//Возвращаем значение функции
-	return $str;
 }
 ?>

@@ -38,7 +38,7 @@
 	a.subgroup2{padding-right:50px;text-decoration:underline;font-size:8pt;color:#222;}
 	div.subgroup2{padding:0 0 20px 0;}
 	img.krestik{margin-left:3px;}
-	div#preloader{position:absolute;display:none;width:100%;height:100%;background:url('/images/preloader.gif') center 80px no-repeat;}
+	div#preloader{position:absolute;z-index:1000;display:none;width:100%;height:100%;background:url('/images/preloader.gif') center 80px no-repeat;}
 	
 </style>
 <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -143,7 +143,8 @@ function timecell(id){
 		if(engineer_chief==1){
 			list[5]=[true, 'e5', '1', '#fff', '#fff', 54, 'engineer']
 			list[6]=[true, 'e6', '0.5', '#fff', '#fff', 55, 'engineer']
-			list[7]=[true, 'e7', "0.5+<span style='color:red;'>0.5</span>", '#fff', '#fff', 56, 'engineer']
+			list[7]=[true, 'e7', "<span style='color:red;'>1</span>", '#fff', '#fff', 57, 'engineer']
+			list[8]=[true, 'e8', "0.5+<span style='color:red;'>0.5</span>", '#fff', '#fff', 56, 'engineer']
 		}
 		list[50]=[true, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
 		list[60]=[true, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
@@ -314,6 +315,14 @@ function set_td_remote(status, hours, color){
 		
 		error: function(result, ajax_stat, ajax_error){
 			alert('Возникла ошибка при обновлении данных в графике работы (ajax error).')
+		},
+		beforeSend: function(){
+			//alert("Начинаем отправку")
+			document.getElementById("preloader").style.display='block';
+		},
+		complete: function(){
+			//alert("Данные получены")
+			document.getElementById("preloader").style.display='none';
 		}
 		
 	});
@@ -356,6 +365,9 @@ function set_td(status, hours, color){
 			break
 		case 56:
 			word="<span style='font-size:7pt;'>0.5+<span style='color:red;'>0.5</span></span>"+addtext
+			break
+		case 57:
+			word="<span style='color:red;'>1</span>"+addtext
 			break
 		case 9:
 			word="зф"+addtext

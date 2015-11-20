@@ -73,4 +73,43 @@ function pickup_all($dir){
 		}
 	}
 }
+//Проверяет, является ли пользователь подчиненным шефа инженеров
+function is_engineer_chief_employee(){
+	//Подтягиваем глобальные переменные
+	global $user;
+	
+	$q=db_query("SELECT * FROM `phpbb_users` WHERE `user_id`=".$user->data['mychief_id']);
+	if(db_count($q)>0){
+		$mychief=db_fetch($q);
+		if($mychief['engineer_chief']==1){
+			return true;
+		}else{
+			return false;
+		}
+	}else{
+		return false;
+	}
+}
+/*Возвращает количество дней/часов в формате строки*/
+function get_time_str($hours){
+	//Приводим тип
+	$hours=(int)$hours;
+	
+	//Определяем переменную
+	$str="";
+	
+	//Определяем переменную
+	$str.=round(($hours-($hours%8))/8, 0).'';
+	
+	//IF
+	if($hours%8!=0){
+		$str.="д ";
+		$str.=($hours%8).'ч';
+	}else{
+		$str.=" ";
+	}
+	
+	//Возвращаем значение функции
+	return $str;
+}
 ?>

@@ -26,6 +26,11 @@ function main_menu(){
 	}else{
 		$timetable_editor_same_rights=0;
 	}
+	
+	if(is_engineer_chief_employee()){
+		$timetable_editor_same_rights=1;
+	}
+	
 	//КОНЕЦ: Проверка, даны ли вошедшему пользователю права на управления графиками кого-либо из редакторов
 	
 	//IF
