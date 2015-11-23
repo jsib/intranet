@@ -451,6 +451,9 @@ function create_timetable(){
 					case 57:
 						$status_html="<span style='color:red;'>1</span>".$addtext;
 						break;
+					case 58:
+						$status_html="<span style='color:red;'>0.5</span>".$addtext;
+						break;
 					case 9:
 						$status_html='зф'.$addtext;
 						$color='#CF596E';

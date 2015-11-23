@@ -144,7 +144,8 @@ function timecell(id){
 			list[5]=[true, 'e5', '1', '#fff', '#fff', 54, 'engineer']
 			list[6]=[true, 'e6', '0.5', '#fff', '#fff', 55, 'engineer']
 			list[7]=[true, 'e7', "<span style='color:red;'>1</span>", '#fff', '#fff', 57, 'engineer']
-			list[8]=[true, 'e8', "0.5+<span style='color:red;'>0.5</span>", '#fff', '#fff', 56, 'engineer']
+			list[8]=[true, 'e7', "<span style='color:red;'>0.5</span>", '#fff', '#fff', 58, 'engineer']
+			list[9]=[true, 'e8', "0.5+<span style='color:red;'>0.5</span>", '#fff', '#fff', 56, 'engineer']
 		}
 		list[50]=[true, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
 		list[60]=[true, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
@@ -368,6 +369,9 @@ function set_td(status, hours, color){
 			break
 		case 57:
 			word="<span style='color:red;'>1</span>"+addtext
+			break
+		case 58:
+			word="<span style='color:red;'>0.5</span>"+addtext
 			break
 		case 9:
 			word="зф"+addtext
