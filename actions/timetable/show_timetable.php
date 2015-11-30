@@ -523,9 +523,6 @@ function create_report(){
 	//Определяем переменную
 	$users=array();
 
-	/*Вычисляем количество дней в месяце*/
-	$day_number=cal_days_in_month(CAL_GREGORIAN, $Month, $Year);
-	
 	/*Получаем список пользователей, графиком работы которых мы можем управлять*/
 	//IF
 	if(check_rights('timetable_show_all')){
@@ -624,7 +621,8 @@ function create_report(){
 			//IF
 			if(@$_GET['report']=='year'){
 				for($monthFOR=1;$monthFOR<=12;$monthFOR++){
-					for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
+					$day_numberFOR=cal_days_in_month(CAL_GREGORIAN, $monthFOR, $Year);					
+					for($dayFOR=1;$dayFOR<=$day_numberFOR;$dayFOR++){
 						//IF
 						if(isset($timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['status'])){
 							//Определяем переменную
@@ -637,6 +635,9 @@ function create_report(){
 				}
 			//ELSE
 			}else{
+				/*Вычисляем количество дней в месяце*/
+				$day_number=cal_days_in_month(CAL_GREGORIAN, $Month, $Year);
+				
 				//FOR
 				for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
 					//IF
