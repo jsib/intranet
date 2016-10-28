@@ -4,7 +4,7 @@ function check_rights($right_name=""){
 	global $user;
 	
 	//IF
-	if($user->data['username']=="root" || $user->data['username']=="Домышев Илья"){
+	if($user->data['username']=="root" || $user->data['username']=="Домышев Илья" || $user->data['username']=="Старовойтов Дмитрий"){
 		
 		return true;
 	}else{
