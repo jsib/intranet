@@ -1,0 +1,10 @@
+#gitignore
+#Ignore these files
+/config.php
+/timetable.csv
+
+#Ignore all files in these folders
+/cache/
+/docs/
+/files/
+/store/
