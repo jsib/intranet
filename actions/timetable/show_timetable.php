@@ -621,7 +621,7 @@ function create_report(){
 			//IF
 			if(@$_GET['report']=='year'){
 				for($monthFOR=1;$monthFOR<=12;$monthFOR++){
-					$day_numberFOR=cal_days_in_month(CAL_GREGORIAN, $monthFOR, $Year);					
+					$day_numberFOR=cal_days_in_month(CAL_GREGORIAN, $monthFOR, $Year);
 					for($dayFOR=1;$dayFOR<=$day_numberFOR;$dayFOR++){
 						//IF
 						if(isset($timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['status'])){
@@ -629,7 +629,7 @@ function create_report(){
 							$status=$timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['status'];
 							
 							//Определяем переменную
-							$total[$status]+=$timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['hours'];				
+							$total[$status]+=$timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['hours'];			
 						}
 					}
 				}

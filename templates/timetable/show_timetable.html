@@ -310,7 +310,8 @@ function set_td_remote(status, hours, color){
 			if(result==1){
 				set_td(status, hours, color)
 			}else{
-				alert('Возникла ошибка при обновлении данных в графике работы (db error).')
+				//alert('Возникла ошибка при обновлении данных в графике работы (db error).')
+				alert(result);
 			}
 		},
 		

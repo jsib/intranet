@@ -1,56 +1,75 @@
 <?php
 function set_td_remote(){
-	/*Получаем данные от пользователя*/
+	/*РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РѕС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ*/
 	if(isset($_GET['td'])){
 		if(!preg_match("/^[0-9]{1,8}\-[0-9]{4}\-[0-9]{1,2}\-[0-9]{1,2}\-[01]{1}-[01]{1}$/", $_GET['td'])){
-			return "Ошибка в формате входных данных (td).";
+			return "РћС€РёР±РєР° РІ С„РѕСЂРјР°С‚Рµ РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С… (td).";
 		}else{
 			$td=$_GET['td'];
 		}
 	}else{
-		return "Не определены входные данные (td)";
+		return "РќРµ РѕРїСЂРµРґРµР»РµРЅС‹ РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ (td)";
 	}
 	
-	/*Получаем данные от пользователя*/
+	/*РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РѕС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ*/
 	if(isset($_GET['status'])){
 		if(!preg_match("/^[0-9]{1,3}$/", $_GET['status'])){
-			return "Ошибка в формате входных данных (status).";
+			return "РћС€РёР±РєР° РІ С„РѕСЂРјР°С‚Рµ РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С… (status).";
 		}else{
 			$status=(int)$_GET['status'];
 		}
 	}else{
-		return "Не определены входные данные (status)";
+		return "РќРµ РѕРїСЂРµРґРµР»РµРЅС‹ РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ (status)";
 	}
 	
-	/*Получаем данные от пользователя*/
+	/*РџРѕР»СѓС‡Р°РµРј РґР°РЅРЅС‹Рµ РѕС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ*/
 	$hours=(int)$_GET['hours'];
 	
-	/*Обрабатываем полученные данные*/
+	/*РћР±СЂР°Р±Р°С‚С‹РІР°РµРј РїРѕР»СѓС‡РµРЅРЅС‹Рµ РґР°РЅРЅС‹Рµ*/
 	$temp=explode('-', $td);
 	$user_id=(int)$temp[0];
 	$year=(int)$temp[1];
 	$month=(int)$temp[2];
 	$day=(int)$temp[3];
 
-	/*Проверяем входной user_id*/
+	/*РџСЂРѕРІРµСЂСЏРµРј РІС…РѕРґРЅРѕР№ user_id*/
 	if(db_easy_count("SELECT * FROM `phpbb_users` WHERE `user_id`=$user_id")==0){
-		return "Ошибка входных данных (user_id).";
+		return "РћС€РёР±РєР° РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С… (user_id).";
+	}
+
+	/*Р—Р°РїСЂРµС‰Р°РµРј СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РїСЂРµРґС‹РґСѓС‰РёРµ РјРµСЃСЏС†С‹*/ 
+	if($month!=date('n')){
+		return "РћС€РёР±РєР°! Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ РїСЂРµРґС‹РґСѓС‰РёС… РјРµСЃСЏС†РµРІ Р·Р°РїСЂРµС‰РµРЅРѕ.";
 	}
 	
-	//Запрос к базе
+	
+	/*РџСЂРѕРІРµСЂСЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… РґРЅРµР№ РѕС‚РїСѓСЃРєР° РІ СЌС‚РѕРј РіРѕРґСѓ РґР»СЏ СЌС‚РѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ*/
+	$otpusk_kolvo=db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`=$status");
+	if($otpusk_kolvo>=20){
+		return "РћС€РёР±РєР°! РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РґРЅРµР№ РѕС‚РїСѓСЃРєР° (20) СѓР¶Рµ РґРѕСЃС‚РёРіРЅСѓС‚Рѕ.";
+	}
+
+	/*РџСЂРѕРІРµСЂСЏРµРј РєРѕР»РёС‡РµСЃС‚РІРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹С… РґРЅРµР№ Р±РѕР»СЊРЅРёС‡РЅРѕРіРѕ РІ СЌС‚РѕРј РіРѕРґСѓ РґР»СЏ СЌС‚РѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ*/
+	$bolnichniy_kolvo=db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`=$status");
+	if($bolnichniy_kolvo>=5){
+		return "РћС€РёР±РєР°! РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РґРЅРµР№ Р±РѕР»СЊРЅРёС‡РЅРѕРіРѕ (5) СѓР¶Рµ РґРѕСЃС‚РёРіРЅСѓС‚Рѕ.";
+	}
+			
+	//exit;
+	//Р—Р°РїСЂРѕСЃ Рє Р±Р°Р·Рµ
 	if(db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id")==0){
 		return db_result(db_query("INSERT INTO `phpbb_timetable` SET `year`=$year, `month`=$month, `day`=$day, `user_id`=$user_id, `status`=$status, `hours`=$hours"));
 	}else{
 		//IF
-		/*status=1 то же самое, что запись об этой ячейке отсутствует в БД*/
+		/*status=1 С‚Рѕ Р¶Рµ СЃР°РјРѕРµ, С‡С‚Рѕ Р·Р°РїРёСЃСЊ РѕР± СЌС‚РѕР№ СЏС‡РµР№РєРµ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РІ Р‘Р”*/
 		//if($status==1){
 			//return db_easy_result("DELETE FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id");
 		//ELSE	
 		//}else{
-			/*Если точно такая же запись уже существует*/
+			/*Р•СЃР»Рё С‚РѕС‡РЅРѕ С‚Р°РєР°СЏ Р¶Рµ Р·Р°РїРёСЃСЊ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚*/
 			if(db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id AND `status`=$status AND `hours`=$hours")==1){
 				return 1;
-			/*иначе идет обновление записи в БД*/
+			/*РёРЅР°С‡Рµ РёРґРµС‚ РѕР±РЅРѕРІР»РµРЅРёРµ Р·Р°РїРёСЃРё РІ Р‘Р”*/
 			}else{
 				return db_easy_result("UPDATE `phpbb_timetable` SET `status`=$status, `hours`=$hours WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id");
 			}
