@@ -44,14 +44,14 @@ function set_td_remote(){
 	
 	
 	/*Проверяем количество использованных дней отпуска в этом году для этого пользователя*/
-	$otpusk_kolvo=db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`=$status");
-	if($otpusk_kolvo>=20){
+	$otpusk_kolvo=db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`=2");
+	if($otpusk_kolvo>=20 && $status==2){
 		return "Ошибка! Максимальное количество дней отпуска (20) уже достигнуто.";
 	}
 
 	/*Проверяем количество использованных дней больничного в этом году для этого пользователя*/
-	$bolnichniy_kolvo=db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`=$status");
-	if($bolnichniy_kolvo>=5){
+	$bolnichniy_kolvo=db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`=3");
+	if($bolnichniy_kolvo>=5 && $status==3){
 		return "Ошибка! Максимальное количество дней больничного (5) уже достигнуто.";
 	}
 			
