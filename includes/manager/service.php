@@ -112,4 +112,24 @@ function get_time_str($hours){
 	//Возвращаем значение функции
 	return $str;
 }
+
+/*Вычисляет количество рабочих дней (без суббот и воскресений) в указанном месяце*/
+function count_work_days($Year, $Month, $To=false){      /*Если указано To, то считает не до конца месяца, а по номер дня в месяце To включая его самого.*/
+	if($To){
+		$total_days=$To;
+	}else{
+		$total_days=cal_days_in_month(CAL_GREGORIAN, $Month, $Year);
+	}
+	
+	$work_days=0;
+	
+	for($dayFOR=1;$i<=$total_days;$dayFOR++){
+		$day_of_week=date("N", strtotime("$Year-$Month-$dayFOR"));
+		if($day_of_week==6 || $day_of_week==7){
+			//nothing
+		}else{
+			$work_days++;
+		}
+	}
+}
 ?>

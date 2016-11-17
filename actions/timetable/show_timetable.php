@@ -560,10 +560,13 @@ function create_report(){
 	
 	/*Строим шапку таблицы*/
 	$html.="<tr class='vfirst'><td class='gfirst vfirst'>Ф.И.</td>
-				<td class='gnolast vfirst' style='width:100px;background:#ffe599;'>Отпуска</td>
+				<td class='glast vfirst' style='width:100px;background:#ffe599;'>Отпуска</td>
 				<td class='gnolast vfirst' style='width:100px;background:#b6d7a8;'>Больничные</td>
 				<td class='gnolast vfirst' style='width:100px;background:#E2B1E2;'>За свой счет</td>
-				<td class='glast vfirst' style='width:100px;background:#9fc5e8;'>Командировки</td>
+				<td class='gnolast vfirst' style='width:100px;background:#9fc5e8;'>Командировки</td>
+				<td class='gnolast vfirst' style='width:100px;background:#BBBBBB;'>Отработано</td>
+				<td class='gnolast vfirst' style='width:100px;background:#ECC0C0;'>Выходных</td>
+				<td class='glast vfirst' style='width:100px;background:#D08080;'>Всего дней</td>
 			</tr>";
 	
 	/*НАЧАЛО: Создаем массив ускоряющий работу (чтобы не делать запрос sql на каждое число*/
@@ -585,6 +588,8 @@ function create_report(){
 		
 		//Определяем переменную
 		$timetable=array();
+
+		$day_number=cal_days_in_month(CAL_GREGORIAN, $Month, $Year);
 		
 		//WHILE
 		while($day=db_fetch($daysRES)){
@@ -592,7 +597,8 @@ function create_report(){
 			$timetable[$day['user_id']][$day['day']]['hours']=$day['hours'];
 		}
 	}
-	/*КОНЕЦ: Создаем массив ускоряющий работу (чтобы не делать запрос sql на каждое число*/
+	
+	/*КОНЕЦ: Создаем массив, ускоряющий работу (чтобы не делать запрос sql на каждое число*/
 	
 	/*НАЧАЛО: Строим тело таблицы*/
 	
@@ -612,16 +618,23 @@ function create_report(){
 			//Определяем переменные
 			$total=array();
 			$total_str=array();
+			$total_holidays=0;
+			$total_in_month=0;
 
 			//Определяем переменные
-			for($status=2;$status<=5;$status++){
+			for($status=1;$status<=5;$status++){
 				$total[$status]=0;
 			}
 
 			//IF
 			if(@$_GET['report']=='year'){
 				for($monthFOR=1;$monthFOR<=12;$monthFOR++){
-					$day_numberFOR=cal_days_in_month(CAL_GREGORIAN, $monthFOR, $Year);
+					if($Year==date("Y") && $Month==date("n")){
+						$day_numberFOR=date("j");
+					}else{
+						$day_numberFOR=cal_days_in_month(CAL_GREGORIAN, $monthFOR, $Year);	
+					}
+					
 					for($dayFOR=1;$dayFOR<=$day_numberFOR;$dayFOR++){
 						//IF
 						if(isset($timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['status'])){
@@ -629,34 +642,41 @@ function create_report(){
 							$status=$timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['status'];
 							
 							//Определяем переменную
-							$total[$status]+=$timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['hours'];			
+							$total[$status]+=$timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['hours'];	 	
 						}
 					}
 				}
 			//ELSE
 			}else{
 				/*Вычисляем количество дней в месяце*/
-				$day_number=cal_days_in_month(CAL_GREGORIAN, $Month, $Year);
+
+				if($Year==date("Y") && $Month==date("n")){
+					$day_number=date("j");
+				}else{
+					$day_number=cal_days_in_month(CAL_GREGORIAN, $Month, $Year);
+				}
 				
 				//FOR
 				for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
-					//IF
+					$day_of_weekFOR=date("N", strtotime("$Year-$Month-$dayFOR"));
 					if(isset($timetable[$userWHILE['user_id']][$dayFOR]['status'])){
-						//Определяем переменную
 						$status=$timetable[$userWHILE['user_id']][$dayFOR]['status'];
-						
-						//Определяем переменную
-						$total[$status]+=$timetable[$userWHILE['user_id']][$dayFOR]['hours'];					
+						$total[$status]+=$timetable[$userWHILE['user_id']][$dayFOR]['hours'];
+						if($status==6) $total_holidays++;
+					}else{ 
+						if($day_of_weekFOR==6 || $day_of_weekFOR==7){
+							$total_holidays++;
+							//nothing
+						}else{
+							$status=1;
+							$total[$status]+=8;							
+						}
 					}
 				}
 			}
 			
-			
-			
-			
-			
-			//Определяем переменную
-			for($status=2;$status<=5;$status++){
+			//FOR
+			for($status=1;$status<=5;$status++){
 				if($total[$status]>0){
 					$total_str[$status]=get_time_str($total[$status]);
 				}else{
@@ -677,7 +697,7 @@ function create_report(){
 			$html.="<td class='gfirst'><a href='/manager.php?action=show_contact&contact={$userWHILE['user_id']}'>{$userWHILE['username']}</a></td>";
 			
 			//Определяем переменную
-			$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='glast'>{$total_str[5]}</td>";
+			$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='gnolast'>{$total_str[5]}</td><td class='gnolast'>{$total_str[1]}</td><td class='gnolast'>{$total_holidays}</td><td class='glast'>{$day_number}</td>";
 			
 			//Определяем переменную
 			$html.="</tr>";			
