@@ -565,8 +565,7 @@ function create_report(){
 				<td class='gnolast vfirst' style='width:100px;background:#E2B1E2;'>За свой счет</td>
 				<td class='gnolast vfirst' style='width:100px;background:#9fc5e8;'>Командировки</td>
 				<td class='gnolast vfirst' style='width:100px;background:#BBBBBB;'>Отработано</td>
-				<td class='gnolast vfirst' style='width:100px;background:#ECC0C0;'>Выходных</td>
-				<td class='glast vfirst' style='width:100px;background:#D08080;'>Всего дней</td>
+				<td class='glast vfirst' style='width:100px;background:#ECC0C0;'>Выходных</td>
 			</tr>";
 	
 	/*НАЧАЛО: Создаем массив ускоряющий работу (чтобы не делать запрос sql на каждое число*/
@@ -711,7 +710,8 @@ function create_report(){
 			$html.="<td class='gfirst'><a href='/manager.php?action=show_contact&contact={$userWHILE['user_id']}'>{$userWHILE['username']}</a></td>";
 			
 			//Определяем переменную
-			$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='gnolast'>{$total_str[5]}</td><td class='gnolast'>{$total_str[1]}</td><td class='gnolast'>{$total_holidays}</td><td class='glast'>{$day_total}</td>";
+			//$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='gnolast'>{$total_str[5]}</td><td class='gnolast'>{$total_str[1]}</td><td class='gnolast'>{$total_holidays}</td><td class='glast'>{$day_total}</td>";
+			$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='gnolast'>{$total_str[5]}</td><td class='gnolast'>{$total_str[1]}</td><td class='glast'>{$total_holidays}</td>";
 			
 			//Определяем переменную
 			$html.="</tr>";			
