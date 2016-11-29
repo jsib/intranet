@@ -43,19 +43,48 @@ function set_td_remote(){
 	}
 	
 	
-	/*Проверяем количество использованных дней отпуска в этом году для этого пользователя*/
-	$otpusk_kolvo=db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`=2");
-	if($otpusk_kolvo>=20 && $status==2){
-		return "Ошибка! Максимальное количество дней отпуска (20) уже достигнуто.";
-	}
+	//*Проверяем количество использованных дней больничного и отпуска в текущем году для отдельного пользователя{
+	$check_array = array(0=>array(
+							'name_rus_rodit_padezh'=>'больничного',
+							'hours_per_day'=>8,
+							'max_days'=>5,
+							'code'=>3),
+						1=>array(
+							'name_rus_rodit_padezh'=>'отпуска',
+							'hours_per_day'=>8,
+							'max_days'=>20,
+							'code'=>2)						
+						);
+	foreach($check_array as $key=>$check){
+		
+		$status_rodit_pad=$check['name_rus_rodit_padezh'];
+		$status_hours_per_day=$check['hours_per_day'];
+		$status_max_days=$check['max_days'];
+		$status_code=$check['code'];
 
-	/*Проверяем количество использованных дней больничного в этом году для этого пользователя*/
-	$bolnichniy_kolvo=db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`=3");
-	if($bolnichniy_kolvo>=5 && $status==3){
-		return "Ошибка! Максимальное количество дней больничного (5) уже достигнуто.";
+		//Проверяем, заполнена ли уже данная ячейка и вычисляем количество часов в ней, если да{
+		$status_this_res=db_query("SELECT `hours` FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id AND `status`={$status_code}");
+		if(db_count($status_this_res)>0){
+			$status_this_hours=db_fetch($status_this_res)['hours'];
+		}else{ 
+			$status_this_hours=0;
+		}
+		//}
+		$status_res=db_query("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`={$status_code}");
+		$status_sum=0;
+		while($statusWHILE=db_fetch($status_res)){
+			$status_sum+=$statusWHILE['hours']; 
+		}
+		
+		if(($status_sum+$hours-$status_this_hours)>$status_max_days*$status_hours_per_day && $status==$status_code){
+			$status_rest_hours_total=$status_max_days*$status_hours_per_day-$status_sum;
+			$status_rest_hours=$status_rest_hours_total%$status_hours_per_day;
+			$status_rest_days=($status_rest_hours_total-$status_rest_hours)/$status_hours_per_day;
+		return "Ошибка! У вас осталось {$status_rest_days}д {$status_rest_hours}ч $status_rodit_pad."; 
+		}
 	}
-			
-	//exit;
+	//}
+
 	//Запрос к базе
 	if(db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id")==0){
 		return db_result(db_query("INSERT INTO `phpbb_timetable` SET `year`=$year, `month`=$month, `day`=$day, `user_id`=$user_id, `status`=$status, `hours`=$hours"));
