@@ -5,7 +5,7 @@ function show_rights(){
 	$rights_html="";
 	
 	/*Выводим список менеджеров HR*/
-	$rightsRES=db_query("SELECT * FROM `phpbb_rights` ORDER BY `name` ASC"); 
+	$rightsRES=db_query("SELECT * FROM `phpbb_rights` ORDER BY `name` ASC");  
 	
 	//IF
 	if(db_count($rightsRES)>0){

@@ -1,17 +1,15 @@
 <?php
 function check_rights($right_name=""){
-	//Определяем глобальные переменные
+	//Define global variables
 	global $user;
 	
-	//IF
-	if($user->data['username']=="root" || $user->data['username']=="Домышев Илья" || $user->data['username']=="Старовойтов Дмитрий"){
-		
+	//Check rights
+	if(isset($GLOBALS['super_rights_users'][$user->data['username']])){
+		//For users with super rights 
 		return true;
 	}else{
-		
-		//IF
+		//If
 		if($right_name!==""){
-			
 			$rightRES=db_query("SELECT * FROM `phpbb_rights` WHERE `name`='$right_name'");
 			
 			if(db_count($rightRES)==1){
