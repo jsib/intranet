@@ -132,4 +132,13 @@ function count_work_days($Year, $Month, $To=false){      /*Если указан
 		}
 	}
 }
+
+//Output error somehow
+function dis_error($error_id, $output_type='echo'){
+	switch($output_type):
+		case 'echo';
+			echo("DIS error ".$error_id." Please, contact your system administrator.")
+		break;
+	endswitch;
+}
 ?>

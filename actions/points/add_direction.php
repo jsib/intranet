@@ -1,6 +1,6 @@
 <?php
-function add_point(){
-	if(!check_rights('add_point')){
+function add_direction(){
+	if(!check_rights('add_direction')){
 		//Возвращаем значение функции
 		return "У вас нет соответствующих прав";
 	}
@@ -51,7 +51,7 @@ function add_point(){
 										`phone`='{$point['phone']}',
 										`branch_id`={$point['branch_id']}");
 			$point_id=db_insert_id();
-			header("location: /manager.php?action=list_points&message=pointadded&name={$point['name']}");
+			header("location: /manager.php?action=list_points&message=entity_added&name={$point['name']}");
 		}
 	}
 	return $html;
