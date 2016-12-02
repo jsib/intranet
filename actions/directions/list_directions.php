@@ -7,11 +7,12 @@ function list_directions(){
 	//Refer to global variables
 	global $table_prefix;
 	global $system_objects;
-	global $system_actions;
+	
 	
 	//Retrieve object properties
 	$object_plural_eng=$function_name_pieces[1];
 	$object_singular_eng=$system_objects[$object_plural_eng]['singular_name_eng'];
+	$object_actions=$system_objects[$object_plural_eng]['actions'];
 
 	//Retrieve action properties
 	$action_eng=$function_name_pieces[0];
@@ -24,12 +25,14 @@ function list_directions(){
 		$action_previous_entity_name=$_GET['action_previous_entity_name'];
 		
 		//Check does this action and result exist in system
-		if(isset($system_actions[$action_previous]['results'][$action_previous_result])){
+		if(isset($object_actions[$action_previous]['results'][$action_previous_result])){
 			//Retrieve previous action result message
-			$action_previous_result_message=template_get("message", array('message'=>html_replace($system_actions[$action_previous]['results'][$action_previous_result]['message'], array('name'=>$action_previous_entity_name))));
+			$action_previous_result_message=template_get("message", array('message'=>html_replace($object_actions[$action_previous]['results'][$action_previous_result]['result'], array('name'=>$action_previous_entity_name))));
 		}else{
 			//Handle error
-			dis_error("This action or result doesn't exist in system", 'echo'); 
+			dis_error("Result '".$action_previous_result."' not defined with object '".$object_plural_eng."' and action '".$action_previous."'", 'echo', 'debug');
+			
+			
 		}
 	}
 	
@@ -82,7 +85,7 @@ function list_directions(){
 																'right_class'=>$right_class
 															));
 															
-	//echo "ht|".$html."|ml";
+	//Return HTML flow
 	return $html;
 }
 ?>
