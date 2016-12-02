@@ -7,6 +7,7 @@ function list_directions(){
 	//Refer to global variables
 	global $table_prefix;
 	global $system_objects;
+	echo $nothing;
 	
 	
 	//Retrieve object properties
@@ -16,6 +17,7 @@ function list_directions(){
 
 	//Retrieve action properties
 	$action_eng=$function_name_pieces[0];
+	$action_full_eng=__FUNCTION__;
 
 	//Generate message for adding entity action
 	if(isset($_GET['action_previous']) && isset($_GET['action_previous_result']) && isset($_GET['action_previous_entity_name'])){
@@ -78,7 +80,8 @@ function list_directions(){
 		$add_entity_link="<a href='/manager.php?action=add_".$object_singular_eng."' class='listcontacts'>Добавить дирекцию</a><br/><br/>";
 	}
 	
-	$html=template_get("directions/list_directions", array(	'add_entity_link'=>$add_entity_link,
+	$html=template_get($object_plural_eng."/".$action_full_eng, array(	
+																'add_entity_link'=>$add_entity_link,
 																'number_entities'=>$number_entities,
 																'table_html'=>$table_html,
 																'action_previous_result_message'=>$action_previous_result_message,

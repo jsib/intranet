@@ -17,8 +17,8 @@ function add_direction(){
 	$action_full_eng=__FUNCTION__;
 	
 	if(!check_rights($action_full_eng)){
-		//Возвращаем значение функции
-		return dis_error("You don't have needed permissions");
+		//Return HTML flow
+		return dis_error("You don't have permissions for this action", 'return', 'prod');
 	}
 
 	if(!isset($_POST['name'])){
@@ -28,7 +28,7 @@ function add_direction(){
 																'action'=>"/manager.php?action=".$action_full_eng,
 																'message'=>template_get("no_message")
 													));
-		}else{
+		}elseif(isset($_GET['result'])){
 			//Retrieve entity name frow browser
 			$entity_name=$_GET['name'];
 			
