@@ -1,11 +1,12 @@
 <?php
+//Delete a direction of company
 function delete_direction(){
 	//Retrieve information from this function name
 	$function_name_pieces=explode("_", __FUNCTION__);
 	
 	//Refer to global variables
-	var $table_prefix;
-	var $system_objects;
+	global $table_prefix;
+	global $system_objects;
 	
 	//Retrieve object properties
 	$object_singular_eng=$function_name_pieces[1];
@@ -14,19 +15,20 @@ function delete_direction(){
 	//Retrieve action properties
 	$action_eng=$function_name_pieces[0];
 	
+	//Check rights for this action
 	if(!check_rights($action_eng.'_'.$object_singular_eng)){
-		//Возвращаем значение функции
-		return "У вас нет соответствующих прав";
+		//Retrieve error message
+		return dis_error("You don't have needed permissions");
 	}
 
-	/*Получаем данные от пользователя*/
+	//Get data from browser
 	$entity_id=(int)$_GET['entity'];
 	
 	//Retrieve the entity properties from database
-	$entity=db_easy("SELECT * FROM '`'.$table_prefix.$object_plural_eng.'`' WHERE `id`=$entity_id");
+	$entity=db_easy("SELECT * FROM `".$table_prefix.$object_plural_eng."` WHERE `id`=$entity_id");
 	
 	//Delete entity from database
-	db_query("DELETE FROM '`'.$table_prefix.$object_plural_eng.'`' WHERE `id`=$entity_id AND `system`!=1");
+	db_query("DELETE FROM `".$table_prefix.$object_plural_eng."` WHERE `id`=$entity_id AND `system`!=1");
 	
 	//Forward to other page through HTTP request
 	header("location: /manager.php?action=list_".$object_plural_eng."&action_previous=".$action_eng."&action_previous_result=success&action_previous_entity_name={$entity['name']}");

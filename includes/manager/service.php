@@ -134,10 +134,17 @@ function count_work_days($Year, $Month, $To=false){      /*Если указан
 }
 
 //Output error somehow
-function dis_error($error_id, $output_type='echo'){
+function dis_error($error_text, $output_type='return'){
+	//Form error full text
+	$error_full_text="DIS error '".$error_text."'. Please, contact your system administrator.";
+	
+	//Perform depends on output type
 	switch($output_type):
+		case 'return';
+			return $error_full_text;
+		break;
 		case 'echo';
-			echo("DIS error ".$error_id." Please, contact your system administrator.")
+			echo $error_full_text;
 		break;
 	endswitch;
 }
