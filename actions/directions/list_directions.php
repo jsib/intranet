@@ -25,7 +25,7 @@ function list_directions(){
 		$action_previous_entity_name=$_GET['action_previous_entity_name'];
 		
 		//Check does this action and result exist in system
-		if(isset($object_actions[$action_previous]['results'][$action_previous_result])){
+		if(isset($object_actions[$action_previous]['results'][$action_previous_result]['result'])){ 
 			//Retrieve previous action result message
 			$action_previous_result_message=template_get("message", array('message'=>html_replace($object_actions[$action_previous]['results'][$action_previous_result]['result'], array('name'=>$action_previous_entity_name))));
 		}else{
@@ -65,13 +65,14 @@ function list_directions(){
 
 		//
 		$table_html.="	<tr class='$bottom_class'>
-							<td><a href='/manager.php?action=show_point&point={$entity['id']}' style='font-size:9pt;'>".$entity['name']."</a></td>
+							<td><a href='/manager.php?action=show_".$object_singular_eng."&entity_id={$entity['id']}' style='font-size:9pt;'>".$entity['name']."</a></td>
 							<td>".$entity['phone']."</td>
 							<td class='$right_class'>".$entity['address']."</td>";
 		if(check_rights('delete_'.$object_singular_eng)){
-			$table_html.="	<td class='right'><a href='/manager.php?action=delete_".$object_singular_eng."&point={$entity['id']}' onclick=\"if(!confirm('Удалить?')) return false;\">Удалить</a><br/></td>
-						</tr>";
+			$table_html.="	<td class='right'><a href='/manager.php?action=delete_".$object_singular_eng."&entity_id={$entity['id']}' onclick=\"if(!confirm('Удалить ".$entity['name']."?')) return false;\">Удалить</a><br/></td>";
 		}
+		
+		$table_html.="</tr>";
 	}
 	if(check_rights('add_'.$object_singular_eng)){
 		$add_entity_link="<a href='/manager.php?action=add_".$object_singular_eng."' class='listcontacts'>Добавить дирекцию</a><br/><br/>";
