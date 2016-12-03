@@ -1,22 +1,14 @@
 <h2>Сотрудники</h2><br/>
-{add_contact}
+{add_entity_link}
 <form method='get' action='manager.php' id="chooseForm" onchange="document.getElementById('chooseForm').submit();">
-	Дирекция: <br/><select name="branch" style='margin-top:5px;'>
-		{branches}
+	Дирекция: <br/><select name="parent_entity_id" style='margin-top:5px;'>
+		{parent_entities}
 	</select>
 	<input type='hidden' name='action' value='list_contacts' />
 </form><br/>
-{filter_hidden_contacts}
-<b>Количество:</b> {numusers}<br/><br/>
+{checkbox_hidden_entities}
+<b>Количество:</b> {entities_number}<br/><br/>
 <table class='listcontacts' cellpadding=0 cellspacing=0 border=0>
-	<tr>
-		<th class='left'>{header[username]}</th>
-		<th>{header[branch]}</th>
-		<th>Должность</th>
-		<th>Мобильный (рабочий)</th>
-		<th class='{right_class}'>Офисный телефон</th>
-		{th_html}
-	</tr>
 	{table}
 </table>
 <br/>
