@@ -123,8 +123,11 @@ while($subdir = readdir($dp)){
 	if($subdir != '.' && $subdir != '..' && is_dir($dir."/".$subdir)){
 		$action_file=$dir."/".$subdir."/".$action.".php";
 		if(file_exists($action_file)){
+			//Set error level output
+			//ini_set('error_reporting', E_ALL);
 			require_once($action_file);
 			db_connect();
+			//set_error_handler('dis_error_handler');
 			$html.=$action();
 		}
 	}

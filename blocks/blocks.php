@@ -10,7 +10,7 @@ function main_menu(){
 		$template->assign_var('LINKADMINSECTION', "<li class='div'>|</li><li><a href='/manager.php?action=show_admin_panel'>Панель администратора</a></li>");
 	}
 	
-	//Проверка, является ли вошедший пользователь редактором графиков работ
+	/*//Проверка, является ли вошедший пользователь редактором графиков работ
 	db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$user->data['user_id']}")==1 ? $timetable_editor=1 : $timetable_editor=0;
 	
 	//НАЧАЛО: Проверка, даны ли вошедшему пользователю права на управления графиками кого-либо из редакторов
@@ -42,7 +42,7 @@ function main_menu(){
 		}
 		$template->assign_var('LINKTIMETABLESECTION', "<li class='div'>|</li><li><a href='/manager.php?$url_postfix'>Графики работы</a>");
 	}
-	
+	*/
 	//Назначаем замены для шаблона
 	$template->assign_var('MYPFOFILE', "/manager.php?action=show_contact&contact={$user->data['user_id']}");		
 }

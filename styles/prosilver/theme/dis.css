@@ -1,0 +1,28 @@
+td{padding:3px 0px;}
+a.navigation, a.navigation:visited, a.navigation:hover, a.navigation:active{font-size:8pt;color:#000;text-decoration:underline;}
+.list_entities td, .list_entities th{padding:2px 7px;border-left:1px solid #888;border-top:1px solid #333;font-size:9pt;text-align:left;}
+.list_entities .left{border-left:1px solid #333;}
+.list_entities .right{border-right:1px solid #333;}
+.list_entities tr td{}
+.list_entities tr.bottom td{border-bottom:1px solid #333;}
+.list_entities a, a.list_entities{font-size:8pt;}
+
+table.list_entities a.header{
+	color:#000;
+	font-size:9pt;
+}
+table.list_entities a.header img{padding-left:5px;}
+.clear{clear:both;}
+.navbar a:visited{
+	color:#fff;
+}
+.manager a{color:#2A88B2;}
+
+dl.postprofile dd{
+	padding-bottom:3px;
+	font-size:8pt;
+}
+
+.parent_entities{
+	margin-top:5px;
+}

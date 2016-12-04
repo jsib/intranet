@@ -1,5 +1,5 @@
 <?php
-function list_contacts(){ 
+function list_users(){ 
 	//Retrieve information from this function name
 	$function_name_pieces=explode("_", __FUNCTION__);
 
@@ -9,16 +9,17 @@ function list_contacts(){
 
 	//Retrieve object properties
 	$object_plural_eng=$function_name_pieces[1];
-	$object_singular_eng=$system_objects[$object_plural_eng]['plural_name_eng'];
-	$object_actions=$system_objects[$object_plural_eng]['actions'];
-	
+	$object_singular_eng=$system_objects[$object_plural_eng]['singular_name_eng'];
+	$object_plural_rus=$system_objects[$object_singular_eng]['plural_name_rus'];
+	$object_actions=$system_objects[$object_singular_eng]['actions'];
+
 	//Retrieve action properties
 	$action_eng=$function_name_pieces[0];
 	$action_full_eng=__FUNCTION__;
-	
+
 	//Set parent object properties
-	$parent_object_singular_eng="direction";
-	$parent_object_plural_eng="directions";
+	$parent_object_singular_eng=$system_objects[$object_singular_eng]['parent'];
+	$parent_object_plural_eng=$system_objects[$parent_object_singular_eng]['plural_name_eng'];
 	
 	//Get sort direction
 	if(isset($_GET['sort_direction'])){
@@ -61,6 +62,7 @@ function list_contacts(){
 		$parent_object_where=" AND `".$table_prefix.$parent_object_plural_eng."`.`id`=$parent_entity_id ";
 	}else{
 		$parent_object_where="";
+		$parent_entity_id=0;
 	}
 	
 	//Define HTML flow for list of parent entities
@@ -75,7 +77,7 @@ function list_contacts(){
 		if($parent_entityWHILE['id']!=1){
 			$parent_entities_html.="<option value='".$parent_entityWHILE['id']."' $selected>".$parent_entityWHILE['name']."</option>";
 		}else{
-			$parent_entities_html.="<option value='1' $selected>Все дирекции</option>";
+			$parent_entities_html.="<option value='1' $selected>".$system_objects[$parent_object_singular_eng]['phrases']['all_entities_text']."</option>";
 		}
 	}
 	
@@ -106,11 +108,11 @@ function list_contacts(){
 												));
 	}
 	
-	$entities_sql="SELECT *, `".$table_prefix.$parent_object_plural_eng."`.`name` as `parent_entity_name`, 
+	$entities_sql="SELECT *, `".$table_prefix.$parent_object_plural_eng."`.`name` as `parent_entity_name`,
 										  `".$table_prefix.$parent_object_plural_eng."`.`id` as `parent_entity_id`
-									FROM  `".$table_prefix."users"."`, `".$table_prefix.$parent_object_plural_eng."`
-									WHERE (`user_type` IN (0,3) $sql_hidden_entities) AND `username`!='root' 
-											AND `".$table_prefix.$parent_object_plural_eng."`.`id`=`".$table_prefix."users"."`.".$parent_object_singular_eng."_id
+									FROM  `".$table_prefix.$object_plural_eng."`, `".$table_prefix.$parent_object_plural_eng."`
+									WHERE (`user_type` IN (0,3) $sql_hidden_entities) AND `username`!='root'
+											AND `".$table_prefix.$parent_object_plural_eng."`.`id`=`".$table_prefix.$object_plural_eng."`.".$parent_object_singular_eng."_id
 											$parent_object_where
 									ORDER BY {$headers[$sort]['sort_column']} ".$sort_direction;
 	$entities_db = db_query($entities_sql);
@@ -162,21 +164,21 @@ function list_contacts(){
 				$bottom_class="";
 			}
 			
-			if(trim($entity_while['officephone'])!=""){
-				$officephone=$entity_while['officephone'];
-				if(trim($entity_while['user_extphone'])!=""){
-					$officephone.=", доб. ".$entity_while['user_extphone'];
+			if(trim($entity_while['phone_ext'])!=""){
+				$phone_ext=$entity_while['phone_ext'];
+				if(trim($entity_while['phone_ext'])!=""){
+					$phone_ext.=", доб. ".$entity_while['phone_ext'];
 				}
 			}else{
-				$officephone="-";
+				$phone_ext="-";
 			}
 			
-			if(trim($entity_while['user_workmobilephone'])!=""){
-				$mobilephone=$entity_while['user_workmobilephone']." (рабочий)";
-			}elseif(trim($entity_while['user_privatemobilephone'])!=""){
-				$mobilephone=$entity_while['user_privatemobilephone']." (личный)";
+			if(trim($entity_while['phone_mobile'])!=""){
+				$phone_mobile=$entity_while['phone_mobile']." (рабочий)";
+			}elseif(trim($entity_while['phone_mobile'])!=""){
+				$phone_mobile=$entity_while['phone_mobile']." (личный)";
 			}else{
-				$mobilephone="-";
+				$phone_mobile="-";
 			}
 			
 			if(trim($entity_while['user_occ'])==""){
@@ -193,34 +195,38 @@ function list_contacts(){
 								$entity_while['username']."</a></td>
 								<td><a href='".$parent_entity_link."' style='font-size:9pt;'>".$entity_while['parent_entity_name']."</a></td>
 								<td style='width:250px;'>".$entity_while['user_occ']."</td>
-								<td style='width:250px;'>".$mobilephone."</td>
-								<td  class='$right_class'>".$officephone."</td>";
+								<td style='width:250px;'>".$phone_mobile."</td>
+								<td  class='$right_class'>".$phone_ext."</td>";
 			
 			//'Delete' column
 			if(check_rights('delete_'.$object_singular_eng)){
 				$table_html.=
 					"	<td class='right'>".
-					"<a href='/manager.php?action=delete_".$object_singular_eng."&entity_id={$entity_while['user_id']}' onclick=\"if(!confirm('Удалить?')) return false;\">".
+					"<a href='/manager.php?action=delete_".$object_singular_eng."&entity_id={$entity_while['user_id']}' onclick=\"if(!confirm('".
+					html_replace($system_objects[$parent_object_singular_eng]['phrases']['confirm_delete_message'], array('entity_name'=>$entity_while['username']))
+					."')) return false;\">".
 					"Удалить</a><br/></td></tr>";
 			}
 		}
 	}else{
-		$table_html.="В данной дирекции нет сотрудников.";
+		$table_html.=$system_objects[$parent_object_singular_eng]['phrases']['no_child_message'];
 	}
 	
 	//Form add entity link
 	if(check_rights('add_'.$object_singular_eng)){
-		$add_entity_link="<a href='/manager.php?action=add_".$object_singular_eng."' class='listcontacts'>Добавить сотрудника</a><br/><br/>";
+		$add_entity_link="<a href='/manager.php?action=add_".$object_singular_eng."' class='list_entities'>".$system_objects[$object_singular_eng]['actions']['add']['full_name_rus']."</a><br/><br/>";
 	}else{
 		$add_entity_link="";
 	}
 
-	return template_get($object_singular_eng."/list_".$object_plural_eng, array(
+	return template_get($object_plural_eng."/list_".$object_plural_eng, array(
 															'add_entity_link'=>$add_entity_link,
 															'entities_number'=>$entities_number,
 															'table'=>$table_html,
 															'parent_entities'=>$parent_entities_html,
-															'checkbox_hidden_entities'=>$checkbox_hidden_entities
+															'checkbox_hidden_entities'=>$checkbox_hidden_entities,
+															'list_entities_link'=>'list_'.$object_plural_eng,
+															'page_header'=>mb_convert_case($object_plural_rus, MB_CASE_TITLE)
 														));
 }
 ?>

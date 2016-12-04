@@ -73,23 +73,6 @@ function pickup_all($dir){
 		}
 	}
 }
-//Проверяет, является ли пользователь подчиненным шефа инженеров
-function is_engineer_chief_employee(){
-	//Подтягиваем глобальные переменные
-	global $user;
-	
-	$q=db_query("SELECT * FROM `phpbb_users` WHERE `user_id`=".$user->data['mychief_id']);
-	if(db_count($q)>0){
-		$mychief=db_fetch($q);
-		if($mychief['engineer_chief']==1){
-			return true;
-		}else{
-			return false;
-		}
-	}else{
-		return false;
-	}
-}
 /*Возвращает количество дней/часов в формате строки*/
 function get_time_str($hours){
 	//Приводим тип
@@ -147,5 +130,38 @@ function dis_error($error_text, $output_type='return'){
 			echo $error_full_text;
 		break;
 	endswitch;
+}
+
+function dis_error_handler($errno, $errstr, $errfile, $errline)
+{
+    if (!(error_reporting() & $errno)) {
+        // Этот код ошибки не включен в error_reporting
+        return;
+    }
+
+    switch ($errno) {
+    case E_USER_ERROR:
+        echo "<b>My ERROR</b> [$errno] $errstr<br />\n";
+        echo "  Фатальная ошибка в строке $errline файла $errfile";
+        echo ", PHP " . PHP_VERSION . " (" . PHP_OS . ")<br />\n";
+        echo "Завершение работы...<br />\n";
+        exit(1);
+        break;
+
+    case E_USER_WARNING:
+        echo "<b>My WARNING</b> [$errno] $errstr<br />\n";
+        break;
+
+    case E_USER_NOTICE:
+        echo "<b>My NOTICE</b> [$errno] $errstr<br />\n";
+        break;
+
+    default:
+        echo "Неизвестная ошибка: [$errno] $errstr<br />\n";
+        break;
+    }
+
+    /* Не запускаем внутренний обработчик ошибок PHP */
+    return true;
 }
 ?>

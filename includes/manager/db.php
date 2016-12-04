@@ -1,8 +1,7 @@
 <?
 //Подключаемся к базе
 //Implement connection to database
-function db_connect($database="", $characterset='utf8')
-{
+function db_connect($database="", $characterset='utf8'){
 	//Получаем глобальные переменные
 	global $dbhost;
 	global $dbname;
@@ -21,7 +20,7 @@ function db_connect($database="", $characterset='utf8')
 	//Устанавливаем кодировку для работы с базой
 	mysql_query("SET NAMES '$characterset'");
 	mysql_query("SET CHARACTER SET '$characterset'");
-	mysql_query("SET SESSION collation_connection = '$characterset_general_ci'");
+	mysql_query("SET SESSION collation_connection = '".$characterset."_general_ci'");
 	
 	/*mysqli*/
 	/*global $MySQLi;
@@ -37,7 +36,7 @@ function db_connect($database="", $characterset='utf8')
 		$Dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpasswd2);
 		$Dbh->query("SET NAMES '$characterset'");
 		$Dbh->query("SET CHARACTER SET '$characterset'");
-		$Dbh->query("SET SESSION collation_connection = '$characterset_general_ci'");
+		$Dbh->query("SET SESSION collation_connection = '".$characterset."_general_ci'");
 
 	} catch (PDOException $e) {
 		print "Error!: " . $e->getMessage() . "<br/>";
