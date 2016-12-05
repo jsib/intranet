@@ -275,20 +275,4 @@ define('USERS_TABLE',				$table_prefix . 'users');
 define('WARNINGS_TABLE',			$table_prefix . 'warnings');
 define('WORDS_TABLE',				$table_prefix . 'words');
 define('ZEBRA_TABLE',				$table_prefix . 'zebra');
-
-// Additional tables
-
-//Требования к свойствам объектов
-const ERROR_EASY_STRING_REQUIREMENT="Поле '{name}' должно быть от 0 до 70 символов, может содержать буквы русского и английского алфавитов, цифры, знак пробела и знаки . , ) ( - @ +.";
-//const ERROR_USERNAME_REQUIREMENT="Имя пользователя должно быть от 1 до 70 символов, может содержать буквы русского и английского алфавитов, цифры, знак пробела, а также знаки точки.";
-//const ERROR_USERNAME_EXISTS="Пользователь с таким именем уже существует";
-//const ERROR_OCCUPATION_REQUIREMENT="Должность должна быть от 1 до 70 символов, может содержать буквы русского и английского алфавитов и знак пробела, а также знаки точки.";
-//const ERROR_SKYPE_REQUIREMENT="Skype должен быть от 1 до 70 символов, может содержать буквы русского и английского алфавитов и знак пробела, а также знаки точки.";
-
-//Регулярные выражения
-const REGEXP_EASY_STRING="/^[a-zа-яё0-9 \.\(\)\@\+\-\,\_]{0,70}$/ui";
-const REGEXP_USERNAME="/^[a-zа-яё0-9 \.]{1,70}$/ui";
-//const REGEXP_OCCUPATION="/^[a-zа-я \.]{1,70}$/ui";
-//const REGEXP_SKYPE="/^[a-zа-я \.]{1,70}$/ui";
-
 ?>

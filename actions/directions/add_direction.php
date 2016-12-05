@@ -18,7 +18,7 @@ function add_direction(){
 	
 	if(!check_rights($action_full_eng)){
 		//Return HTML flow
-		return dis_error("You don't have permissions for this action", 'return', 'prod');
+		system_error('permission_denied');
 	}
 
 	if(!isset($_POST['name'])){
@@ -40,7 +40,7 @@ function add_direction(){
 				//Retrieve action result message
 				$result_html=template_get("message", array('message'=>html_replace($object_actions[$action_eng]['results'][$action_result]['result'], array('name'=>$entity_name))));
 			}else{
-				dis_error("Result '".$action_result."' not defined with object '".$object_plural_eng."' and action '".$action_eng."'", 'echo', 'debug');
+				system_error('result_not_defined_for_this_object_and_action', array('result'=>$$action_result, 'object'=>$object_plural_eng, 'action'=>$action_eng));
 			}
 			
 			//Form HTML flow

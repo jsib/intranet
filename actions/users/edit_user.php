@@ -1,82 +1,88 @@
 <?php
-//Подключаем вспомогательный скрипт
-require_once($_SERVER['DOCUMENT_ROOT']."/actions/contacts/add_contact.php");
+function edit_user(){
+	//Retrieve information from this function name
+	$function_name_pieces=explode("_", __FUNCTION__);
 
-//Функция
-function edit_contact(){
-	//Глобальная переменная
+	//Refer to global variables
 	global $Dbh;
+	global $table_prefix;
+	global $system_objects;
+
+	//Retrieve object properties
+	$object_singular_eng=$function_name_pieces[1];
+	$object_plural_eng=$system_objects[$object_singular_eng]['plural_name_eng'];
+	$object_actions=$system_objects[$object_plural_eng]['actions'];
 	
-	/*Проверка прав на выполнение действия*/
-	if(!check_rights('edit_contact')){
-		//Возвращаем значение функции
-		return "У вас нет соответствующих прав";
+	//Retrieve action properties
+	$action_eng=$function_name_pieces[0];
+	$action_full_eng=__FUNCTION__;
+	
+	//Retrieve parent properties in object-action context
+	$parent_object_singular_eng=$system_objects[$object_singular_eng]['parent'];
+	$parent_object_plural_eng=$system_objects[$parent_object_singular_eng]['plural_name_eng'];
+
+	
+	if(!check_rights($action_full_eng)){
+		//Return HTML flow
+		system_error('permission_denied');
 	}
 	
-	/*Получаем id, предварительно проверив*/
-	$user_id=(int)$_GET['contact'];
-	$contactRES=db_query("SELECT * FROM `phpbb_users` WHERE `user_id`=$user_id AND `user_type` IN (0,3,9)");
-	if(db_count($contactRES)>0){
-		$contact=db_fetch($contactRES);
+	//Retrieve entity_id from browser
+	$entity_id=(int)$_GET['entity_id'];
+	
+	//Retrieve the entity from database
+	$entity_db=db_query("SELECT * FROM `".$table_prefix.$object_plural_eng."` WHERE `".$object_singular_eng."_id`=".$entity_id." AND `user_type` IN (0,3,9)");
+	
+	if(db_count($entity_db)>0){
+		$entity=db_fetch($entity_db);
 	}else{
-		$errors[]="Критическая ошибка входных данных (user_id)";
+		system_error('try_edit_non_existent_entity', array('object'=>$object_singular_eng, 'entity'=>$entity_id));
 	}
 	
-	//IF
+	//No HTML form data
 	if(!isset($_POST['name'])){
-		/*Загружаем фото пользователя*/
+		//Upload profile photo
 		if(isset($_FILES['file'])){
-			$photomessage=upload_user_photo($user_id);
+			$photomessage=upload_user_photo($entity_id);
 		}
 		
-		/*Обновляем информацию о контакте после подгрузки аватара*/
-		$contact=db_easy("SELECT * FROM `phpbb_users` WHERE `user_id`=$user_id AND `user_type` IN (0,3,9)");
-		
-		/*Обрабатываем входящее сообщение*/
-		switch(@$_GET['message']){
-			case "user_added_successfully":
-				$message_html=template_get("message", array('message'=>"Сотрудник успешно добавлен"));
-			break;
-			case "contactsaved":
-				$message_html=template_get("message", array('message'=>"Изменения сохранены"));
-			break;
-			default:
-			$message_html=template_get("nomessage");
-		}
-		
-		/*Возвращает HTML код формы*/
-		$html.=show_form_edit_contact($contact, $messages, $photomessage);
+		//Build HTML form
+		$html=show_form_edit_entity($action_eng, $system_objects, $object_singular_eng, $object_plural_eng, $action_full_eng, $table_prefix, $parent_object_plural_eng, $entity, $messages, $photomessage);
 	}else{
-		//Проверка 'name'
-		if(preg_match(REGEXP_USERNAME, $_POST['name'])){
-			if(db_easy_count("SELECT `user_id` FROM `phpbb_users` WHERE `username`='".$_POST['name']."' AND `user_id`!=$user_id")>0){
-				$errors[]=ERROR_USERNAME_EXISTS;
-			}else{
-				$name=$_POST['name'];
+		//Retrive entity name from browser
+		$entity_name_eng=trim($_POST['name']);
+		
+		//Check entity name
+		if(preg_match(REGEXP_USERNAME, $entity_name_eng)){
+			//Entity with same name already exists
+			if(db_easy_count("SELECT `".$object_singular_eng."_id` FROM `".$table_prefix.$object_plural_eng."` WHERE `username`='".$entity_name_eng."' AND `".$object_singular_eng."_id`!=$entity_id")>0){
+				$errors[]=html_replace($object_actions[$action_eng]['results']['same_entity_exists']['result'], array('name'=>$entity_name_eng));
 			}
+		//Error in entity name
 		}else{
-			$errors[]=ERROR_USERNAME_REQUIREMENT;
+			$errors[]=html_replace($object_actions[$action_eng]['results']['entity_name_error']['result'], array('name'=>$entity_name_eng));
 		}
 		
-		
-		//REGEXP_EASY_STRING
+		//Build SQL for text fields
 		$strings_sql="";
-		$strings_params=array('user_occ', 'user_skype', 'user_email', 'user_extphone', 'user_privatemobilephone', 'user_workmobilephone', 'hrmanager_alias');
+		$strings_params=$object_actions[$action_eng]['form']['text_fields'];
 		foreach($strings_params as $nameFOR){
 				$strings_sql.="`".$nameFOR."`= :".$nameFOR." , ";
-		}	
-
-		//Числовые поля
-		$point_id=(int)$_POST['point'];
-		$hire_month=(int)$_POST['hire_month'];
-		$hire_year=(int)$_POST['hire_year'];
-		$mychief_id=(int)$_POST['mychief'];
-		$my_timetable_editor_id=(int)$_POST['my_timetable_editor'];
+		}
 		
-		//Checkbox-ы
+		//Build SQL for numeric fields
+		$numeric_sql="";
+		$numeric_params=$object_actions[$action_eng]['form']['numeric_fields'];
+		foreach($numeric_params as $nameFOR){
+				$numeric_sql.="`".$nameFOR."`= :".$nameFOR." , ";
+		}
+
+		$direction_id=(int)$_POST['direction_id'];
+		$boss_id=(int)$_POST['boss_id'];
+		
+		//Build SQL for checkboxes
 		$checkboxes_sql="";
-		foreach(array('chief', 'notimetable', 'timetable_editor', 'engineer', 'engineer_chief', 'spec_prod_staff'
-						) as $nameFOR){
+		foreach(array('boss', 'deleted') as $nameFOR){
 			if($_POST[$nameFOR]=="on"){
 				$checkboxes_sql.="`$nameFOR`=1, ";
 			}else{
@@ -84,28 +90,26 @@ function edit_contact(){
 			}
 		}
 		
+		//show($_POST);
 		
-		//user_type
-		$_POST['nocontact']=="on" ? $user_type=9 : $user_type=0;
+		//Set user type
+		$user_type=0;
 
-		//Проверяем наличие ошибок во входных данных
+		//Check data retrieved from browser
 		if(count($errors)==0){
-			//Формируем SQL запрос
+			//Build final SQL
 			$sql="	UPDATE
-						`phpbb_users` 
+						`".$table_prefix.$object_plural_eng."` 
 					SET 
 						".$strings_sql."
 						".$checkboxes_sql."
-						`user_type`= $user_type,
-						`point_id`=$point_id,
-						`mychief_id`=$mychief_id,
-						`my_timetable_editor_id`=$my_timetable_editor_id,
-						`hire`='{$hire_year}-{$hire_month}-1'
+						`user_type`=$user_type,
+						`direction_id`=$direction_id,
+						`boss_id`=$boss_id
 					WHERE
-						`user_id`=$user_id";
-						
-			//show($sql);
-			
+						`".$object_singular_eng."_id`=".$entity_id;
+					
+			show($sql);
 			//Готовим выражение
 			$sth=$Dbh->prepare($sql);
 			
@@ -120,155 +124,88 @@ function edit_contact(){
 				
 			/*Обновляем пароль*/
 			if(trim($_POST['password'])!=""){
-				$sth=$Dbh->prepare("UPDATE `phpbb_users` SET `user_password`= ? WHERE `user_id`=".$user_id);
+				$sth=$Dbh->prepare("UPDATE `phpbb_users` SET `user_password`= ? WHERE `user_id`=".$entity_id);
 				if(!$sth->execute(array(phpbb_hash($_POST['password'])))) show($sth->errorInfo());
 			}		
 			
-			/*Обновляем статус*/
-			$sth=$Dbh->prepare("UPDATE `phpbb_profile_fields_data` SET `pf_status`= ? WHERE `user_id`=".$user_id);
-			if(!$sth->execute(array($_POST['status']))) show($sth->errorInfo());
-			
-			//Получаем только что записанные данные из БД
-			$contact=db_easy("SELECT * FROM `phpbb_users` WHERE `user_id`=$user_id AND `user_type` IN (0,3,9)");
+			//Retrieve data from database which we just wrote
+			$entity=db_easy("SELECT * FROM `".$table_prefix.$object_plural_eng."` WHERE `".$object_singular_eng."_id`=".$entity_id." AND `user_type` IN (0,3,9)");
+			//show($entity);
 			
 			//Возвращаем значение функции
-			return show_form_edit_contact($contact, $errors);
+			return show_form_edit_entity($action_eng, $system_objects, $object_singular_eng, $object_plural_eng, $action_full_eng, $table_prefix, $parent_object_plural_eng, $entity, $errors);
 		}else{
 			//Возвращаем значение функции
-			return show_form_edit_contact($contact, $errors);
+			return show_form_edit_entity($action_eng, $system_objects, $object_singular_eng, $object_plural_eng, $action_full_eng, $table_prefix, $parent_object_plural_eng, $entity, $errors);
 		}
 	}
 	
-	//Возвращаем HTML-код
+	//Return HTML flow
 	return $html;
 }
 
 /*Возвращает HTML код формы*/
-function show_form_edit_contact($contact=array(), $messages=array(), $photomessage=''){
-	//Подключаем глобальные переменные
+function show_form_edit_entity($action_eng, $system_objects, $object_singular_eng, $object_plural_eng, $action_full_eng, $table_prefix, $parent_object_plural_eng, $entity=array(), $messages=array(), $photomessage=''){
+	//Bind global variables
 	global $MonthsShort;
 	
-	//Определяем значение переменной
+	//Retrieve message HTML
 	$message_html=show_messages($messages);
 
 	//Определяем переменную
-	$show_contact_html="<a href='/manager.php?action=show_contact&contact={$contact['user_id']}' style='font-size:8pt;'>Просмотреть</a>";
+	$show_entity_link_html="<a href='/manager.php?action=show_".$object_singular_eng."&entity_id=".$entity['user_id']."' style='font-size:8pt;'>Просмотреть</a>";
 
-	/*Получаем статус*/
-	$statusRES=db_query("SELECT * FROM `phpbb_profile_fields_data` WHERE `user_id`={$contact['user_id']}");
-	db_count($statusRES)>0 ? $status=db_fetch($statusRES)['pf_status'] : $status='';
-	
-	//Переключатель "Есть подчиненные"
-	if($contact['chief']==1){$chief="checked";}else{$chief="";}
+	//Переключатель "Руководитель"
+	if($entity['boss']==1){$boss="checked";}else{$boss="";}
 
-	//Переключатель "Я могу редактировать графики работ"
-	if($contact['timetable_editor']==1){$timetable_editor="checked";}else{$timetable_editor="";}
+	//Переключатель "Показывать удаленные сущности"
+	if($entity['deleted']==1){$deleted="checked";}else{$deleted="";}
 	
-	//Переключатель "Не показывать в контактах"
-	if($contact['user_type']==9){$nocontact="checked";}else{$nocontact="";}
-	
-	//Переключатель "Есть подчиненные"
-	if($contact['notimetable']==1){$notimetable="checked";}else{$notimetable="";}
-	
-	//Переключатель "Инженер"
-	if($contact['engineer']==1){$engineer="checked";}else{$engineer="";}
+	//Get HTML of lists with parents entities
+	$directions_html=get_parents_options($table_prefix, 'directions', $entity['direction_id']);
+	//$bosses_html=get_parents_options($table_prefix, 'bosses');
 
-	//Переключатель "Руководитель инженеров"
-	if($contact['engineer_chief']==1){$engineer_chief="checked";}else{$engineer_chief="";}
-	
-	//Переключатель "Специальный сотрудник производства"
-	if($contact['spec_prod_staff']==1){$spec_prod_staff="checked";}else{$spec_prod_staff="";}
-
-	
-	
-	/*Получаем список складов/офисов*/
-	$points_html=get_points_options($contact);
-
-	/*Получаем список руководителей*/
-	$mychiefs_html=get_chiefs_options($contact);
-
-	/*Получаем список редакторов для графика работ*/
-	$timetable_editors_html=get_timetable_editors_options($contact);	
-	
 	/*Переключатели "Следующий" и "Предыдущий"*/
-	$switch=switch_next_previous($contact['user_id']);
+	$switch=switch_next_previous($entity['user_id']);
 
-	//НАЧАЛО: Установка алиаса для HR-manager-а
-	if($contact['timetable_editor']==1){
-		$hrmanager_alias_html=template_get("contacts/hrmanager_alias", array('hrmanager_alias'=>$contact['hrmanager_alias']));
-	}else{
-		$hrmanager_alias_html="";
-	}
-	//КОНЕЦ: Установка алиаса для HR-manager-а
-	
-	//Запрос к БД
-	$contact_hire_date=db_short_easy("SELECT `hire` FROM `phpbb_users` WHERE `user_id`=".$contact['user_id']);
-	
-	//Получаем список месяцев
-	$hire_months_options=get_hire_months_options($contact);
-
-	//НАЧАЛО: Получаем список годов
-	strtotime($contact_hire_date) ? $contact_hire_year=(int)date("Y", strtotime($contact_hire_date)) :  $contact_hire_year=(int)date("Y");
-	$hire_years_options="";
-	for($yearFOR=(int)date("Y");$yearFOR>=1995;$yearFOR--){
-		if($contact_hire_year==$yearFOR){
-			$selectedFOR="selected";
-		}else{
-			$selectedFOR="";
-		}
-		
-		$hire_years_options.="<option value='".$yearFOR."' ".$selectedFOR.">".$yearFOR."</option>";
-	}
-	//КОНЕЦ: Получаем список годов
-	
 	/*Подключаем шаблон*/
-	return template_get("contacts/edit_contact", array(		'action'=>"/manager.php?action=edit_contact&contact=".$contact['user_id'],
-															'name'=>$contact['username'],
-															'occupation'=>$contact['user_occ'],
-															'email'=>$contact['user_email'],
-															'skype'=>$contact['user_skype'],
-															'officephone'=>$contact['user_officephone'],
-															'extphone'=>$contact['user_extphone'],
-															'workmobilephone'=>$contact['user_workmobilephone'],
-															'privatemobilephone'=>$contact['user_privatemobilephone'],
-															'location'=>$contact['user_from'],
-															'status'=>$status,
+	return template_get($object_plural_eng."/".$action_full_eng, array(
+															'page_header'=>$system_objects[$object_singular_eng]['actions'][$action_eng]['full_name_rus'],
+															'action_link'=>"/manager.php?action=".$action_full_eng."&entity_id=".$entity['user_id'],
+															'show_entity_link'=>$show_entity_link_html,
+															'all_entities_link'=>"<a href='/manager.php?action=list_".$object_plural_eng."' class='action_link'>".
+																				  $system_objects[$object_singular_eng]['phrases']['all_entities_text']."</a><br/>",
+															'name'=>$entity['username'],
+															'position'=>$entity['position'],
+															'email'=>$entity['email'],
+															'phone_mobile'=>$entity['user_officephone'],
+															'phone_ext'=>$entity['user_extphone'],
 															'message'=>$message_html,
-															'points'=>$points_html,
-															'showcontact'=>$show_contact_html,
-															'previous'=>"/manager.php?action=edit_contact&contact={$switch['previous_id']}",
-															'next'=>"/manager.php?action=edit_contact&contact={$switch['next_id']}",
+															'directions'=>$directions_html,
+															'bosses'=>$bosses_html,
+															'boss'=>$boss,															
+															'previous'=>"/manager.php?action=".$action_full_eng."&entity_id=".$switch['previous_id'],
+															'next'=>"/manager.php?action=".$action_full_eng."&entity_id=".$switch['next_id'],
 															'current'=>($switch['current']+1)." из ".$switch['contacts_num'],
-															'chief'=>$chief,
-															'mychiefs'=>$mychiefs_html,
 															'nocontact'=>$nocontact,
-															'notimetable'=>$notimetable,
-															'engineer'=>$engineer,
-															'engineer_chief'=>$engineer_chief,
-															'spec_prod_staff'=>$spec_prod_staff,
-															'timetable_editor'=>$timetable_editor,
-															'timetable_editors'=>$timetable_editors_html,
-															'photo'=>get_user_avatar($contact['user_avatar'], $contact['user_avatar_type'], $contact['user_avatar_width'], $contact['user_avatar_height']),
+															'photo'=>get_user_avatar($entity['user_avatar'], $entity['user_avatar_type'], $entity['user_avatar_width'], $entity['user_avatar_height']),
 															'photomessage'=>$photomessage,
-															'hrmanager_alias'=>$hrmanager_alias_html,
-															'hire_months_options'=>$hire_months_options,
-															'hire_years_options'=>$hire_years_options
 															));
 }
 
 /*Загружаем фото пользователя*/
-function upload_user_photo($user_id){
+function upload_user_photo($entity_id){
 	$file_extension=get_file_extension($_FILES['file']['name']);
-	if(db_easy_count("SELECT * FROM `phpbb_avatars` WHERE `user_id`=$user_id")>0){
-		db_query("DELETE FROM `phpbb_avatars` WHERE `user_id`=$user_id");
+	if(db_easy_count("SELECT * FROM `phpbb_avatars` WHERE `user_id`=$entity_id")>0){
+		db_query("DELETE FROM `phpbb_avatars` WHERE `user_id`=$entity_id");
 	}
-	db_query("INSERT INTO `phpbb_avatars` SET `user_id`=$user_id, `extension`='$file_extension'");
+	db_query("INSERT INTO `phpbb_avatars` SET `user_id`=$entity_id, `extension`='$file_extension'");
 	$file_id=db_insert_id();
 	
 	$uploadfile=$_SERVER['DOCUMENT_ROOT']."images/avatars/upload/5748d7ff6b4d48da44e8a6525604c781_".$file_id.".".$file_extension;
 	if(move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile)){
 		$image_size=getimagesize($uploadfile);
-		db_query("UPDATE `phpbb_users` SET `user_avatar`='$file_id.$file_extension', `user_avatar_type`=1, `user_avatar_width`={$image_size[0]}, `user_avatar_height`={$image_size[1]} WHERE `user_id`=$user_id");
+		db_query("UPDATE `phpbb_users` SET `user_avatar`='$file_id.$file_extension', `user_avatar_type`=1, `user_avatar_width`={$image_size[0]}, `user_avatar_height`={$image_size[1]} WHERE `user_id`=$entity_id");
 		return template_get("message", array('message'=>"Фотография обновлена"));
 	}else{
 		return template_get("errormessage", array('message'=>"Ошибка"));
@@ -277,7 +214,7 @@ function upload_user_photo($user_id){
 }
 
 /*Переключатели "Следующий" и "Предыдущий"*/
-function switch_next_previous($user_id){
+function switch_next_previous($entity_id){
 	//Определяем переменные
 	$previous_html="";
 	$next_html="";
@@ -301,7 +238,7 @@ function switch_next_previous($user_id){
 		$contacts[$i]=$contactWHILE['user_id'];
 		
 		//Сокращенный IF-ELSE
-		$contactWHILE['user_id']==$user_id ? $current=$i : '';
+		$contactWHILE['user_id']==$entity_id ? $current=$i : '';
 		
 		//Определяем переменную
 		$i++;
@@ -310,8 +247,8 @@ function switch_next_previous($user_id){
 	//Определяем переменные
 	$previous=$current;
 	$next=$current;
-	$previous_id=$user_id;
-	$next_id=$user_id;
+	$previous_id=$entity_id;
+	$next_id=$entity_id;
 	
 	//IF
 	if($current>0){$previous=$current-1;$previous_id=$contacts[$previous];}
@@ -323,117 +260,29 @@ function switch_next_previous($user_id){
 	return array('next_id'=>$next_id, 'previous_id'=>$previous_id, 'current'=>$current, 'contacts_num'=>$contacts_num);
 }
 
-/*Получаем список складов/офисов*/
-function get_points_options($contact){
+//Get HTML of parents list
+function get_parents_options($table_prefix, $parent_object_plural_eng, $parent_entity_id){
 	//Определяем переменную
-	$points_html="";
+	$options_html="";
 	
 	//Запрос к БД
-	$pointsRES=db_query("SELECT * FROM `phpbb_points` ORDER BY `name` ASC");
+	$entities_db=db_query("SELECT * FROM `".$table_prefix.$parent_object_plural_eng."` ORDER BY `name` ASC");
 	
-	//IF
-	if(db_count($pointsRES)>0){
-		//WHILE
-		while($pointWHILE=db_fetch($pointsRES)){
-			//Сокращенный IF-ELSE
-			$contact['point_id']==$pointWHILE['id'] ? $selected="selected" : $selected="";
-		
-			//Определяем переменную
-			$points_html.="<option value='{$pointWHILE['id']}' $selected>{$pointWHILE['name']}</option>";
-		}
-	}
-	
-	//Возвращаем значение функции
-	return $points_html;
-}
-
-//Получаем список месяцев
-function get_hire_months_options($contact){
-	//Подключаем глобальную переменную
-	global $MonthsShort;
-	
-	//Получаем номер месяца
-	strtotime($contact['hire']) ? $contact_hire_month=(int)date("m", strtotime($contact['hire'])) : $contact_hire_month=(int)date("m");
-	//show($contact_hire_month);
-
-	//Определяем переменную для HTML-кода
-	$html="";
-	
-	//FOREACH
-	foreach($MonthsShort as $month_number=>$month_short_name){
-		if($contact_hire_month==$month_number){
-			$selectedFOR="selected";
-		}else{
-			$selectedFOR="";
-		}
-		$html.="<option value='".$month_number."' ".$selectedFOR.">".$month_short_name."</option>";
-	}
-	
-	//Возвращаем полученный HTML-код
-	return $html;
-}
-
-/*Получаем список руководителей*/
-function get_chiefs_options($contact){
-	//Определяем переменные
-	$mychiefs_html="";
-	
-	//Запрос к БД
-	$mychiefsRES=db_query("SELECT * FROM `phpbb_users` WHERE `chief`=1 ORDER BY `username` ASC");
-	
-	//Добавляем первый пункт
-	$mychiefs_html.="<option value='0'>--не определено--</option>";
-
-	//IF
-	if(db_count($mychiefsRES)>0){
-		//WHILE
-		while($mychiefWHILE=db_fetch($mychiefsRES)){
-			//Сокращенный IF-ELSE
-			$contact['mychief_id']==$mychiefWHILE['user_id'] ? $selected="selected" : $selected="";
-			
-			//Определяем переменную
-			$mychiefs_html.="<option value='{$mychiefWHILE['user_id']}' $selected>{$mychiefWHILE['username']}</option>";
-		}
-	}
-	
-	//Возвращаем значение функции
-	return $mychiefs_html;
-}
-
-/*Получаем список редакторов для графика работ*/
-function get_timetable_editors_options($contact=false){
-	//Определяем переменную
-	$timetable_editors_html="";
-	
-	//Добавляем первый пункт
-	$timetable_editors_html.="<option value='0'>--не определено--</option>";
-	
-	//IF
-	if($contact===false){
-		//Запрос к БД
-		$timetable_editorsRES=db_query("SELECT * FROM `phpbb_users` WHERE `timetable_editor`=1 ORDER BY `username` ASC");
-	}else{
-		//Запрос к БД
-		$timetable_editorsRES=db_query("SELECT * FROM `phpbb_users` WHERE `timetable_editor`=1 ORDER BY `username` ASC");
-	}
-	
-	//IF
-	if(db_count($timetable_editorsRES)>0){
-		//WHILE
-		while($timetable_editor=db_fetch($timetable_editorsRES)){
-			//IF
-			if($contact!==false){
-				//Сокращенный IF-ELSE
-				$contact['my_timetable_editor_id']==$timetable_editor['user_id'] ? $selected="selected" : $selected='';
+	//Build HTML for list of parents
+	if(db_count($entities_db)>0){
+		//Look over entities
+		while($entity_while=db_fetch($entities_db)){
+			if($parent_entity_id==$entity_while['id']){
+				$selected="selected";
+			}else{
+				$selected="";
 			}
-			
-			//Определяем переменную
-			$timetable_editors_html.="<option value='{$timetable_editor['user_id']}' $selected>{$timetable_editor['username']}</option>";
+			$options_html.="<option value='{$entity_while['id']}' $selected>{$entity_while['name']}</option>";
 		}
+	}else{
+		
 	}
-	
-	//Возвращаем значение функции
-	return $timetable_editors_html;
+	//Return HTML flow
+	return $options_html;
 }
-
 ?>

@@ -8,8 +8,8 @@ function template_get($template_file, $replacements=array()){
 		//Perform replacements in HTML
 		$html=html_replace($html, $replacements);
     }else{
-		//Perform errors
-        dis_error("Template file '$template_file' doesn't exist", 'echo');
+		//Handle error
+        system_error('template_file_doesnt_exist', array('file'=>$template_file));
     }
 	
 	//Return HTML flow
@@ -30,6 +30,33 @@ function html_replace($html, $replacements=array()){
 			//Replace all mathes '{$match}' to '$replacement'
 			$html=str_replace("{".$match."}", $replacement, $html);
 		}
+	}
+	
+	//Return HTML flow
+	return $html;
+}
+
+//Return HTML of final message
+function show_messages($messages){
+	//Define HTML flow
+	$html="";
+
+	//Build final message
+	if(count($messages)>0){
+		foreach($messages as $index=>$message){
+			//Build final message HTML
+			$messages_html.=$message;
+			
+			//Add empty string
+			$index<count($messages) ? $messages_html.="<br/>" : '';
+		}
+		
+		//Build final HTML
+		$html=template_get("message", array('message'=>$messages_html));
+	//There is no messages
+	}else{
+		//Build final HTML
+		$html=template_get("no_message");
 	}
 	
 	//Return HTML flow

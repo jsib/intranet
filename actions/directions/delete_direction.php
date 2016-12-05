@@ -14,11 +14,12 @@ function delete_direction(){
 	
 	//Retrieve action properties
 	$action_eng=$function_name_pieces[0];
+	$action_full_eng=__FUNCTION__;
 	
 	//Check rights for this action
-	if(!check_rights($action_eng.'_'.$object_singular_eng)){
+	if(!check_rights($action_full_eng)){
 		//Retrieve error message
-		return dis_error("You don't have needed permissions", 'return');
+		error_user('permission_denied');
 	}
 
 	//Get data from browser
@@ -27,7 +28,7 @@ function delete_direction(){
 	//Retrieve the entity properties from database
 	$entity_db=db_query("SELECT * FROM `".$table_prefix.$object_plural_eng."` WHERE `id`=$entity_id");
 	
-	//Get number of entities retrieved from database 
+	//Get number of entities retrieved from database
 	$entities_number=db_count($entity_db);
 
 	if($entities_number>0){
@@ -40,7 +41,7 @@ function delete_direction(){
 		//Refet to list of entities
 		header("location: /manager.php?action=list_".$object_plural_eng."&action_previous=".$action_eng."&action_previous_result=success&action_previous_entity_name=".$entity_name);
 	}else{
-		dis_error("There is no entities of object '".$object_singular_eng."' with id=".$entity_id, 'echo', 'debug');
+		system_error("try_delete_non_existent_entity", array('object'=>$object_singular_eng, 'entity'=>$entity_id));
 	}
 }
 ?>

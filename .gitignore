@@ -2,9 +2,11 @@
 #Ignore these files
 /config.php
 /timetable.csv
+/Sertif_2016.cer
 
 #Ignore all files in these folders
 /cache/
 /docs/
 /files/
 /store/
+

@@ -26,3 +26,38 @@ dl.postprofile dd{
 .parent_entities{
 	margin-top:5px;
 }
+
+#edit_form a:link, #edit_form a:active, #edit_form a:visited, #edit_form a:hover{
+	color:#000;
+	text-decoration:none;
+}
+
+a.action_link{
+	font-size:8pt;
+	text-decoration:none;	
+}
+a.action_link:hover{
+	text-decoration:underline;
+}
+
+.switch{
+	margin:25px 0 0 80px;
+	font-size:8pt;
+}
+.switch_entity_link{
+	color:black;text-decoration:underline;
+}
+
+.entity_card_photo{
+	float:left;
+	margin:25px 30px 15px 0px;
+	width:300px;
+	height:300px;
+}
+.entity_show_card_body{
+	float:left;
+	padding-top:5px;
+}
+table.entity_show_card{
+	margin-top:10px;
+}

@@ -18,27 +18,27 @@ function add_user(){
 	
 	if(!check_rights($action_full_eng)){
 		//Return HTML flow
-		return dis_error("You don't have permissions for this action", 'return', 'prod');
+		system_error('permission_denied');
 	}
 	
 	//No HTML form data
 	if(!isset($_POST['name'])){
 		//Возвращаем значение функции
-		return show_form_add_entity($object_plural_eng, $action_full_eng);
+		return show_form_add_entity($system_objects, $object_singular_eng, $object_plural_eng, $action_eng, $action_full_eng);
 	//HTML form data alreary retrieved
 	}else{
 		//Retrive entity name from browser
-		$entity_name_eng=$_POST['name'];
+		$entity_name_eng=trim($_POST['name']);
 		
 		//Check entity name
-		if(preg_match(REGEXP_USERNAME, $_POST['name'])){
+		if(preg_match(REGEXP_USERNAME, $entity_name_eng)){
+			//Entity with same name already exists
 			if(db_easy_count("SELECT `".$object_singular_eng."_id` FROM `".$table_prefix.$object_plural_eng."` WHERE `username`='".$entity_name_eng."'")>0){
-				$errors[]=template_get("message", array('message'=>html_replace($object_actions[$action_eng]['results']['same_entity_exists']['result'], array('name'=>$entity_name))));
-			}else{
-				$entity_name_eng=$_POST['name'];
+				$errors[]=html_replace($object_actions[$action_eng]['results']['same_entity_exists']['result'], array('name'=>$entity_name_eng));
 			}
+		//Error in entity name
 		}else{
-			$errors[]=template_get("message", array('message'=>html_replace($object_actions[$action_eng]['results']['entity_name_error']['result'], array('name'=>$entity_name))));
+			$errors[]=html_replace($object_actions[$action_eng]['results']['entity_name_error']['result'], array('name'=>$entity_name_eng));
 		}
 		
 		//Save data to database
@@ -60,45 +60,29 @@ function add_user(){
 			header("location: /manager.php?action=edit_".$object_singular_eng."&entity_id=$user_id");
 		//Show HTML form with error message
 		}else{
+			//Prepare entity for error page
+			$entity['name']=$entity_name_eng;
+			
 			//Return HTML flow
-			return show_form_add_entity($object_plural_eng, $action_full_eng, $_POST, $errors);
+			return show_form_add_entity($system_objects, $object_singular_eng, $object_plural_eng, $action_eng, $action_full_eng, $entity, $errors);
 		}
 	}
 }
+
+
 
 //Return HTML code of form
-function show_form_add_entity($object_plural_eng, $action_full_eng, $entity=array(), $messages=array()){
+function show_form_add_entity($system_objects, $object_singular_eng, $object_plural_eng, $action_eng, $action_full_eng, $entity=array(), $messages=array()){
+	//Build message HTML
 	$message_html=show_messages($messages);
-	
-	return template_get($object_plural_eng."/".$action_full_eng, array(
-															'name'=>$entity['name'],
-															'message'=>$message_html
-												));
-	
-}
-
-//Return HTML of final message
-function show_messages($messages){
-	//Define HTML flow
-	$html="";
-
-	//Build final message
-	if(count($messages)>0){
-		foreach($messages as $index=>$message){
-			//Определяем переменную
-			$messages_html.=$message;
-			
-			//Сокращенный IF-ELSE
-			$index<count($messages) ? $messages_html.="<br/>" : '';
-		}
 		
-		$html=template_get("errormessage", array('message'=>$messages_html));
-	//There is no messages
-	}else{
-		$html=template_get("no_message");
-	}
-	
 	//Return HTML flow
-	return $html;
+	return template_get($object_plural_eng."/".$action_full_eng, array(
+															'page_header'=>$system_objects[$object_singular_eng]['actions'][$action_eng]['full_name_rus'],
+															'action_link'=>"/manager.php?action=".$action_full_eng,
+															'name'=>$entity['name'],
+															'message'=>$message_html,
+															'button_text_rus'=>$system_objects[$object_singular_eng]['actions'][$action_eng]['button_text_rus']
+												));
 }
 ?>

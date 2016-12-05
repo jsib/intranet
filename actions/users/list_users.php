@@ -1,5 +1,5 @@
 <?php
-function list_users(){ 
+function list_users(){
 	//Retrieve information from this function name
 	$function_name_pieces=explode("_", __FUNCTION__);
 
@@ -17,7 +17,7 @@ function list_users(){
 	$action_eng=$function_name_pieces[0];
 	$action_full_eng=__FUNCTION__;
 
-	//Set parent object properties
+	//Retrieve parent object properties
 	$parent_object_singular_eng=$system_objects[$object_singular_eng]['parent'];
 	$parent_object_plural_eng=$system_objects[$parent_object_singular_eng]['plural_name_eng'];
 	
@@ -55,7 +55,7 @@ function list_users(){
 	}
 	
 	//Build SQL expression for parent object filter
-	$parent_entities_db = db_query("SELECT * FROM `".$table_prefix.$parent_object_plural_eng."` ORDER BY 'name'");  
+	$parent_entities_db = db_query("SELECT * FROM `".$table_prefix.$parent_object_plural_eng."` ORDER BY 'name'");
 
 	if(isset($_GET['parent_entity_id']) && @$_GET['parent_entity_id']!=1){
 		$parent_entity_id=$_GET['parent_entity_id'];
@@ -102,9 +102,10 @@ function list_users(){
 	
 	//Build HTML for hidden entities checkbox
 	if(check_rights('show_hidden_'.$object_plural_eng)){
-		$checkbox_hidden_entities=template_get($object_plural_eng."/checkbox_hidden_entities", array(
-														'input_hidden_entity'=>$input_hidden_entity,
-														'hidden_entity_checked'=>$hidden_entity_checked
+		$checkbox_hidden_entities=template_get($object_plural_eng."/checkbox_hidden_entities",
+												array('input_hidden_entity'=>$input_hidden_entity,
+													  'hidden_entity_checked'=>$hidden_entity_checked,
+													  'action_full_eng'=>$action_full_eng
 												));
 	}
 	

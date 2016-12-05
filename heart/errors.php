@@ -1,0 +1,28 @@
+<?php
+//Define system errors
+$system_errors['permission_denied']=array(
+	'type'=>'user',
+	'name'=>'permission_denied',
+	'number'=>1001,
+	'text'=>TXT_PERMISSION_DENIED);
+$system_errors['result_not_defined_for_this_object_and_action']=array(
+	'type'=>'admin',
+	'name'=>'result_not_defined_for_this_object_and_action',
+	'number'=>1002,
+	'text'=>TXT_RESULT_NOT_DEFINED_FOR_THIS_OBJECT_AND_ACTION);
+$system_errors['try_edit_non_existent_entity']=array(
+	'type'=>'admin',
+	'name'=>'try_edit_non_existent_entity',
+	'number'=>1003,
+	'text'=>TXT_TRY_EDIT_NON_EXISTENT_ENTITY);	
+$system_errors['try_delete_non_existent_entity']=array(
+	'type'=>'admin',
+	'name'=>'try_delete_non_existent_entity',
+	'number'=>1004,
+	'text'=>TXT_TRY_DELETE_NON_EXISTENT_ENTITY);
+$system_errors['template_file_doesnt_exist']=array(
+	'type'=>'admin',
+	'name'=>'template_file_doesnt_exist',
+	'number'=>1005,
+	'text'=>TXT_TEMPLATE_FILE_DOESNT_EXIST);
+?>

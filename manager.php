@@ -99,7 +99,8 @@ if ($config['load_birthdays'] && $config['allow_birthdays'])
 	}
 	$db->sql_freeresult($result);
 }
-/*НАЧАЛО: Manager. Автор: Домышев Илья, Акустик Групп*/
+/*Start: Manager. Author: Domyshev Ilya. Dec, 2016.*/
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/errors.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/templates.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/files.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/db.php");
@@ -108,6 +109,9 @@ require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/uris.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/auth.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/special_variables.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/blocks/blocks.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/heart/constants.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/heart/objects.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/heart/errors.php");
 
 /*Запись в статистику*/
 if(@$_GET['action']!='list_stat' && @$_GET['action']!='show_stat'){
@@ -123,8 +127,6 @@ while($subdir = readdir($dp)){
 	if($subdir != '.' && $subdir != '..' && is_dir($dir."/".$subdir)){
 		$action_file=$dir."/".$subdir."/".$action.".php";
 		if(file_exists($action_file)){
-			//Set error level output
-			//ini_set('error_reporting', E_ALL);
 			require_once($action_file);
 			db_connect();
 			//set_error_handler('dis_error_handler');
@@ -132,7 +134,7 @@ while($subdir = readdir($dp)){
 		}
 	}
 }
-/*КОНЕЦ: Manager. Автор: Домышев Илья, Акустик Групп*/
+/*Stop: Manager. Author: Domyshev Ilya. Dec, 2016.*/
 
 // Assign index specific vars
 $template->assign_vars(array(
