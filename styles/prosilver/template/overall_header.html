@@ -33,9 +33,7 @@
 	      The phpBB Group is not responsible for the content of this page and forum. For more information
 	      about phpBB please visit http://www.phpbb.com
 -->
-<style>
-	a.nav{color:#FFF;}
-</style>
+
 <script type="text/javascript">
 //Устанавливаем обработчики для timetable{
 	/*function testhandler(){
@@ -94,6 +92,7 @@
 
 <link href="{T_THEME_PATH}/print.css" rel="stylesheet" type="text/css" media="print" title="printonly" />
 <link href="{T_STYLESHEET_LINK}" rel="stylesheet" type="text/css" media="screen, projection" />
+<link href="{T_THEME_PATH}/adggroup.css" rel="stylesheet" type="text/css" />
 
 <link href="{T_THEME_PATH}/normal.css" rel="stylesheet" type="text/css" title="A" />
 <link href="{T_THEME_PATH}/medium.css" rel="alternate stylesheet" type="text/css" title="A+" />
@@ -114,10 +113,10 @@
 			<div class="inner"><span class="corners-top"><span></span></span>
 
 			<div id="site-description">
-				<div class="site-description__item site-description__logo">
-					<a href="{U_INDEX}" title="{L_INDEX}" id="logo"><img height="80" title="" alt="" src="{T_THEME_PATH}/images/logo.png"></a>
+				<div class="site-description__item site-description__logo maintitle">
+					<a href="{U_INDEX}" title="{L_INDEX}" id="logo"><img height="40" title="" alt="" src="{T_THEME_PATH}/images/logo.png"></a>
 				</div>
-				<div class="site-description__item site-description__desc">
+				<div class="site-description__item site-description__desc mainheader">
 				<h1>{SITENAME}</h1>
 				<p>{SITE_DESCRIPTION}</p>
 				<p class="skiplink"><a href="#start_here">{L_SKIP}</a></p>
@@ -139,25 +138,9 @@
 						</li>
 					</ul>
 					<div class="gen_info_shown">
-						<span class="gen_imfo_number"> 8 (800) 707-20-77 </span><br>
-                        Консультация инженера-акустика<br>Бесплатный звонок по всей России<br><a class="gen_info_shown__link" href="http://www.acoustic.ru/">Перейти на сайт</a>
+						<span class="gen_imfo_number"> 8 (495) 540-50-41 </span><br>
+                        <br><a class="gen_info_shown__link" href="http://www.adggroup.ru/" target="_blank">Перейти на сайт</a>
 					</div>
-					<div class="gen_info-block gen_info_ru">
-                        <span class="gen_imfo_number"> 8 (800) 707-20-77 </span><br>
-                        Консультация инженера-акустика<br>Бесплатный звонок по всей России<br><a class="gen_info_shown__link" href="http://www.acoustic.ru/">Перейти на сайт</a>
-                    </div>
-					<div class="gen_info-block gen_info_ua">
-                        <span class="gen_imfo_number"> +38 (044) 251-21-21 </span><br>
-                        Консультация инженера-акустика<br>филиал Acoustic Group в Украине<br><a class="gen_info_shown__link" href="http://www.shumanet.ua/">Перейти на сайт</a>
-                    </div>
-                    <div class="gen_info-block gen_info_kz">
-                        <span class="gen_imfo_number"> +7 (727) 337-97-62 </span><br>
-                        Консультация инженера-акустика<br>филиал Acoustic Group в Казахстане<br><a class="gen_info_shown__link" href="http://www.acoustic.ru/">Перейти на сайт</a>
-                    </div>
-                    <div class="gen_info-block gen_info_by">
-                        <span class="gen_imfo_number"> +375 (17) 218-16-11 </span><br>
-                        Консультация инженера-акустика<br>Представительство в Беларуси<br><a class="gen_info_shown__link" href="http://www.acoustic.ru/">Перейти на сайт</a>
-                    </div>
                     <script type="text/javascript" src="{T_THEME_PATH}/jquery.js"></script>
                     <script type="text/javascript">
                     	jQuery(document).ready(function(){
@@ -202,7 +185,14 @@
 				<li><a href="/manager.php?action=list_contacts">Сотрудники</a></li>
 				<li class="div">|</li>
 				<li><a href="/manager.php?action=list_points">Офисы/склады</a></li>
-				{LINKTIMETABLESECTION}
+				<li class="div">|</li>
+				<li><a href="/manager.php?action=list_arendas">Точки аренды</a></li>
+				<li class="div">|</li>
+				<li><a href="/manager.php?action=list_clusters">Кластеры</a></li>
+				<li class="div">|</li>
+				<li><a href="/manager.php?action=list_categories">Категории</a></li>
+				<li class="div">|</li>
+				<li><a href="/manager.php?action=list_objects">Объекты</a></li>
 				{LINKADMINSECTION}
 			</ul>
 			<ul class="linklist navlinks rightside">	

@@ -1,0 +1,23 @@
+﻿table.listcontacts a.header{
+	color:#000;
+	font-size:9pt;
+}
+table.listcontacts a.header img{padding-left:5px;}
+.clear{clear:both;}
+.navbar a:visited{
+	color:#fff;
+}
+.manager a{}
+
+dl.postprofile dd{
+	padding-bottom:3px;
+	font-size:8pt;
+}
+
+.mainheader{
+	padding-left:250px;
+}
+.maintitle{
+}
+
+a.nav{color:#FFF;}

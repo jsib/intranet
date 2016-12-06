@@ -11,10 +11,10 @@ function main_menu(){
 	}
 	
 	//Проверка, является ли вошедший пользователь редактором графиков работ
-	db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$user->data['user_id']}")==1 ? $timetable_editor=1 : $timetable_editor=0;
+	//db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$user->data['user_id']}")==1 ? $timetable_editor=1 : $timetable_editor=0;
 	
 	//НАЧАЛО: Проверка, даны ли вошедшему пользователю права на управления графиками кого-либо из редакторов
-	$same_rightsSQL="SELECT `editor_id` FROM `phpbb_timetable_editors_rights` WHERE `user_id`={$user->data['user_id']}";
+	/*$same_rightsSQL="SELECT `editor_id` FROM `phpbb_timetable_editors_rights` WHERE `user_id`={$user->data['user_id']}";
 	if(db_easy_count($same_rightsSQL)>0){
 		$editor_id=db_short_easy($same_rightsSQL);
 		if(db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$editor_id}")==1){
@@ -29,7 +29,7 @@ function main_menu(){
 	
 	if(is_engineer_chief_employee()){
 		$timetable_editor_same_rights=1;
-	}
+	}*/
 	
 	//КОНЕЦ: Проверка, даны ли вошедшему пользователю права на управления графиками кого-либо из редакторов
 	

@@ -132,4 +132,8 @@ function count_work_days($Year, $Month, $To=false){      /*Если указан
 		}
 	}
 }
+
+function system_error(){
+	show("Ошибка выполнения скрипта. Пожалуйста, обратитесь к системному администратору.");
+}
 ?>

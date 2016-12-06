@@ -1,0 +1,127 @@
+<style>
+	#edit_form a:link, #edit_form a:active, #edit_form a:visited, #edit_form a:hover{
+		color:#000;
+		text-decoration:none;
+	}
+</style>
+<br/><span style='font-size:8pt;'></span><br/>
+<div style="padding-top:5px;">
+	<h2 style="padding-top:0;margin-top:10px;">Редактировать точку аренды</h2>
+	{show_entity_link}
+	<form action="{action}" method='post' id='edit_form'>
+		<table border='0'>
+			<tr>
+				<td style='width:250px;'>
+					Название:
+				</td>
+				<td>
+					<input type='text' name='name' value='{name}' />
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Кластер:
+				</td>
+				<td>
+					<select name='name'>
+						{clusters}	
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Категория:
+				</td>
+				<td>
+					<select name='name'>
+						{categorys}	
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Объект:
+				</td>
+				<td>
+					<select name='name'>
+						{objects}	
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Приоритет:
+				</td>
+				<td>
+					<input type='text' name='priority' value='{priority}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Дата контакта:
+				</td>
+				<td>
+					<input type='text' name='contact_date' value='{contact_date}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Статус:
+				</td>
+				<td>
+					<input type='text' name='status' value='{status}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Комментарий:
+				</td>
+				<td>
+					<input type='text' name='comment' value='{comment}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Следующий шаг:
+				</td>
+				<td>
+					<input type='text' name='next_step' value='{next_step}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Дата:
+				</td>
+				<td>
+					<input type='text' name='date' value='{date}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Контакты:
+				</td>
+				<td>
+					<input type='text' name='contacts' value='{contacts}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Ответственный ADG:
+				</td>
+				<td>
+					<input type='text' name='responsible_adg' value='{responsible_adg}'/>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Ответственный C&W:
+				</td>
+				<td>
+					<input type='text' name='responsible_cw' value='{responsible_cw}'/>
+				</td>
+			</tr>
+		</table><br/>
+		<input type='submit' value='Сохранить'/>
+	</form>
+</div>
+<div class="clear"></div>

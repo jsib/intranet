@@ -1,0 +1,6 @@
+<form method='get' action='manager.php' id="hiddenContactsForm" onchange="document.getElementById('hiddenContactsForm').submit();">
+	<input type='hidden' name='action' value='list_arendas' />
+	{input_hidden_branch}
+	<input type='checkbox' name='show_hidden_arendas' style='width:15px;' {hidden_arenda_checked}/> - показывать скрытые точки аренды
+</form>
+<br/>
