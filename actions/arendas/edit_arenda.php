@@ -45,7 +45,7 @@ function edit_arenda(){
 		
 		//REGEXP_EASY_STRING
 		$strings_sql="";
-		$strings_params=array('status');
+		$strings_params=array('priority', 'contact_date', 'status', 'comment', 'next_step', 'contacts', 'responsible_adg', 'responsible_cw');
 		foreach($strings_params as $nameFOR){
 				$strings_sql.="`".$nameFOR."`= :".$nameFOR." , ";
 		}	
@@ -53,6 +53,7 @@ function edit_arenda(){
 		//Numeric fields
 		$cluster_id=(int)$_POST['cluster'];
 		$category_id=(int)$_POST['category'];
+		$object_id=(int)$_POST['object'];
 		
 		//Checkboxes
 		$checkboxes_sql="";
@@ -66,6 +67,7 @@ function edit_arenda(){
 
 		//Проверяем наличие ошибок во входных данных
 		if(count($errors)==0){
+			//show('no error');
 			//Формируем SQL запрос
 			$sql="	UPDATE
 						`phpbb_arendas` 
@@ -73,11 +75,13 @@ function edit_arenda(){
 						".$strings_sql."
 						".$checkboxes_sql."
 						`cluster_id`=$cluster_id,
-						`category_id`=$category_id
+						`category_id`=$category_id,
+						`object_id`=$object_id
 					WHERE
 						`id`=".$arenda_id;
 						
 			//show($sql);
+			//show($_POST);
 			
 			//Prepare expression
 			$sth=$Dbh->prepare($sql);
@@ -96,6 +100,7 @@ function edit_arenda(){
 			//Return HTML of form
 			return show_form_edit_arenda($arenda, $errors);
 		}else{
+			//show('eroorr');
 			//Return HTML of form
 			return show_form_edit_arenda($arenda, $errors);
 		}
@@ -123,7 +128,7 @@ function show_form_edit_arenda($arenda=array(), $messages=array()){
 	$clusters_html=get_clusters_options($arenda);
 
 	//Get select HTML
-	$categorys_html=get_categorys_options($arenda);
+	$categories_html=get_categories_options($arenda);
 
 	//Get select HTML
 	$objects_html=get_objects_options($arenda);
@@ -134,11 +139,20 @@ function show_form_edit_arenda($arenda=array(), $messages=array()){
 												'list_entities_link'=>$list_entities_link,
 												'show_entity_link'=>$show_entity_link,
 												'name'=>$arenda['name'],
+												'priority'=>$arenda['priority'],
+												'date_contact'=>$arenda['date_contact'],
 												'status'=>$arenda['status'],
-												'message'=>$message_html,
+												'comment'=>$arenda['comment'],
+												'next_step'=>$arenda['next_step'],
+												'date'=>strtotime($arenda['date']),
+												'contacts'=>$arenda['contacts'],
+												'responsible_adg'=>$arenda['responsible_adg'],
+												'responsible_cw'=>$arenda['responsible_cw'],
+												'contacts'=>$arenda['contacts'],
 												'clusters'=>$clusters_html,
-												'categorys'=>$categorys_html,
-												'objects'=>$objects_html
+												'categories'=>$categories_html,
+												'objects'=>$objects_html,
+												'message'=>$message_html,
 											));
 }
 
@@ -165,18 +179,18 @@ function get_clusters_options($arenda){
 }
 
 //Get list of entities HTML
-function get_categorys_options($arenda){
+function get_categories_options($arenda){
 	//Define HTML flow
 	$html="";
 	
 	//Execute query to database
-	$entities_res=db_query("SELECT * FROM `phpbb_categorys` ORDER BY `name` ASC");
+	$entities_res=db_query("SELECT * FROM `phpbb_categories` ORDER BY `name` ASC");
 	
 	//IF
 	if(db_count($entities_res)>0){
 		//WHILE
 		while($entity_while=db_fetch($entities_res)){
-			$arenda['cluster_id']==$entity_while['id'] ? $selected="selected" : $selected="";
+			$arenda['category_id']==$entity_while['id'] ? $selected="selected" : $selected="";
 		
 			$html.="<option value='{$entity_while['id']}' $selected>{$entity_while['name']}</option>";
 		}

@@ -1,22 +1,11 @@
 <h2>Точки аренды</h2><br/>
-{add_arenda}
-<form method='get' action='manager.php' id="chooseForm" onchange="document.getElementById('chooseForm').submit();">
-	Подразделение: <br/><select name="branch" style='margin-top:5px;'>
-		{branches}
+{arenda_add_link}
+<form method='get' action='manager.php' id="filter_form" onchange="document.getElementById('filter_form').submit();">
+	Кластер: <br/><select name="cluster" style='margin-top:5px;'>
+		{clusters}
 	</select>
 	<input type='hidden' name='action' value='list_arendas' />
 </form><br/>
-{filter_hidden_arendas}
-<b>Количество:</b> {numarendas}<br/><br/>
-<table class='listarendas' cellpadding=0 cellspacing=0 border=0>
-	<tr>
-		<th class='left'>{header[username]}</th>
-		<th>{header[branch]}</th>
-		<th>Должность</th>
-		<th>Мобильный (рабочий)</th>
-		<th class='{right_class}'>Офисный телефон</th>
-		{th_html}
-	</tr>
-	{table}
-</table>
+<b>Количество:</b> {arendas_number}<br/><br/>
+{table}
 <br/>

@@ -90,7 +90,6 @@ function db_easy($question, $file='', $line='')
 
 function db_short_easy($question, $file='', $line='')
 {
-	show(debug_backtrace());
     if($a=db_query($question, $file, $line))
     {
         $result=db_fetch($a);
