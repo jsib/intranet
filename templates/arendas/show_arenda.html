@@ -1,53 +1,62 @@
-<br/><span style='font-size:8pt;'></span><a href="/manager.php?action=list_arendas" style="font-size:8pt;color:black;text-decoration:underline;">Все сотрудники</a><br/>
-<div style='margin:25px 0 0 80px;font-size:8pt;'>
-	<a href='{previous}' style='color:black;text-decoration:underline;'><img src='/images/left.png' /></a>
-		&nbsp;&nbsp;&nbsp;&nbsp;{current}&nbsp;&nbsp;&nbsp;&nbsp;
-	<a href='{next}' style='color:black;text-decoration:underline;'><img src='/images/right.png' /></a>
-</div>
-<div style="float:left;margin:10px 30px 15px 0px;">
-	{photo}
-</div>
-<div style="float:left;padding-top:5px;">
+<br/>
+{list_arendas_link}
+<div style="padding-top:5px;">
 	<h2>Точка аренды</h2>
-	{editarenda}
+	{edit_arenda_link}
 	<table cellspacing=5 cellpadding=0 border=0 style='margin-top:10px;'>
 		<tr>
 			<td style='width:220px;'>ФИО</td>
 			<td>{name}</td>
 		</tr>
 		<tr>
-			<td>Должность</td>
-			<td>{occupation}</td>
-		</tr>
-		{mychief}
-		{employees}
-		<tr>
-			<td>Офис/склад</td>
-			<td>{point}</td>
+			<td>Кластер</td>
+			<td>{cluster_name}</td>
 		</tr>
 		<tr>
-			<td>E-mail</td>
-			<td>{email}</td>
+			<td>Категория</td>
+			<td>{category_name}</td>
 		</tr>
 		<tr>
-			<td>Скайп</td>
-			<td>{skype}</td>
+			<td>Объект</td>
+			<td>{object_name}</td>
 		</tr>
 		<tr>
-			<td>Телефон офиса</td>
-			<td>{officephone}</td>
+			<td>Приоритет</td>
+			<td>{priority}</td>
 		</tr>
 		<tr>
-			<td>Добавочный номер</td>
-			<td>{extphone}</td>
+			<td>Дата контакта</td>
+			<td>{contact_date}</td>
 		</tr>
-		{mobilephones}
 		<tr>
-			<td valign='top'>Статус</td>
+			<td>Статус</td>
 			<td>{status}</td>
 		</tr>
+		<tr>
+			<td>Комментарий</td>
+			<td>{comment}</td>
+		</tr>
+		<tr>
+			<td>Следующий шаг</td>
+			<td>{next_step}</td>
+		</tr>
+		<tr>
+			<td>Дата</td>
+			<td>{date}</td>
+		</tr>
+		<tr>
+			<td>Контакты</td>
+			<td>{contacts}</td>
+		</tr>
+		<tr>
+			<td>Ответственный в АДГ</td>
+			<td>{responsible_adg}</td>
+		</tr>
+		<tr>
+			<td>Ответственный в C&W</td>
+			<td>{responsible_cw}</td>
+		</tr>
 	</table>
-	{uchet_rabochego_vremeni}
 </div>
 <div class="clear"></div>
 

@@ -12,16 +12,16 @@ function add_arenda(){
 		return show_form_add_arenda();
 	//ELSE
 	}else{
-		$entity_name=$_POST['name'];
+		$entity_name=trim($_POST['name']);
 		
 		//Check entity name
 		if(preg_match(REGEXP_USERNAME, $entity_name)){
 			
 			if(db_easy_count("SELECT `id` FROM `phpbb_arendas` WHERE `name`='".$entity_name."'")>0){
-				$errors[]=ERROR_USERNAME_EXISTS;
+				$errors[]="Точка аренды с таким названием уже существует";
 			}
 		}else{
-			$errors[]=ERROR_USERNAME_REQUIREMENT;
+			$errors[]="Название аренды ".TXT_REQUIREMENTS_NAME;
 		}
 		
 		//IF
@@ -42,10 +42,10 @@ function add_arenda(){
 
 /*Возвращает HTML код формы*/
 function show_form_add_arenda($arenda=array(), $messages=array()){
-	//Определяем значение переменной
+	//Return HTML
 	$message_html=show_messages($messages);
 	
-	/*Подключаем шаблон*/
+	//Return HTML
 	return template_get("arendas/add_arenda", array(	
 															'name'=>$arenda['name'],
 															'message'=>$message_html
@@ -53,27 +53,28 @@ function show_form_add_arenda($arenda=array(), $messages=array()){
 	
 }
 
-/*Возвращает HTML с сообщениями*/
+//Return HTML with message
 function show_messages($messages){
-	//Определяем переменную
+	//Define HTML flow
 	$html="";
 
-	/*Сообщение о результате действия*/
+	//Process retrieved messages
 	if(count($messages)>0){
 		
 		//FOREACH
-		foreach($messages as $index=>$message){
+		foreach($messages as $message_key=>$message){
 			//Определяем переменную
 			$messages_html.=$message;
 			
 			//Сокращенный IF-ELSE
-			$index<count($messages) ? $messages_html.="<br/>" : '';
+			$message_key<count($messages) ? $messages_html.="<br/>" : '';
 		}
 		
-		/*Подключаем шаблон*/
-		$html=template_get("errormessage", array('message'=>$messages_html));	
+		//Build HTML
+		$html=template_get("message", array('message'=>$messages_html));	
+	//No messages presented
 	}else{
-		/*Подключаем шаблон*/
+		//Build HTML
 		$html=template_get("nomessage");
 	}
 	

@@ -1,5 +1,8 @@
 <?php
 function list_arendas(){
+	//Bind global variables
+	global $config_arenda;
+	
 	//Get sort direction
 	if(isset($_GET['sortdirection'])){
 		$sort_direction=$_GET['sortdirection'];
@@ -24,6 +27,14 @@ function list_arendas(){
 					'cluster_name'=>array(
 						'rus'=>'Кластер',
 						'sortcolumn'=>"`phpbb_clusters`.`name`"
+						),
+					'cluster_name'=>array(
+						'rus'=>'Категория',
+						'sortcolumn'=>"`phpbb_categories`.`name`"
+						),
+					'object_name'=>array(
+						'rus'=>'Объект',
+						'sortcolumn'=>"`phpbb_objects`.`name`"
 						)
 					);
 	
@@ -53,7 +64,15 @@ function list_arendas(){
 	//Build SQL for database request
 	$sql="SELECT `phpbb_arendas`.`name` as `name`,
 				 `phpbb_arendas`.`id` as `id`,
-				 `phpbb_arendas`.`id` as `priority`,
+				 `phpbb_arendas`.`priority` as `priority`,
+				 `phpbb_arendas`.`contact_date` as `contact_date`,
+				 `phpbb_arendas`.`status` as `status`,
+				 `phpbb_arendas`.`comment` as `comment`,
+				 `phpbb_arendas`.`next_step` as `next_step`,
+				 `phpbb_arendas`.`date` as `date`,
+				 `phpbb_arendas`.`contacts` as `contacts`,
+				 `phpbb_arendas`.`responsible_adg` as `responsible_adg`,
+				 `phpbb_arendas`.`responsible_cw` as `responsible_cw`,
 				 `phpbb_clusters`.`name` as `cluster_name`,
 				 `phpbb_categories`.`name` as `category_name`,
 				 `phpbb_clusters`.`id` as `cluster_id`,
@@ -61,6 +80,7 @@ function list_arendas(){
 			FROM `phpbb_arendas`
 			LEFT JOIN `phpbb_clusters` ON `phpbb_arendas`.`cluster_id`=`phpbb_clusters`.`id`
 			LEFT JOIN `phpbb_categories` ON `phpbb_arendas`.`category_id`=`phpbb_categories`.`id`
+			LEFT JOIN `phpbb_objects` ON `phpbb_arendas`.`object_id`=`phpbb_objects`.`id`
 			$clusters_sql_where
 			ORDER BY ".$headers[$sort]['sortcolumn']." ".$sort_direction;
 	
@@ -85,8 +105,17 @@ function list_arendas(){
 						<tr>
 							<th class='left'>".$headers['name']['html']."</th>
 							<th>".$headers['cluster_name']['html']."</th>
+							<th>".$headers['object_name']['html']."</th>
 							<th>Категория</th>
-							<th class='{right_class}'>Приоритет</th>
+							<th>Приоритет</th>
+							<th>Дата контакта</th>
+							<th>Статус</th>
+							<th>Комментарий</th>
+							<th>Next step</th>
+							<th>Дата</th>
+							<th>Контакты</th>
+							<th>Ответственный ADG</th>
+							<th class='{right_class}'>Ответственный C&W</th>
 							{th_html}
 						</tr>";
 		
@@ -127,8 +156,10 @@ function list_arendas(){
 			}
 			
 			//Put a dash for empty priority
-			if(trim($arenda_while['priority'])){
-				$arenda_while['priority']="-";
+			foreach($config_arenda['standart_text_data_database'] as $name_for){
+				if(trim($arenda_while[$name_for])==""){
+					$arenda_while[$name_for]="-";
+				}
 			}
 
 			//Get special css class for last column
@@ -155,14 +186,40 @@ function list_arendas(){
 										$arenda_while['category_name'].
 									"</a>
 								</td>
-								<td class='$right_class'>".
-									$arenda_while['priority'].
-								"</td>";
+								<td>
+									<a href='".$object_link."' style='font-size:9pt;'>".
+										$arenda_while['object_name'].
+									"</a>
+								</td>";
+								
+								/*$table_html.="<td>".
+												  $arenda_while['priority'].
+											 "</td>";*/
+
+								
+								$columns=array('priority', 'contact_date', 'status', 'comment', 'next_step', 'date', 'contacts', 'responsible_adg', 'responsible_cw');
+								
+								$columns_number=count($columns);
+								$columns_counter=0;
+								
+								foreach($columns as $name_for){
+									$columns_counter++;
+									if($columns_number==$columns_counter){
+										$table_html.="<td class=".$right_class.">".
+														$arenda_while[$name_for].
+													"</td>";
+									}else{
+										$table_html.="<td>".
+														$arenda_while[$name_for].
+													"</td>";
+										
+									}
+								}
 								
 								if(check_rights('delete_arenda')){
 								$table_html.="
 								<td class='right'>
-									<a href='".$arenda_delete_link."' onclick=\"if(!confirm('Удалить?')) return false;\">Удалить</a>
+									<a href='".$arenda_delete_link."' onclick=\"if(!confirm('Удалить точку аренды &laquo;".$arenda_while['name']."&raquo;?')) return false;\">Удалить</a>
 									<br/>
 								</td>";
 								}
@@ -199,14 +256,16 @@ function build_filter_of_clusters(){
 	
 	//Retrieve cluster id from browser
 	if(isset($_GET['cluster'])){
-		
 		$cluster_id=(int)$_GET['cluster'];
 	}else{
-		$cluster_id=1;
+		$cluster_id=0;
 	}
 	
 	//Retrieve clusters from database
 	$clusters_res = db_query("SELECT * FROM `phpbb_clusters` ORDER BY `name`");
+	
+	//Add all clusters option
+	$clusters_html.="<option value='0' $selected>".TXT_OPTION_ALL."</option>";
 
 	//Look over clusters in database
 	while($cluster=db_fetch($clusters_res)){
@@ -216,9 +275,7 @@ function build_filter_of_clusters(){
 			$selected="";
 		}
 		if($cluster['id']!=1){
-			$clusters_html.="<option value='".$cluster['id']."' $selected>".$cluster['name']."</option>";
-		}else{
-			$clusters_html.="<option value='1' $selected>Все кластеры</option>";
+			$clusters_html.="<option value='".$cluster['id']."' ".$selected.">".$cluster['name']."</option>";
 		}
 	}
 	
@@ -236,7 +293,7 @@ function build_cluster_filter_sql(){
 		//Retrieve cluster id from browser
 		$cluster_id=(int)$_GET['cluster'];
 
-		if($cluster_id!=1){
+		if($cluster_id!=0){
 			if($sql_where_flag){
 				$sql_where=" AND ";
 			}else{

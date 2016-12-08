@@ -1,7 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="{S_CONTENT_DIRECTION}" lang="{S_USER_LANG}" xml:lang="{S_USER_LANG}" id='htmltag'>
 <head>
-
+<!--Start: Calendar CSS AND JS-->
+<!--<link rel="stylesheet" href="{T_THEME_PATH}/calendar.css" type="text/css"/>
+<script type="text/javascript" src="{T_THEME_PATH}/calendar.js"></script>
+<script type="text/javascript" src="{T_THEME_PATH}/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="{T_THEME_PATH}/flot/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="{T_THEME_PATH}/flot/jquery.flot.js"></script>-->
+<!--End: Calendar CSS AND JS-->
 <meta http-equiv="content-type" content="text/html; charset={S_CONTENT_ENCODING}" />
 <meta http-equiv="content-style-type" content="text/css" />
 <meta http-equiv="content-language" content="{S_USER_LANG}" />
@@ -141,19 +147,6 @@
 						<span class="gen_imfo_number"> 8 (495) 540-50-41 </span><br>
                         <br><a class="gen_info_shown__link" href="http://www.adggroup.ru/" target="_blank">Перейти на сайт</a>
 					</div>
-                    <script type="text/javascript" src="{T_THEME_PATH}/jquery.js"></script>
-                    <script type="text/javascript">
-                    	jQuery(document).ready(function(){
-	                    	$(".gen_a-list li").click(function(){
-		                    	var lang = $(this).find(".item").data("gen_info");
-		                    	$(".gen_a-list li").each(function(index, el){
-			                    	$(el).removeClass("active");
-		                    	});
-		                    	$(this).addClass("active");
-		                    	$(".gen_info_shown").html($(".gen_info-block.gen_info_"+lang).html());
-	                    	});
-                    	});
-                    </script>
 				</div>
 				</div>
 			</div>

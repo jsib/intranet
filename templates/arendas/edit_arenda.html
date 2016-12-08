@@ -1,14 +1,11 @@
-<style>
-	#edit_form a:link, #edit_form a:active, #edit_form a:visited, #edit_form a:hover{
-		color:#000;
-		text-decoration:none;
-	}
-</style>
-<br/><span style='font-size:8pt;'></span><br/>
+<br/>
+{list_arendas_link}
+<br/>
 <div style="padding-top:5px;">
-	<h2 style="padding-top:0;margin-top:10px;">Редактировать точку аренды</h2>
-	{show_entity_link}
-	<form action="{action}" method='post' id='edit_form'>
+	<h2 style="padding-top:0;margin-top:10px;margin-bottom:5px;">Редактировать точку аренды</h2>
+	{show_arenda_link}
+	{message}
+	<form action="{action_link}" method='post' id='edit_form' style='margin-top:0px;'>
 		<table border='0'>
 			<tr>
 				<td style='width:250px;'>
@@ -61,7 +58,7 @@
 					Дата контакта:
 				</td>
 				<td>
-					<input type='text' name='contact_date' value='{contact_date}'/>
+					<input type='date' name='contact_date' value='{contact_date}'/>
 				</td>
 			</tr>
 			<tr>
@@ -93,7 +90,7 @@
 					Дата:
 				</td>
 				<td>
-					<input type='text' name='date' value='{date}'/>
+					<input type='date' name='date' value='{date}' class="datepickerTimeField" />
 				</td>
 			</tr>
 			<tr>

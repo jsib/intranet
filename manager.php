@@ -106,7 +106,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/db.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/service.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/uris.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/auth.php");
-require_once($_SERVER['DOCUMENT_ROOT']."/includes/special_variables.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/constants.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/blocks/blocks.php");
 
 /*Запись в статистику*/
@@ -122,9 +122,20 @@ $dp = opendir($dir);
 while($subdir = readdir($dp)){
 	if($subdir != '.' && $subdir != '..' && is_dir($dir."/".$subdir)){
 		$action_file=$dir."/".$subdir."/".$action.".php";
+		$config_action_file=$dir."/".$subdir."/config.php";
 		if(file_exists($action_file)){
+			//Require object config file
+			if(file_exists($config_action_file)){
+				include_once($config_action_file);		
+			}
+			
+			//Require action file
 			require_once($action_file);
+			
+			//Connect to database
 			db_connect();
+			
+			//Build HTML flow
 			$html.=$action();
 		}
 	}
