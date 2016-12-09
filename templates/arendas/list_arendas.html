@@ -1,9 +1,17 @@
-<h2>Точки аренды</h2><br/>
+<h2>Аренда</h2><br/>
 {arenda_add_link}
 <form method='get' action='manager.php' id="filter_form" onchange="document.getElementById('filter_form').submit();">
-	Кластер: <br/><select name="cluster" style='margin-top:5px;'>
-		{clusters}
-	</select>
+	<div>
+		<div class="filter_entity_name">Кластер:</div>
+		<div class="filter_entity"><select name="cluster" style='margin-top:5px;'>{clusters}</select></div>
+		<div class="filter_entity_name">Категория:</div>
+		<div class="filter_entity"><select name="category" style='margin-top:5px;'>{categories}</select></div>
+		<div class="filter_entity_name">Объект:</div>
+		<div class="filter_entity"><select name="object" style='margin-top:5px;'>{objects}</select></div>
+		<div class="clear"></div>
+	</div>
+	
+	
 	<input type='hidden' name='action' value='list_arendas' />
 </form><br/>
 <b>Количество:</b> {arendas_number}<br/><br/>

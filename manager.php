@@ -135,6 +135,22 @@ while($subdir = readdir($dp)){
 			//Connect to database
 			db_connect();
 			
+			//Build LEASING header
+			$arenda_objects=array(  'arenda'=>array('name_rus'=>'Главная', 'link'=>"list_arendas"),
+									'cluster'=>array('name_rus'=>'Кластеры', 'link'=>"list_clusters"),
+									'categor'=>array('name_rus'=>'Категории', 'link'=>"list_categories"),
+									'object'=>array('name_rus'=>'Объекты', 'link'=>"list_objects"),
+								 );
+			$html.="<div>";
+			foreach($arenda_objects as $object_name_for=>$emty){
+				if(strripos($action, $object_name_for)!==false){
+					foreach($arenda_objects as $object_name_for=>$object_for){
+						$html.="<div class='sub_menu'><a href='/manager.php?action=".$object_for['link']."' class='sub_menu_link'>".$object_for['name_rus']."</a></div>";
+					}
+				}
+			}
+			$html.="</div><div class='clear'></div>";
+			
 			//Build HTML flow
 			$html.=$action();
 		}

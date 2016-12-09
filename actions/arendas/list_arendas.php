@@ -28,7 +28,7 @@ function list_arendas(){
 						'rus'=>'Кластер',
 						'sortcolumn'=>"`phpbb_clusters`.`name`"
 						),
-					'cluster_name'=>array(
+					'category_name'=>array(
 						'rus'=>'Категория',
 						'sortcolumn'=>"`phpbb_categories`.`name`"
 						),
@@ -48,41 +48,55 @@ function list_arendas(){
 	}
 	
 	//Define first where flag
-	$sql_where_flag=false; 
+	$sql_where_flag=false;
 	
 	//Retrieve cluster id from browser
 	if(isset($_GET['cluster'])){
 		$cluster_id=$_GET['cluster'];
 	}
 	
-	//Build SQL-piece for filtering clusters
-	$clusters_sql_where=build_cluster_filter_sql();
+	//Define binded entities columns
+	$columns_binded=array('cluster'=>'clusters', 'category'=>'categories', 'object'=>'objects');			
+
+	//Build HTML for filtering bind entities
+	//Build SQL-piece for filtering bind entities
+	foreach($columns_binded as $name_for=>$name_plural_for){
+		$bind_entities_sql_where.=build_bind_entities_filter_sql($name_for, $name_plural_for);
+		$template_replacements[$name_plural_for]=build_filter_of_bind_entities($name_for, $name_plural_for);
+	}
 	
-	//Build HTML for filtering clusters
-	$clusters_html=build_filter_of_clusters();
+	
 	
 	//Build SQL for database request
 	$sql="SELECT `phpbb_arendas`.`name` as `name`,
 				 `phpbb_arendas`.`id` as `id`,
 				 `phpbb_arendas`.`priority` as `priority`,
-				 `phpbb_arendas`.`contact_date` as `contact_date`,
+				  DATE_FORMAT(`phpbb_arendas`.`contact_date`, '%d.%m.%Y') as `contact_date`,
 				 `phpbb_arendas`.`status` as `status`,
 				 `phpbb_arendas`.`comment` as `comment`,
 				 `phpbb_arendas`.`next_step` as `next_step`,
-				 `phpbb_arendas`.`date` as `date`,
+				  DATE_FORMAT(`phpbb_arendas`.`date`, '%d.%m.%Y') as `date`,
 				 `phpbb_arendas`.`contacts` as `contacts`,
 				 `phpbb_arendas`.`responsible_adg` as `responsible_adg`,
-				 `phpbb_arendas`.`responsible_cw` as `responsible_cw`,
-				 `phpbb_clusters`.`name` as `cluster_name`,
-				 `phpbb_categories`.`name` as `category_name`,
-				 `phpbb_clusters`.`id` as `cluster_id`,
-				 `phpbb_categories`.`id` as `category_id`
-			FROM `phpbb_arendas`
-			LEFT JOIN `phpbb_clusters` ON `phpbb_arendas`.`cluster_id`=`phpbb_clusters`.`id`
-			LEFT JOIN `phpbb_categories` ON `phpbb_arendas`.`category_id`=`phpbb_categories`.`id`
-			LEFT JOIN `phpbb_objects` ON `phpbb_arendas`.`object_id`=`phpbb_objects`.`id`
-			$clusters_sql_where
-			ORDER BY ".$headers[$sort]['sortcolumn']." ".$sort_direction;
+				 `phpbb_arendas`.`responsible_cw` as `responsible_cw`";
+	
+	//Build SQL-pices to retrieve information of binded entities
+	foreach($columns_binded as $name_for=>$name_plural_for){		
+		$sql.=" , `phpbb_".$name_plural_for."`.`name` as `".$name_for."_name`";
+		$sql.=" , `phpbb_".$name_plural_for."`.`id` as `".$name_for."_id`";
+	}
+	
+	//Build FROM SQL
+	$sql.=" FROM `phpbb_arendas` ";
+			
+	
+	//Build 'LEFT JOIN' SQL for binded entities
+	foreach($columns_binded as $name_for=>$name_plural_for){		
+		$sql.=" LEFT JOIN `phpbb_".$name_plural_for."` ON `phpbb_arendas`.`".$name_for."_id`=`phpbb_".$name_plural_for."`.`id` ";
+	}
+	
+	$sql.=$bind_entities_sql_where;
+	$sql.=" ORDER BY ".$headers[$sort]['sortcolumn']." ".$sort_direction;
 	
 	//Perform request to database
 	$arendas_res = db_query($sql);
@@ -105,8 +119,8 @@ function list_arendas(){
 						<tr>
 							<th class='left'>".$headers['name']['html']."</th>
 							<th>".$headers['cluster_name']['html']."</th>
+							<th>".$headers['category_name']['html']."</th>
 							<th>".$headers['object_name']['html']."</th>
-							<th>Категория</th>
 							<th>Приоритет</th>
 							<th>Дата контакта</th>
 							<th>Статус</th>
@@ -126,12 +140,6 @@ function list_arendas(){
 			
 			//Get delete arenda link
 			$arenda_delete_link="/manager.php?action=delete_arenda&arenda=".$arenda_while['id'];
-			
-			//Get cluster link
-			$cluster_link="/manager.php?action=show_cluster&cluster=".$arenda_while['cluster_id'];
-
-			//Get category link
-			$category_link="/manager.php?action=show_category&category=".$arenda_while['category_id'];
 
 			//Get special css class for last row
 			if($arendas_number==$arendas_counter){
@@ -140,24 +148,9 @@ function list_arendas(){
 				$bottom_class="";
 			}
 			
-			//Put a dash for empty cluster name
-			if(trim($arenda_while['cluster_name'])=="" || $arenda_while['cluster_id']==1){
-				$arenda_while['cluster_name']="-";
-			}
-			
-			//Put a dash for empty category name
-			if(trim($arenda_while['category_name'])=="" || $arenda_while['category_id']==1){
-				$arenda_while['category_name']="-";
-			}
-
-			//Put a dash for empty object name
-			if(trim($arenda_while['object_name'])=="" || $arenda_while['object_id']==1){
-				$arenda_while['object_name']="-";
-			}
-			
-			//Put a dash for empty priority
+			//Put a dash for text data fields
 			foreach($config_arenda['standart_text_data_database'] as $name_for){
-				if(trim($arenda_while[$name_for])==""){
+				if($arenda_while[$name_for]=="" || $arenda_while[$name_for]=="00.00.0000"){
 					$arenda_while[$name_for]="-";
 				}
 			}
@@ -169,61 +162,69 @@ function list_arendas(){
 				$right_class='right';
 			}
 			
-			
+			//Build first column
 			$table_html.="	<tr class='".$bottom_class."'>
 								<td class='left'>
-									<a href='/manager.php?action=show_arenda&arenda=".$arenda_while['id']."' style='font-size:9pt;".$style_hidden_arenda."'>".
+									<a href='/manager.php?action=show_arenda&arenda=".$arenda_while['id']."' style='font-size:9pt;'>".
 										$arenda_while['name'].
 									"</a>
-								</td>
-								<td>
-									<a href='".$cluster_link."' style='font-size:9pt;'>".
-										$arenda_while['cluster_name'].
-									"</a>
-								</td>
-								<td>
-									<a href='".$category_link."' style='font-size:9pt;'>".
-										$arenda_while['category_name'].
-									"</a>
-								</td>
-								<td>
-									<a href='".$object_link."' style='font-size:9pt;'>".
-										$arenda_while['object_name'].
-									"</a>
 								</td>";
-								
-								/*$table_html.="<td>".
-												  $arenda_while['priority'].
-											 "</td>";*/
+			
 
 								
-								$columns=array('priority', 'contact_date', 'status', 'comment', 'next_step', 'date', 'contacts', 'responsible_adg', 'responsible_cw');
-								
-								$columns_number=count($columns);
-								$columns_counter=0;
-								
-								foreach($columns as $name_for){
-									$columns_counter++;
-									if($columns_number==$columns_counter){
-										$table_html.="<td class=".$right_class.">".
-														$arenda_while[$name_for].
-													"</td>";
-									}else{
-										$table_html.="<td>".
-														$arenda_while[$name_for].
-													"</td>";
-										
-									}
-								}
-								
-								if(check_rights('delete_arenda')){
-								$table_html.="
-								<td class='right'>
-									<a href='".$arenda_delete_link."' onclick=\"if(!confirm('Удалить точку аренды &laquo;".$arenda_while['name']."&raquo;?')) return false;\">Удалить</a>
-									<br/>
+			//Build HTML columns for binded entities
+			foreach($columns_binded as $name_for=>$name_plural_for){
+				//Put a dash for empty entity name
+				if(trim($arenda_while[$name_for.'_name'])=="" || $arenda_while[$name_for.'_id']==1){
+					$arenda_while[$name_for.'_name']="-";
+				}				
+				
+				//Get binded entity link
+				$entity_binded_link="/manager.php?action=show_".$name_for."&".$name_for."=".$arenda_while[$name_for.'_id'];
+				
+				$table_html.="
+								<td>
+									<a href='".$entity_binded_link."' style='font-size:9pt;'>".
+										$arenda_while[$name_for.'_name'].
+									"</a>
 								</td>";
-								}
-							"</tr>";
+			}
+			
+			//Set columns with text data
+			$columns=array('priority', 'contact_date', 'status', 'comment', 'next_step', 'date'=>'date', 'contacts', 'responsible_adg', 'responsible_cw');
+			
+			//Get number of columns
+			$columns_number=count($columns);
+			
+			//Define columns counter
+			$columns_counter=0;
+			
+			//Build HTML columns for text entities
+			foreach($columns as $type_for=>$name_for){
+				$columns_counter++;
+				if($type_for=='date'){
+					//$arenda_while[$name_for]=date("d.m.Y", strtotime($arenda_while[$name_for])); 
+				}
+				if($columns_number==$columns_counter){
+					$table_html.="<td class=".$right_class.">".
+									$arenda_while[$name_for].
+								"</td>";
+				}else{
+					$table_html.="<td>".
+									$arenda_while[$name_for].
+								"</td>";
+					
+				}
+			}
+			
+			if(check_rights('delete_arenda')){
+			$table_html.="
+			<td class='right'>
+				<a href='".$arenda_delete_link."' onclick=\"if(!confirm('Удалить точку аренды &laquo;".$arenda_while['name']."&raquo;?')) return false;\">Удалить</a>
+				<br/>
+			</td>";
+			}
+		"</tr>";
 		}
 		
 		$table_html.="</table>";
@@ -233,67 +234,72 @@ function list_arendas(){
 	
 	//Ссылка "Добавить контакт"
 	if(check_rights('add_arenda')){
-		$arenda_add_link="<a href='/manager.php?action=add_arenda' class='listcontacts'>Добавить точку аренды</a><br/><br/>";
+		$template_replacements['arenda_add_link']="<a href='/manager.php?action=add_arenda' class='listcontacts'>Добавить аренду</a><br/><br/>";
 	}else{
-		$arenda_add_link="";
+		$template_replacements['arenda_add_link']="";
 	}
+	
+	//Put number of arendas to template
+	$template_replacements['arendas_number']=$arendas_number;
+	
+	//Put table html to template
+	$template_replacements['table']=$table_html;
+	
+	//Put th html to template
+	$template_replacements['th_html']=$th_html;
+	
+	//Put right class to template
+	$template_replacements['right_class']=$right_class;
 
-	$html.=template_get("arendas/list_arendas", array(
-															'arenda_add_link'=>$arenda_add_link,
-															'arendas_number'=>$arendas_number,
-															'table'=>$table_html,
-															'clusters'=>$clusters_html,
-															'th_html'=>$th_html,
-															'right_class'=>$right_class,
-																));
+	$html.=template_get("arendas/list_arendas", $template_replacements);
 	return $html;
 }
 
-//Build filter of clusters and SQL for database requests
-function build_filter_of_clusters(){
+//Build filter of bind entities and SQL for database requests
+function build_filter_of_bind_entities($object, $object_plural){
 	//Define HTML flow
-	$clusters_html="";
+	$entities_html="";
 	
-	//Retrieve cluster id from browser
-	if(isset($_GET['cluster'])){
-		$cluster_id=(int)$_GET['cluster'];
+	//Retrieve entity id from browser
+	if(isset($_GET[$object])){
+		$entity_id=(int)$_GET[$object];
 	}else{
-		$cluster_id=0;
+		$entity_id=0;
 	}
 	
 	//Retrieve clusters from database
-	$clusters_res = db_query("SELECT * FROM `phpbb_clusters` ORDER BY `name`");
+	$entities_res = db_query("SELECT * FROM `phpbb_".$object_plural."` ORDER BY `name`");
 	
 	//Add all clusters option
-	$clusters_html.="<option value='0' $selected>".TXT_OPTION_ALL."</option>";
+	$entities_html.="<option value='0' $selected>".TXT_OPTION_ALL."</option>";
 
 	//Look over clusters in database
-	while($cluster=db_fetch($clusters_res)){
-		if($cluster_id==$cluster['id']){
+	while($entity=db_fetch($entities_res)){
+		if($entity_id==$entity['id']){
 			$selected="selected";
 		}else{
 			$selected="";
 		}
-		if($cluster['id']!=1){
-			$clusters_html.="<option value='".$cluster['id']."' ".$selected.">".$cluster['name']."</option>";
+		if($entity['id']!=1){
+			$entities_html.="<option value='".$entity['id']."' ".$selected.">".$entity['name']."</option>";
 		}
 	}
 	
 	//Return HTML flow and sql-s
-	return $clusters_html;
+	return $entities_html;
 }
 
-//Build SQL piece to filter clusters
-function build_cluster_filter_sql(){
+//Build SQL piece to filter bind entities
+function build_bind_entities_filter_sql($object, $object_plural){
 	//Bind global variables
 	global $sql_where_flag;
 	
 	//Build sql-piece
-	if(isset($_GET['cluster'])){
-		//Retrieve cluster id from browser
-		$cluster_id=(int)$_GET['cluster'];
+	if(isset($_GET[$object])){
+		//Retrieve entity id from browser
+		$entity_id=(int)$_GET[$object];
 
-		if($cluster_id!=0){
+		if($entity_id!=0){
 			if($sql_where_flag){
 				$sql_where=" AND ";
 			}else{
@@ -301,7 +307,7 @@ function build_cluster_filter_sql(){
 				$sql_where_flag=true;
 			}
 			
-			$sql_where.=" `phpbb_clusters`.`id`=".$cluster_id." ";
+			$sql_where.=" `phpbb_".$object_plural."`.`id`=".$entity_id." ";
 		}else{
 			$sql_where="";
 		}

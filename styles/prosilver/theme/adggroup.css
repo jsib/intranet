@@ -26,3 +26,30 @@ a.nav{color:#FFF;}
 	color:#000;
 	text-decoration:none;
 }
+.filter_entity_name{
+	float:left;
+	margin-right:10px;
+	padding-top:8px;	
+}
+
+
+.filter_entity{
+	float:left;
+	margin-right:20px;
+}
+
+div.sub_menu{
+	float:left;
+	margin-right:15px;
+	background:#b6d7a8;
+	padding:3px 14px;
+	border-radius:5px;
+}
+
+a.sub_menu_link{
+	color:#000;
+	text-decoration:underline;
+}
+a.sub_menu_link:hover{
+	text-decoration:none;
+}

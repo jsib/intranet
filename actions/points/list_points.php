@@ -41,7 +41,7 @@ function list_points(){
 		}
 	}
 	if(check_rights('add_point')){
-		$add_point_link="<a href='/manager.php?action=add_point' class='listcontacts'>Добавить офис/склад</a><br/><br/>";
+		$add_point_link="<a href='/manager.php?action=add_point' class='listcontacts'>Добавить отдел</a><br/><br/>";
 	}
 	$html.=template_get("points/list_points", array(		'addpointlink'=>$add_point_link,
 															'numpoints'=>$num_points,
