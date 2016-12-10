@@ -7,7 +7,7 @@ function main_menu(){
 	
 	//IF
 	if(check_rights('show_admin_panel')){
-		$template->assign_var('LINKADMINSECTION', "<li class='div'>|</li><li><a href='/manager.php?action=show_admin_panel'>Панель администратора</a></li>");
+		$template->assign_var('LINKADMINSECTION', "<li><a href='/manager.php?action=list_arendas'>Аренда</a></li><li class='div'>|</li><li><a href='/manager.php?action=show_admin_panel'>Панель администратора</a></li>");
 	}
 	
 	//Проверка, является ли вошедший пользователь редактором графиков работ
