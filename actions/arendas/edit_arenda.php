@@ -47,7 +47,7 @@ function edit_arenda(){
 		
 		//Build SQL pieces for standart text data
 		$text_sql="";
-		foreach($config_arenda['standart_text_data_database'] as $nameFOR){
+		foreach(array_merge($config_arenda['standart_text_data_database'], $config_arenda['standart_date_data_database']) as $nameFOR){
 			$text_sql.="`".$nameFOR."`= :".$nameFOR.", ";
 		}
 		$text_sql=substr($text_sql, 0, -2);
@@ -91,6 +91,11 @@ function edit_arenda(){
 			//Bind text parameters to PDO
 			foreach($config_arenda['standart_text_data_database'] as $nameFOR){
 				$sth->bindParam(":".$nameFOR, trim($_POST[$nameFOR]), PDO::PARAM_STR);
+			}
+
+			//Bind date parameters to PDO
+			foreach($config_arenda['standart_date_data_database'] as $nameFOR){
+				$sth->bindParam(":".$nameFOR, date("Y-m-d", strtotime(trim($_POST[$nameFOR]))), PDO::PARAM_STR);
 			}
 			
 			//Bind numeric parameters to PDO
@@ -147,18 +152,16 @@ function show_form_edit_arenda($arenda=array(), $messages=array()){
 
 
 	//Form template replacements with text data
-	$replacements=$config_arenda['standart_text_data_form'];
-	foreach($replacements as $empty=>$replacement){
-		$template_replacements[$replacement]=$arenda[$replacement];
+	foreach($config_arenda['standart_text_data_form'] as $empty=>$replacement){
+		$template_replacements[$replacement]=htmlspecialchars($arenda[$replacement]);
 	}
 	
 	//Form template replacements with date data
-	$replacements=array('contact_date', 'date');
-	foreach($replacements as $empty=>$replacement){
-		if($arenda[$replacement]=="0000-00-00"){
-			$template_replacements[$replacement]="00.00.0000";
+	foreach($config_arenda['standart_date_data_form'] as $empty=>$replacement){
+		if(in_array($arenda[$replacement], $config_arenda['empty_dates'])){
+			$template_replacements[$replacement]="";
 		}else{
-			$template_replacements[$replacement]=$arenda[$replacement];
+			$template_replacements[$replacement]=date("d.m.Y", strtotime($arenda[$replacement]));
 		}
 	}
 	

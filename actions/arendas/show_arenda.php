@@ -47,9 +47,8 @@ function show_arenda(){
 	}
 	
 	//Form template replacements with date data
-	$replacements=array('contact_date', 'date');
-	foreach($replacements as $empty=>$replacement){
-		if($arenda[$replacement]=="0000-00-00"){
+	foreach($config_arenda['standart_date_data_form'] as $empty=>$replacement){
+		if(in_array($arenda[$replacement], $config_arenda['empty_dates'])){
 			$template_replacements[$replacement]="-";
 		}else{
 			$template_replacements[$replacement]=date("d.m.Y", strtotime($arenda[$replacement]));

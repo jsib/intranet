@@ -58,7 +58,7 @@
 					Дата контакта:
 				</td>
 				<td>
-					<input type='date' name='contact_date' value='{contact_date}'/>
+					<input type='text' name='contact_date' value='{contact_date}'  id="datepicker1" />
 				</td>
 			</tr>
 			<tr>
@@ -90,7 +90,7 @@
 					Дата:
 				</td>
 				<td>
-					<input type='date' name='date' value='{date}' class="datepickerTimeField" />
+					<input type='text' name='date' value='{date}' id="datepicker2" />
 				</td>
 			</tr>
 			<tr>
@@ -122,3 +122,17 @@
 	</form>
 </div>
 <div class="clear"></div>
+<!--Start: Pikaday calendar-->
+<script>
+	var picker = new Pikaday(
+	{
+		field: document.getElementById('datepicker1'), 
+		format: 'DD.MM.YYYY',
+	});
+	var picker = new Pikaday(
+	{
+		field: document.getElementById('datepicker2'), 
+		format: 'DD.MM.YYYY',
+	});
+</script>	
+<!--End: Pikaday calendar-->

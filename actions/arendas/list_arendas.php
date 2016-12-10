@@ -71,11 +71,11 @@ function list_arendas(){
 	$sql="SELECT `phpbb_arendas`.`name` as `name`,
 				 `phpbb_arendas`.`id` as `id`,
 				 `phpbb_arendas`.`priority` as `priority`,
-				  DATE_FORMAT(`phpbb_arendas`.`contact_date`, '%d.%m.%Y') as `contact_date`,
+				  `phpbb_arendas`.`contact_date` as `contact_date`,
 				 `phpbb_arendas`.`status` as `status`,
 				 `phpbb_arendas`.`comment` as `comment`,
 				 `phpbb_arendas`.`next_step` as `next_step`,
-				  DATE_FORMAT(`phpbb_arendas`.`date`, '%d.%m.%Y') as `date`,
+				  `phpbb_arendas`.`date` as `date`,
 				 `phpbb_arendas`.`contacts` as `contacts`,
 				 `phpbb_arendas`.`responsible_adg` as `responsible_adg`,
 				 `phpbb_arendas`.`responsible_cw` as `responsible_cw`";
@@ -150,11 +150,20 @@ function list_arendas(){
 			
 			//Put a dash for text data fields
 			foreach($config_arenda['standart_text_data_database'] as $name_for){
-				if($arenda_while[$name_for]=="" || $arenda_while[$name_for]=="00.00.0000"){
+				if($arenda_while[$name_for]==""){
 					$arenda_while[$name_for]="-";
 				}
 			}
 
+			//Put a dash for date data fields
+			foreach($config_arenda['standart_date_data_database'] as $name_for){
+				if(in_array($arenda_while[$name_for], $config_arenda['empty_dates'])){
+					$arenda_while[$name_for]="-";
+				}else{
+					$arenda_while[$name_for]=date("d.m.Y", strtotime($arenda_while[$name_for]));
+				}
+			}
+			
 			//Get special css class for last column
 			if(check_rights('delete_arenda')){
 				$right_class='';
