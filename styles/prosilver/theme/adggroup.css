@@ -2,16 +2,38 @@
 	color:#000;
 	font-size:9pt;
 }
+
 table.listcontacts a.header img{padding-left:5px;}
 .clear{clear:both;}
 .navbar a:visited{
 	color:#fff;
 }
-.manager a{}
+
+td{padding:3px 0px;}
+
+#manager input.date{
+	width:75px;
+}
+
+#manager textarea{
+	width:500px;
+	height:150px;
+}
 
 dl.postprofile dd{
 	padding-bottom:3px;
 	font-size:8pt;
+}
+
+#manager h3{
+	margin:0;
+	padding:0;
+	border:0;
+	font-size:18px;
+	font-weight:bold;
+	text-transform:none;
+	color:#555;
+	
 }
 
 .mainheader{
@@ -53,3 +75,72 @@ a.sub_menu_link{
 a.sub_menu_link:hover{
 	text-decoration:none;
 }
+	
+a.navigation, a.navigation:visited, a.navigation:hover, a.navigation:active{
+	font-size:8pt;
+	color:#000;
+	text-decoration:underline;
+}
+
+.listcontacts td, .listcontacts th{
+	padding:2px 7px;
+	border-left:1px solid #888;
+	border-top:1px solid #333;
+	font-size:9pt;
+	text-align:left;
+}
+
+.listcontacts .left{
+	border-left:1px solid #333;
+}
+
+.listcontacts .right{
+	border-right:1px solid #333;
+}
+
+.listcontacts tr.bottom td{
+	border-bottom:1px solid #333;
+}
+
+.listcontacts a, a.listcontacts{
+	font-size:8pt;
+}
+
+a.list_entities{
+	font-size:8pt;
+	color:#000;
+	text-decoration:underline;
+}
+
+a.list_entities:hover{
+	text-decoration:none;
+}
+
+
+/*Begin: Admin section*/
+ul.show_timetable_rights{
+	margin:0 0 10px 0;
+	list-style-type:none;
+}
+ul.show_timetable_rights li{
+	padding:0 0 3px 15px;
+}
+h4{
+	display:inline;
+	padding:0 20px 4px 0;
+	font-size:11pt;font-style:italic;
+	font-weight:normal;
+	font-family:Tahoma;
+}
+b.smallheader{
+	display:block;
+	padding:0 0 4px 0;
+	font-style:italic;
+}
+div.comment{
+	padding:2px 0 10px 10px;
+	font-size:9pt;
+	font-weight:normal;
+}
+/*End: Admin section*/
+

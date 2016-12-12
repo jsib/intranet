@@ -99,7 +99,7 @@ if ($config['load_birthdays'] && $config['allow_birthdays'])
 	}
 	$db->sql_freeresult($result);
 }
-/*НАЧАЛО: Manager. Автор: Домышев Илья, Акустик Групп*/
+/*Begin: Manager by Ilya Domyshev*/
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/templates.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/files.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/db.php");
@@ -136,16 +136,18 @@ while($subdir = readdir($dp)){
 			db_connect();
 			
 			//Build LEASING header
-			$arenda_objects=array(  'arenda'=>array('name_rus'=>'Главная', 'link'=>"list_arendas"),
-									'cluster'=>array('name_rus'=>'Кластеры', 'link'=>"list_clusters"),
-									'categor'=>array('name_rus'=>'Категории', 'link'=>"list_categories"),
-									'object'=>array('name_rus'=>'Объекты', 'link'=>"list_objects"),
-								 );
+			$arenda_objects['arenda']=array('name_rus'=>'Главная', 'link'=>"list_arendas");
+			$arenda_objects['cluster']=array('name_rus'=>'Кластеры', 'link'=>"list_clusters");
+			$arenda_objects['categor']=array('name_rus'=>'Категории', 'link'=>"list_categories");
+			$arenda_objects['object']=array('name_rus'=>'Объекты', 'link'=>"list_objects");
+
 			$html.="<div>";
 			foreach($arenda_objects as $object_name_for=>$emty){
 				if(strripos($action, $object_name_for)!==false){
 					foreach($arenda_objects as $object_name_for=>$object_for){
-						$html.="<div class='sub_menu'><a href='/manager.php?action=".$object_for['link']."' class='sub_menu_link'>".$object_for['name_rus']."</a></div>";
+						if(check_rights($object_for['link'])){
+							$html.="<div class='sub_menu'><a href='/manager.php?action=".$object_for['link']."' class='sub_menu_link'>".$object_for['name_rus']."</a></div>";
+						}
 					}
 				}
 			}
@@ -156,7 +158,7 @@ while($subdir = readdir($dp)){
 		}
 	}
 }
-/*КОНЕЦ: Manager. Автор: Домышев Илья, Акустик Групп*/
+/*End: Manager by Ilya Domyshev*/
 
 // Assign index specific vars
 $template->assign_vars(array(

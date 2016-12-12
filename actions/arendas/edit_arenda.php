@@ -10,7 +10,7 @@ function edit_arenda(){
 
 	//Check rights to perform this action
 	if(!check_rights('edit_arenda')){
-		system_error('No permissions for edit_arenda action', ERR_NO_PERMISSION);
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
 	}
 	
 	//Get arenda id from browser

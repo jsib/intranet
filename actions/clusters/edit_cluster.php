@@ -2,7 +2,7 @@
 function edit_cluster(){
 	//Check rights for this action
 	if(!check_rights('edit_cluster')){
-		return "У вас нет соответствующих прав";
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
 	}
 
 	//Retrieve cluster id from browser
@@ -16,10 +16,10 @@ function edit_cluster(){
 					$message_html=template_get("message", array('message'=>"Изменения успешно сохранены"));
 				break;
 				case "empty_cluster_name":
-					$message_html=template_get("errormessage", array('message'=>"Название кластера не может быть пустым"));	
+					$message_html=template_get("errormessage", array('message'=>"Название кластера не может быть пустым"));
 				break;
 				case "same_cluster_exists":
-					$message_html=template_get("errormessage", array('message'=>"Кластер с таким именем уже имеется"));	
+					$message_html=template_get("errormessage", array('message'=>"Кластер с таким именем уже существует"));
 				break;
 				default:
 					$message_html=template_get("nomessage");
@@ -39,7 +39,7 @@ function edit_cluster(){
 		$show_cluster_link="<a href='/manager.php?action=show_cluster&cluster=".$cluster_id."' style='font-size:8pt;'>Просмотреть</a>";
 
 		//Return HTML flow
-		$html.=template_get("clusters/edit_cluster", array(		'list_clusters_link'=>$list_clusters_link,
+		$html.=template_get("clusters/edit_cluster", array(	'list_clusters_link'=>$list_clusters_link,
 																'action_link'=>$action_link,
 																'show_cluster_link'=>$show_cluster_link,
 																'name'=>$cluster['name'],

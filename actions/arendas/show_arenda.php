@@ -35,6 +35,8 @@ function show_arenda(){
 	//Build edit arenda link
 	if(check_rights('edit_arenda')){
 		$template_replacements['edit_arenda_link']="<a href='/manager.php?action=edit_arenda&arenda=".$arenda_id."' style='font-size:8pt;'>Редактировать</a>";
+	}else{
+		$template_replacements['edit_arenda_link']='';
 	}
 	
 	//Build list arendas link

@@ -7,8 +7,13 @@ function main_menu(){
 	
 	//IF
 	if(check_rights('show_admin_panel')){
-		$template->assign_var('LINKADMINSECTION', "<li><a href='/manager.php?action=list_arendas'>Аренда</a></li><li class='div'>|</li><li><a href='/manager.php?action=show_admin_panel'>Панель администратора</a></li>");
+		$template->assign_var('LINKADMINSECTION', "<li class='div'>|</li></li><li><a href='/manager.php?action=show_admin_panel'>Панель администратора</a></li>");
 	}
+
+	if(check_rights('list_arendas')){
+		$template->assign_var('LINKARENDASECTION', "<li class='div'>|</li><li><a href='/manager.php?action=list_arendas'>Аренда</a></li>");
+	}
+
 	
 	//Проверка, является ли вошедший пользователь редактором графиков работ
 	//db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$user->data['user_id']}")==1 ? $timetable_editor=1 : $timetable_editor=0;

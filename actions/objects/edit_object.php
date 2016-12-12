@@ -2,7 +2,7 @@
 function edit_object(){
 	//Check rights for this action
 	if(!check_rights('edit_object')){
-		return "У вас нет соответствующих прав";
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
 	}
 
 	//Retrieve object id from browser
@@ -16,10 +16,10 @@ function edit_object(){
 					$message_html=template_get("message", array('message'=>"Изменения успешно сохранены"));
 				break;
 				case "empty_object_name":
-					$message_html=template_get("errormessage", array('message'=>"Название объекта не может быть пустым"));	
+					$message_html=template_get("errormessage", array('message'=>"Название объекта не может быть пустым"));
 				break;
 				case "same_object_exists":
-					$message_html=template_get("errormessage", array('message'=>"Объект с таким именем уже имеется"));	
+					$message_html=template_get("errormessage", array('message'=>"Объект с таким именем уже существует"));
 				break;
 				default:
 					$message_html=template_get("nomessage");
@@ -39,7 +39,7 @@ function edit_object(){
 		$show_object_link="<a href='/manager.php?action=show_object&object=".$object_id."' style='font-size:8pt;'>Просмотреть</a>";
 
 		//Return HTML flow
-		$html.=template_get("objects/edit_object", array(		'list_objects_link'=>$list_objects_link,
+		$html.=template_get("objects/edit_object", array(	'list_objects_link'=>$list_objects_link,
 																'action_link'=>$action_link,
 																'show_object_link'=>$show_object_link,
 																'name'=>$object['name'],

@@ -1,8 +1,8 @@
 <?php
 function add_object(){
+	//Check rights to perform this action
 	if(!check_rights('add_object')){
-		//Возвращаем значение функции
-		return "У вас нет соответствующих прав";
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
 	}
 	
 	//Show empty HTML form
@@ -12,10 +12,10 @@ function add_object(){
 		if(isset($_GET['result'])){
 			switch($_GET['result']){
 				case "empty_object_name":
-					$message_html=template_get("errormessage", array('message'=>"Название объекта не может быть пустым"));	
+					$message_html=template_get("errormessage", array('message'=>"Название объекта не может быть пустым"));
 				break;
 				case "same_object_exists":
-					$message_html=template_get("errormessage", array('message'=>"Объект с таким именем уже существует"));	
+					$message_html=template_get("errormessage", array('message'=>"Объект с таким именем уже существует"));
 				break;
 				default:
 					$message_html=template_get("nomessage");

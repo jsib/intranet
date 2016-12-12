@@ -53,7 +53,7 @@ function list_categories(){
 								<a href="/manager.php?action=show_category&category='.$category['id'].'" style="font-size:9pt;">'.$category['name'].'</a></td>';
 
 		if(check_rights('delete_category')){
-			$table_html.="	<td class='right'><a href='/manager.php?action=delete_category&category={$category['id']}' onclick=\"if(!confirm('Удалить категорию ".$category['name']."?')) return false;\">Удалить</a><br/></td>
+			$table_html.="	<td class='right'><a href='/manager.php?action=delete_category&category={$category['id']}' onclick=\"if(!confirm('Удалить ".$category['name']."?')) return false;\">Удалить</a><br/></td>
 						</tr>";
 		}
 	}

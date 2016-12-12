@@ -134,7 +134,25 @@ function count_work_days($Year, $Month, $To=false){      /*Если указан
 }
 
 function system_error($text_admin, $text_user=false){
-	show($text_admin);
-	//show("Ошибка выполнения скрипта. Пожалуйста, обратитесь к системному администратору.");
+	//Bind global variables
+	global $system_regime;
+	
+	//Show user real reason of error
+	if($text_user===true){
+		show($text_user);
+	//User doesn't need to know real reason
+	}else{
+		//We are 'develop' mode
+		if($system_regime=='develop'){
+			show('<span style="color:#F00;">DIS error:</span> '.$text_admin.'<br/>');
+			show('Look at debug_backtrace output below:');
+			show(debug_backtrace());
+			exit;
+		//We are in 'production' mode
+		}else{
+			show(ERR_SYSTEM_ERROR);
+			exit;
+		}
+	}
 }
 ?>

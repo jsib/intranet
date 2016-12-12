@@ -1,35 +1,37 @@
 <?php
 function delete_right(){
-	/*Проверка прав на выполнение действия*/
+	//Check rights to perform this action
 	if(!check_rights('delete_right')){
-		return "У вас нет соответствующих прав";
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
 	}
 	
-	//Определяем переменную
+	//Retrieve user id from browser
 	$user_id=(int)$_GET['user'];
 
-	/*Получаем и проверяем данные от пользвователя*/
-	$right_id=(int)$_GET['right'];
+	//Retrieve right id from browser
+	$right_id=(int)$_GET['right']; 
 	
-	/*Проверка входных данных*/
-	if(db_easy_count("SELECT * FROM `phpbb_users` WHERE `user_id`=$user_id")==0){
-		return "Ошибка входных данных (user)";
+	//Check if user exist in database
+	if(db_easy_count('SELECT * FROM `phpbb_users` WHERE `user_id`='.$user_id)==0){
+		system_error('User with id '.$user_id.' doesn\'t exist in database');
 	}
 	
-	/*Проверка входных данных*/
-	if(db_easy_count("SELECT * FROM `phpbb_rights` WHERE `id`='$right_id'")==0){
-		return "Ошибка в формате входных данных (right)";
+	//Check if right exist in database
+	$right_res=db_query('SELECT * FROM `phpbb_rights` WHERE `id`='.$right_id);
+	if(db_count($right_res)==0){
+		system_error('Right with id '.$right_id.' doesn\'t exist in database');
+	}else{
+		$right=db_fetch($right_res);
 	}
 	
-	//Запрос к базе
-	$delRES=db_query("DELETE FROM `phpbb_rights_users` WHERE `user_id`=$user_id AND `right_id`=$right_id");
+	//Request to database
+	$del_res=db_query('DELETE FROM `phpbb_rights_users` WHERE `user_id`='.$user_id.' AND `right_id`='.$right_id);
 	
-	/*Проверка правильности выполнения запроса к БД*/
-	if(!db_result($delRES)){
-		return "Ошибка при выполнении (delete)";
+	//Error when try to delete
+	if(!db_result($del_res)){
+		system_error('Error when trying delete right with user id='.$user_id.' and right id='.$right_id);
+	}else{
+		header('location: /manager.php?action=list_rights&group='.$right['group_id']);	
 	}
-	
-	//Выполняем HTTP запрос
-	header("location: /manager.php?action=show_rights");
 }
 ?>

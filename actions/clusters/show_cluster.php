@@ -1,5 +1,10 @@
 <?php
 function show_cluster(){
+	//Check rights for this action
+	if(!check_rights('show_cluster')){
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
+	}
+	
 	//Get cluster id
 	$cluster_id=(int)$_GET['cluster'];
 	

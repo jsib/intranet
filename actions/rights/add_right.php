@@ -9,73 +9,75 @@ function add_right(){
 		return "У вас нет соответствующих прав";
 	}
 	
-	//IF
+	//There is some input data from browser
 	if(!isset($_POST['user'])){
-		/*Получаем и проверяем данные от пользвователя*/
+		//Get right id from browser
 		$right_id=(int)$_GET['right'];
 		
-		/*Проверка входных данных*/
-		$rightRES=db_query("SELECT `name` FROM `phpbb_rights` WHERE `id`='$right_id'");
-		if(db_count($rightRES)==0){
-			return "Ошибка в формате входных данных (right)";
+		//Check data from browser
+		$right_res=db_query('SELECT `name` FROM `phpbb_rights` WHERE `id`='.$right_id);
+		if(db_count($right_res)==0){
+			system_error('No right with id '.$right_id.' in database');
+		//Get right name from database
 		}else{
-			$right_name=db_fetch($rightRES)['name'];
+			$right_name=db_fetch($right_res)['name'];
 		}
 		
-		//Запрос к базе
-		$usersRES=db_query("SELECT * FROM `phpbb_users`
+		//Request to database
+		$users_res=db_query("SELECT * FROM `phpbb_users`
 								WHERE (`user_type`=0 OR `user_type`=3) AND `username`!='root'
 													ORDER BY `username` ASC");
 		
 		//WHILE
-		while($userWHILE=db_fetch($usersRES)){
-			if(db_easy_count("SELECT * FROM `phpbb_rights_users`
-								WHERE `user_id`={$userWHILE['user_id']}
-									AND `right_id`=$right_id
-						")==0){
-				$users_html.="<option value='{$userWHILE['user_id']}'>{$userWHILE['username']}</option>";
+		while($user_while=db_fetch($users_res)){
+			if(db_easy_count('SELECT * FROM `phpbb_rights_users`
+								WHERE `user_id`='.$user_while['user_id'].'
+									AND `right_id`='.$right_id
+						)==0){
+				$users_html.='<option value="'.$user_while['user_id'].'">'.$user_while['username'].'</option>';
 			}
 		}
 		
-		/*Подключаем шаблон*/
-		$html.=template_get("rights/add_right", array(	
+		//Return HTML flow
+		return template_get("rights/add_right", array(
 																'users'=>$users_html,
 																'right_id'=>$right_id,
 																'right_name'=>$right_name
 													));
-	//ELSE
+	//No input data from browser
 	}else{
-		/*Получаем и проверяем данные от пользвователя*/
+		//Retrieve data from browser
 		$user_id=(int)$_POST['user'];
-
-		/*Получаем и проверяем данные от пользвователя*/
 		$right_id=(int)$_POST['right'];
 
 		/*Проверка входных данных*/
-		if(db_easy_count("SELECT * FROM `phpbb_users` WHERE `user_id`=$user_id")==0){
-			return "Ошибка в формате входных данных (user)";
+		if(db_easy_count('SELECT * FROM `phpbb_users` WHERE `user_id`='.$user_id)==0){
+			system_error('User with id '.$user_id.' doesn\'t exist');
 		}
 		
-		/*Проверка входных данных*/
-		if(db_easy_count("SELECT * FROM `phpbb_rights` WHERE `id`='$right_id'")==0){
-			return "Ошибка в формате входных данных (right)";
+		//Check if right with this id exist in database
+		$rights_res=db_query('SELECT * FROM `phpbb_rights` WHERE `id`='.$right_id);
+		if(db_count($rights_res)>0){
+			$right=db_fetch($rights_res);
+		}else{
+			system_error('Right with id '.$right_id.' doesn\'t exist');
 		}
 		
-		//Запрос к базе
-		if(db_easy_count("SELECT * FROM `phpbb_rights_users` WHERE `user_id`=$user_id AND `right_id`=$right_id")==0){
-			$insertRES=db_query("INSERT INTO `phpbb_rights_users` SET `user_id`=$user_id, `right_id`=$right_id");
+		//Check if this right already given to this user
+		if(db_easy_count('SELECT * FROM `phpbb_rights_users` WHERE `user_id`='.$user_id.' AND `right_id`='.$right_id)!=0){
+			system_error('User with id '.$user_id.' already has right with id '.$right_id);
+		}else{
+			//Request to database
+			$insert_res=db_query('INSERT INTO `phpbb_rights_users` SET `user_id`='.$user_id.', `right_id`='.$right_id);
+			
+			//Refer to other page
+			if(db_result($insert_res)){
+				header('location: /manager.php?action=list_rights&group='.$right['group_id']);
+			//Process error
+			}else{
+				system_error('Error when trying to give user with id '.$user_id.' right with id '.$right_id);	
+			}
 		}
-		
-		/*Проверка правильности выполнения запроса к БД*/
-		if(!db_result($insertRES)){
-			return "Ошибка при выполнении (insert)";
-		}
-		
-		//Выполняем HTTP запрос
-		header("location: /manager.php?action=show_rights");
 	}
-	
-	//Возвращаем значение функции
-	return $html;
 }
 ?>

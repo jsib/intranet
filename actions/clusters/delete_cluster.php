@@ -2,7 +2,7 @@
 function delete_cluster(){
 	//Check rights to perform this action
 	if(!check_rights('delete_cluster')){
-		return "У вас нет соответствующих прав";
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
 	}
 
 	//Get data from browser

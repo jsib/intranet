@@ -1,8 +1,8 @@
 <?php
 function add_category(){
+	//Check rights to perform this action
 	if(!check_rights('add_category')){
-		//Возвращаем значение функции
-		return "У вас нет соответствующих прав";
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
 	}
 	
 	//Show empty HTML form

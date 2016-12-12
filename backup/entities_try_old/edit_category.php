@@ -19,7 +19,7 @@ function edit_category(){
 					$message_html=template_get("errormessage", array('message'=>"Название категории не может быть пустым"));
 				break;
 				case "same_category_exists":
-					$message_html=template_get("errormessage", array('message'=>"Категория с таким именем уже существует"));
+					$message_html=template_get("errormessage", array('message'=>"Категория с таким именем уже имеется"));
 				break;
 				default:
 					$message_html=template_get("nomessage");

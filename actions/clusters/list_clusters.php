@@ -1,5 +1,10 @@
 <?php
 function list_clusters(){
+	//Check rights to perform this action
+	if(!check_rights('list_clusters')){
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
+	}
+	
 	if(isset($_GET['message'])){
 		$cluster_id=trim($_GET['cluster']);
 		$cluster_name=trim($_GET['name']);
@@ -8,7 +13,7 @@ function list_clusters(){
 				$message_html=template_get("message", array('message'=>"Добавлен кластер \"{$cluster_name}\""));
 			break;
 			case "cluster_deleted":
-				$message_html=template_get("message", array('message'=>"Удален кластер \"{$cluster_name}\""));	
+				$message_html=template_get("message", array('message'=>"Удален кластер \"{$cluster_name}\""));
 			break;
 			default:
 			$message_html=template_get("nomessage");
@@ -20,8 +25,10 @@ function list_clusters(){
 	$table_html="";
 	if(check_rights('delete_cluster')){
 		$th_html="<th class='right'></th>";
+		$th_right_class='';
 	}else{
 		$th_html="";
+		$th_right_class='right';
 	}
 	
 	//Look over clusters
@@ -41,11 +48,12 @@ function list_clusters(){
 		}
 		
 		
-		$table_html.="	<tr class='$bottom_class'>
-							<td><a href='/manager.php?action=show_cluster&cluster=".$cluster['id']."' style='font-size:9pt;'>".$cluster['name']."</a></td>";
+		$table_html.='	<tr class="'.$bottom_class.'">
+							<td class="'.$right_class.'">
+								<a href="/manager.php?action=show_cluster&cluster='.$cluster['id'].'" style="font-size:9pt;">'.$cluster['name'].'</a></td>';
 
 		if(check_rights('delete_cluster')){
-			$table_html.="	<td class='right'><a href='/manager.php?action=delete_cluster&cluster={$cluster['id']}' onclick=\"if(!confirm('Удалить ".$cluster['name']."?')) return false;\">Удалить</a><br/></td>
+			$table_html.="	<td class='right'><a href='/manager.php?action=delete_cluster&cluster={$cluster['id']}' onclick=\"if(!confirm('Удалить кластер ".$cluster['name']."?')) return false;\">Удалить</a><br/></td>
 						</tr>";
 		}
 	}
@@ -54,12 +62,12 @@ function list_clusters(){
 	}
 	
 	//Return HTML flow
-	return template_get("clusters/list_clusters", array(	'add_entity_link'=>$add_entity_link,
+	return template_get("clusters/list_clusters", array(		'add_entity_link'=>$add_entity_link,
 															'entities_number'=>$entities_number,
 															'table'=>$table_html,
 															'message'=>$message_html,
 															'th_html'=>$th_html,
-															'right_class'=>$right_class
+															'th_right_class'=>$th_right_class
 																));
 }
 ?>

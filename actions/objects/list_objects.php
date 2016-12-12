@@ -1,5 +1,10 @@
 <?php
 function list_objects(){
+	//Check rights to perform this action
+	if(!check_rights('list_objects')){
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
+	}
+	
 	if(isset($_GET['message'])){
 		$object_id=trim($_GET['object']);
 		$object_name=trim($_GET['name']);
@@ -20,8 +25,10 @@ function list_objects(){
 	$table_html="";
 	if(check_rights('delete_object')){
 		$th_html="<th class='right'></th>";
+		$th_right_class='';
 	}else{
 		$th_html="";
+		$th_right_class='right';
 	}
 	
 	//Look over objects
@@ -41,11 +48,12 @@ function list_objects(){
 		}
 		
 		
-		$table_html.="	<tr class='$bottom_class'>
-							<td><a href='/manager.php?action=show_object&object=".$object['id']."' style='font-size:9pt;'>".$object['name']."</a></td>";
+		$table_html.='	<tr class="'.$bottom_class.'">
+							<td class="'.$right_class.'">
+								<a href="/manager.php?action=show_object&object='.$object['id'].'" style="font-size:9pt;">'.$object['name'].'</a></td>';
 
 		if(check_rights('delete_object')){
-			$table_html.="	<td class='right'><a href='/manager.php?action=delete_object&object={$object['id']}' onclick=\"if(!confirm('Удалить ".$object['name']."?')) return false;\">Удалить</a><br/></td>
+			$table_html.="	<td class='right'><a href='/manager.php?action=delete_object&object={$object['id']}' onclick=\"if(!confirm('Удалить объект ".$object['name']."?')) return false;\">Удалить</a><br/></td>
 						</tr>";
 		}
 	}
@@ -59,7 +67,7 @@ function list_objects(){
 															'table'=>$table_html,
 															'message'=>$message_html,
 															'th_html'=>$th_html,
-															'right_class'=>$right_class
+															'th_right_class'=>$th_right_class
 																));
 }
 ?>

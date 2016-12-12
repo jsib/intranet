@@ -1,5 +1,10 @@
 <?php
 function show_object(){
+	//Check rights for this action
+	if(!check_rights('show_object')){
+		system_error('No permissions for '.__FUNCTION__.' action', ERR_NO_PERMISSION);
+	}
+	
 	//Get object id
 	$object_id=(int)$_GET['object'];
 	
