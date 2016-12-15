@@ -62,13 +62,15 @@ function list_arendas(){
 	$columns_binded=$config_arenda['columns_binded'];			
 
 	//Build HTML for filtering bind entities
-	//Build SQL-piece for filtering bind entities
+	//Build SQL-piece for filtering by bind entities
 	foreach($columns_binded as $name_for=>$name_plural_for){
 		$bind_entities_sql_where.=build_bind_entities_filter_sql($name_for, $name_plural_for);
 		$template_replacements[$name_plural_for]=build_filter_of_bind_entities($name_for, $name_plural_for);
 	}
 	
-	
+	//Build SQL-piece for filtering by dates
+	$dates_sql_where.=build_dates_filter_sql('date');
+	$template_replacements['date']=build_filter_of_dates('date');
 	
 	//Build SQL for database request
 	$sql="SELECT `phpbb_arendas`.`name` as `name`,
@@ -95,11 +97,11 @@ function list_arendas(){
 			
 	
 	//Build 'LEFT JOIN' SQL for binded entities
-	foreach($columns_binded as $name_for=>$name_plural_for){		
+	foreach($columns_binded as $name_for=>$name_plural_for){
 		$sql.=" LEFT JOIN `phpbb_".$name_plural_for."` ON `phpbb_arendas`.`".$name_for."_id`=`phpbb_".$name_plural_for."`.`id` ";
 	}
 	
-	$sql.=$bind_entities_sql_where;
+	$sql.=$bind_entities_sql_where.$dates_sql_where;
 	$sql.=" ORDER BY ".$headers[$sort]['sortcolumn']." ".$sort_direction;
 	
 	//Perform request to database
@@ -247,6 +249,9 @@ function list_arendas(){
 		$table_html="Записей не найдено.";
 	}
 	
+	//Filter for dates
+	$dates_html="<option value>";
+	
 	//Ссылка "Добавить контакт"
 	if(check_rights('add_arenda')){
 		$template_replacements['arenda_add_link']="<a href='/manager.php?action=add_arenda' class='listcontacts'>Добавить аренду</a><br/><br/>";
@@ -316,22 +321,70 @@ function build_bind_entities_filter_sql($object, $object_plural){
 
 		if($entity_id!=0){
 			if($sql_where_flag){
-				$sql_where=" AND ";
+				$sql_where=' AND ';
 			}else{
-				$sql_where=" WHERE ";
+				$sql_where=' WHERE ';
 				$sql_where_flag=true;
 			}
 			
-			$sql_where.=" `phpbb_".$object_plural."`.`id`=".$entity_id." ";
+			$sql_where.=' `phpbb_'.$object_plural.'`.`id`='.$entity_id.' ';
 		}else{
-			$sql_where="";
+			$sql_where='';
 		}
 	}else{
-		$sql_where="";
+		$sql_where='';
 	}
 	
 	//Return SQL piece
 	return $sql_where;
+}
+
+//Build HTML for filter of date
+function build_filter_of_dates(){
+	if(isset($_GET['date'])){
+		if(trim($_GET['date'])!=""){
+			$date=date("d.m.Y", strtotime($_GET['date']));
+		}else{
+			$date="";
+		}
+	}else{
+		$date="";
+	}
+	
+	//Return HTML flow
+	return $date;
+}
+
+//Build SQL-piece to filter by dates
+function build_dates_filter_sql($date_field){
+	//Bind global variables
+	global $sql_where_flag;
+	
+	//Build sql-piece
+	if(isset($_GET['date'])){
+		if(trim($_GET['date'])!=""){
+			//Get date from browser safe
+			$date=date("Y-m-d", strtotime($_GET['date']));
+
+			//Check if this is first position in WHERE clause
+			if($sql_where_flag){
+				$sql_where=' AND ';
+			}else{
+				$sql_where=' WHERE ';
+				$sql_where_flag=true;
+			}
+			
+			//Add main part of SQL piece
+			$sql_where.=' `phpbb_arendas`.`'.$date_field.'`=\''.$date.'\'';
+		}else{
+			$sql_where='';
+		}
+	}else{
+		$sql_where='';
+	}	
+	
+	//Return SQL piece
+	return $sql_where;	
 }
 
 ?>

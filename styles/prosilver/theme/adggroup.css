@@ -60,6 +60,18 @@ a.nav{color:#FFF;}
 	margin-right:20px;
 }
 
+.filter_entity_select{
+	margin-top:5px;
+}
+
+.filter_entity_input{
+	margin-top:7px;
+}
+
+.filter_div{
+	margin-top:5px;
+}
+
 div.sub_menu{
 	float:left;
 	margin-right:15px;

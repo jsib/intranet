@@ -200,7 +200,7 @@
         setDefaultDate: false,
 
         // first day of week (0: Sunday, 1: Monday etc)
-        firstDay: 0,
+        firstDay: 1,
 
         // the default flag for moment's strict date parsing
         formatStrict: false,
@@ -250,9 +250,9 @@
         i18n: {
             previousMonth : 'Previous Month',
             nextMonth     : 'Next Month',
-            months        : ['January','February','March','April','May','June','July','August','September','October','November','December'],
+            months        : ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
             weekdays      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-            weekdaysShort : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+            weekdaysShort : ['Вс','Пн','Вт','Ср','Чт','Пт','Сб']
         },
 
         // Theme Classname
@@ -507,6 +507,9 @@
 
         self._onInputChange = function(e)
         {
+			//pikaday_flag=true;
+			//alert('pika:'+pikaday_flag)
+
             var date;
 
             if (e.firedBy === self) {
@@ -517,8 +520,10 @@
                 date = (date && date.isValid()) ? date.toDate() : null;
             }
             else {
+				
                 date = new Date(Date.parse(opts.field.value));
             }
+			
             if (isDate(date)) {
               self.setDate(date);
             }

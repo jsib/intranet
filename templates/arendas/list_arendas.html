@@ -1,23 +1,42 @@
 <h2>Аренда</h2><br/>
 {arenda_add_link}
-<form method='get' action='manager.php' id="filter_form" onchange="document.getElementById('filter_form').submit();">
+<form method='get' action='manager.php' id="filter_form" onsubmit='if(this.getElementById("datepicker1").value=="01.01.1970){"this.getElementById("datepicker1").value="";}'>
 	<div>
 		<div class="filter_entity_name">Кластер:</div>
-		<div class="filter_entity"><select name="cluster" style='margin-top:5px;'>{clusters}</select></div>
+		<div class="filter_entity filter_entity_select"><select name="cluster">{clusters}</select></div>
 		<div class="filter_entity_name">Категория:</div>
-		<div class="filter_entity"><select name="category" style='margin-top:5px;'>{categories}</select></div>
+		<div class="filter_entity filter_entity_select"><select name="category">{categories}</select></div>
 		<div class="filter_entity_name">Объект:</div>
-		<div class="filter_entity"><select name="object" style='margin-top:5px;'>{objects}</select></div>
+		<div class="filter_entity filter_entity_select"><select name="object">{objects}</select></div>
 		<div class="filter_entity_name">Статус:</div>
-		<div class="filter_entity"><select name="status" style='margin-top:5px;'>{statuses}</select></div>
-		<div class="filter_entity_name">Следующий шаг:</div>
-		<div class="filter_entity"><select name="next_step" style='margin-top:5px;'>{next_steps}</select></div>
+		<div class="filter_entity filter_entity_select"><select name="status">{statuses}</select></div>
 		<div class="clear"></div>
 	</div>
-	
-	
+	<div class='filter_div'>
+		<div class="filter_entity_name">Следующий шаг:</div>
+		<div class="filter_entity filter_entity_select"><select name="next_step">{next_steps}</select></div>
+		<div class="filter_entity_name">Приоритет:</div>
+		<div class="filter_entity filter_entity_select"><select name="priority">{priorities}</select></div>
+		<div class="filter_entity_name">Дата:</div>
+		<div class="filter_entity filter_entity_input"><input name="date" value="{date}" id="datepicker1" class='date'></div>
+		<div class="filter_entity_name"><input type='submit' value='Фильтровать'  style='width:150px;'/></div>
+		<div class="clear"></div>
+	</div>
 	<input type='hidden' name='action' value='list_arendas' />
 </form><br/>
 <b>Количество:</b> {arendas_number}<br/><br/>
 {table}
 <br/>
+<!--Start: Pikaday calendar-->
+<script>
+	var pikaday_flag=false;
+	var picker = new Pikaday(
+	{
+		field: document.getElementById('datepicker1'),
+		format: 'DD.MM.YYYY',
+	});
+	
+	//alert(pikaday_flag);
+</script>	
+<!--End: Pikaday calendar-->
+
