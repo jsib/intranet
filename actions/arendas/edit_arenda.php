@@ -54,7 +54,7 @@ function edit_arenda(){
 
 		//Build SQL pieces for standart numeric data
 		$numeric_sql="";
-		foreach($config_arenda['standart_numeric_data_database'] as $nameFOR){
+		foreach($config_arenda['standart_numeric_data_database'] as $nameFOR=>$empty){
 			$numeric_sql.="`".$nameFOR."_id`= :".$nameFOR.", ";
 		}
 		$numeric_sql=substr($numeric_sql, 0, -2);
@@ -99,7 +99,7 @@ function edit_arenda(){
 			}
 			
 			//Bind numeric parameters to PDO
-			foreach($config_arenda['standart_numeric_data_database'] as $nameFOR){
+			foreach($config_arenda['standart_numeric_data_database'] as $nameFOR=>$empty){
 				$sth->bindParam(":".$nameFOR, trim($_POST[$nameFOR]), PDO::PARAM_INT);
 			}
 			
@@ -133,11 +133,8 @@ function show_form_edit_arenda($arenda=array(), $messages=array()){
 	//Retrieve message HTML
 	$template_replacements['message']=show_messages($messages);
 
-	//Define SELECTs array
-	$selects=array('cluster'=>'clusters', 'category'=>'categories', 'object'=>'objects');
-	
 	//Build HTML of SELECTs
-	foreach($selects as $object_for=>$object_plural_for){
+	foreach($config_arenda['selects'] as $object_for=>$object_plural_for){
 		$template_replacements[$object_plural_for]=get_bind_entities_options($object_for, $object_plural_for, $arenda);
 	}
 		

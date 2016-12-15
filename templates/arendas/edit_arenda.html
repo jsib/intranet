@@ -46,6 +46,14 @@
 				</td>
 			</tr>
 			<tr>
+				<td style='width:250px;' valign='top'>
+					Описание:
+				</td>
+				<td>
+					<textarea name='description'>{description}</textarea>
+				</td>
+			</tr>
+			<tr>
 				<td style='width:250px;'>
 					Приоритет:
 				</td>
@@ -66,7 +74,19 @@
 					Статус:
 				</td>
 				<td>
-					<input type='text' name='status' value='{status}'/>
+					<select name='status'> 
+						{statuses}	
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style='width:250px;'>
+					Next Step:
+				</td>
+				<td>
+					<select name='next_step'>
+						{next_steps}
+					</select>
 				</td>
 			</tr>
 			<tr>
@@ -79,10 +99,10 @@
 			</tr>
 			<tr>
 				<td style='width:250px;' valign='top'>
-					Следующий шаг:
+					Следующий шаг (OLD):
 				</td>
 				<td>
-					<textarea name='next_step'>{next_step}</textarea>
+					<textarea name='next_step_old'>{next_step_old}</textarea>
 				</td>
 			</tr>
 			<tr>

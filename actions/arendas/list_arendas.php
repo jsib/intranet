@@ -21,7 +21,7 @@ function list_arendas(){
 	
 	//Get headers of columns for sorting
 	$headers=array( 'name'=>array(
-						'rus'=>"Название",
+						'rus'=>"Название арендатора",
 						'sortcolumn'=>"name"
 						),
 					'cluster_name'=>array(
@@ -35,6 +35,14 @@ function list_arendas(){
 					'object_name'=>array(
 						'rus'=>'Объект',
 						'sortcolumn'=>"`phpbb_objects`.`name`"
+						),
+					'status_name'=>array(
+						'rus'=>'Статус',
+						'sortcolumn'=>"`phpbb_statuses`.`name`"
+						),
+					'next_step_name'=>array(
+						'rus'=>'Next Step',
+						'sortcolumn'=>"`phpbb_next_steps`.`name`"
 						)
 					);
 	
@@ -50,13 +58,8 @@ function list_arendas(){
 	//Define first where flag
 	$sql_where_flag=false;
 	
-	//Retrieve cluster id from browser
-	if(isset($_GET['cluster'])){
-		$cluster_id=$_GET['cluster'];
-	}
-	
 	//Define binded entities columns
-	$columns_binded=array('cluster'=>'clusters', 'category'=>'categories', 'object'=>'objects');			
+	$columns_binded=$config_arenda['columns_binded'];			
 
 	//Build HTML for filtering bind entities
 	//Build SQL-piece for filtering bind entities
@@ -70,18 +73,19 @@ function list_arendas(){
 	//Build SQL for database request
 	$sql="SELECT `phpbb_arendas`.`name` as `name`,
 				 `phpbb_arendas`.`id` as `id`,
+				 `phpbb_arendas`.`description` as `description`,
 				 `phpbb_arendas`.`priority` as `priority`,
-				  `phpbb_arendas`.`contact_date` as `contact_date`,
-				 `phpbb_arendas`.`status` as `status`,
+				 `phpbb_arendas`.`contact_date` as `contact_date`,
 				 `phpbb_arendas`.`comment` as `comment`,
-				 `phpbb_arendas`.`next_step` as `next_step`,
-				  `phpbb_arendas`.`date` as `date`,
+				 `phpbb_arendas`.`next_step_old` as `next_step_old`,
+				 `phpbb_arendas`.`date` as `date`,
 				 `phpbb_arendas`.`contacts` as `contacts`,
 				 `phpbb_arendas`.`responsible_adg` as `responsible_adg`,
-				 `phpbb_arendas`.`responsible_cw` as `responsible_cw`";
+				 `phpbb_arendas`.`responsible_cw` as `responsible_cw`
+				 ";
 	
 	//Build SQL-pices to retrieve information of binded entities
-	foreach($columns_binded as $name_for=>$name_plural_for){		
+	foreach($columns_binded as $name_for=>$name_plural_for){
 		$sql.=" , `phpbb_".$name_plural_for."`.`name` as `".$name_for."_name`";
 		$sql.=" , `phpbb_".$name_plural_for."`.`id` as `".$name_for."_id`";
 	}
@@ -117,15 +121,17 @@ function list_arendas(){
 		//Build HTML table
 		$table_html="<table class='listcontacts' cellpadding=0 cellspacing=0 border=0>
 						<tr>
-							<th class='left'>".$headers['name']['html']."</th>
+							<th class='left' style='width:180px;'>".$headers['name']['html']."</th>
 							<th>".$headers['cluster_name']['html']."</th>
 							<th>".$headers['category_name']['html']."</th>
 							<th>".$headers['object_name']['html']."</th>
+							<th>".$headers['status_name']['html']."</th>
+							<th>".$headers['next_step_name']['html']."</th>
+							<th>Описание</th>
 							<th>Приоритет</th>
 							<th>Дата контакта</th>
-							<th>Статус</th>
 							<th>Комментарий</th>
-							<th>Next step</th>
+							<th>Next step (OLD)</th>
 							<th>Дата</th>
 							<th>Контакты</th>
 							<th>Ответственный ADG</th>
@@ -200,7 +206,7 @@ function list_arendas(){
 			}
 			
 			//Set columns with text data
-			$columns=array('priority', 'contact_date', 'status', 'comment', 'next_step', 'date'=>'date', 'contacts', 'responsible_adg', 'responsible_cw');
+			$columns=$config_arenda['columns'];
 			
 			//Get number of columns
 			$columns_number=count($columns);

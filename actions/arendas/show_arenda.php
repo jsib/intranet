@@ -8,12 +8,14 @@ function show_arenda(){
 	
 	//Get SQL for request
 	$arenda_sql="SELECT *,`phpbb_arendas`.`name` as `name`, `phpbb_clusters`.`name` as `cluster_name`,
-								   `phpbb_categories`.`name` as `category_name`, `phpbb_objects`.`name` as `object_name`
+								   `phpbb_categories`.`name` as `category_name`, `phpbb_objects`.`name` as `object_name`, `phpbb_statuses`.`name` as `status_name`, `phpbb_next_steps`.`name` as `next_step_name`
 								   FROM `phpbb_arendas`
 								   LEFT JOIN `phpbb_clusters` ON `phpbb_arendas`.`cluster_id`=`phpbb_clusters`.`id`
 								   LEFT JOIN `phpbb_categories` ON `phpbb_arendas`.`category_id`=`phpbb_categories`.`id`
 								   LEFT JOIN `phpbb_objects` ON `phpbb_arendas`.`object_id`=`phpbb_objects`.`id`
-								   WHERE `phpbb_arendas`.`id`=".$arenda_id;							
+								   LEFT JOIN `phpbb_statuses` ON `phpbb_arendas`.`status_id`=`phpbb_statuses`.`id`
+								   LEFT JOIN `phpbb_next_steps` ON `phpbb_arendas`.`next_step_id`=`phpbb_next_steps`.`id`
+								   WHERE `phpbb_arendas`.`id`=".$arenda_id;
 	//show($arenda_sql);
 	
 	//Retrieve arenda entity from database
@@ -41,7 +43,7 @@ function show_arenda(){
 	
 	//Build list arendas link
 	$template_replacements['list_arendas_link']="<a href='/manager.php?action=list_arendas' style='font-size:8pt;'>Все точки аренды</a>";
-	
+
 	//Form template replacements with text data
 	$replacements=$config_arenda['standart_text_data_form'];
 	foreach($replacements as $empty=>$replacement){
