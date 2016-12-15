@@ -43,6 +43,10 @@ function list_arendas(){
 					'next_step_name'=>array(
 						'rus'=>'Next Step',
 						'sortcolumn'=>"`phpbb_next_steps`.`name`"
+						),
+					'priority_name'=>array(
+						'rus'=>'Приоритет',
+						'sortcolumn'=>"`phpbb_priorities`.`name`"
 						)
 					);
 	
@@ -59,11 +63,11 @@ function list_arendas(){
 	$sql_where_flag=false;
 	
 	//Define binded entities columns
-	$columns_binded=$config_arenda['columns_binded'];			
+	$binded_columns_database=$config_arenda['binded_columns_database'];			
 
 	//Build HTML for filtering bind entities
 	//Build SQL-piece for filtering by bind entities
-	foreach($columns_binded as $name_for=>$name_plural_for){
+	foreach($binded_columns_database as $name_for=>$name_plural_for){
 		$bind_entities_sql_where.=build_bind_entities_filter_sql($name_for, $name_plural_for);
 		$template_replacements[$name_plural_for]=build_filter_of_bind_entities($name_for, $name_plural_for);
 	}
@@ -73,23 +77,26 @@ function list_arendas(){
 	$template_replacements['date']=build_filter_of_dates('date');
 	
 	//Build SQL for database request
-	$sql="SELECT `phpbb_arendas`.`name` as `name`,
-				 `phpbb_arendas`.`id` as `id`,
-				 `phpbb_arendas`.`description` as `description`,
-				 `phpbb_arendas`.`priority` as `priority`,
-				 `phpbb_arendas`.`contact_date` as `contact_date`,
-				 `phpbb_arendas`.`comment` as `comment`,
-				 `phpbb_arendas`.`next_step_old` as `next_step_old`,
-				 `phpbb_arendas`.`date` as `date`,
-				 `phpbb_arendas`.`contacts` as `contacts`,
-				 `phpbb_arendas`.`responsible_adg` as `responsible_adg`,
-				 `phpbb_arendas`.`responsible_cw` as `responsible_cw`
-				 ";
+	$sql='SELECT `phpbb_arendas`.`id` as `id`';
 	
-	//Build SQL-pices to retrieve information of binded entities
-	foreach($columns_binded as $name_for=>$name_plural_for){
-		$sql.=" , `phpbb_".$name_plural_for."`.`name` as `".$name_for."_name`";
-		$sql.=" , `phpbb_".$name_plural_for."`.`id` as `".$name_for."_id`";
+	//Build SQL-piece for standart text columns of database table
+	if(isset($config_arenda['standart_text_data_database']) && count($config_arenda['standart_text_data_database'])>0){
+		foreach($config_arenda['standart_text_data_database'] as $name_for){
+			$sql.=', `phpbb_arendas`.`'.$name_for.'` as `'.$name_for.'`'; 
+		}
+	}
+	
+	//Build SQL-piece for date columns of database table
+	if(isset($config_arenda['standart_date_data_database']) && count($config_arenda['standart_date_data_database'])>0){
+		foreach($config_arenda['standart_date_data_database'] as $name_for){
+			$sql.=', `phpbb_arendas`.`'.$name_for.'` as `'.$name_for.'`'; 
+		}
+	}
+	
+	//Build SQL-pieces to retrieve information of binded entities
+	foreach($binded_columns_database as $name_for=>$name_plural_for){
+		$sql.=", `phpbb_".$name_plural_for."`.`name` as `".$name_for."_name`";
+		$sql.=", `phpbb_".$name_plural_for."`.`id` as `".$name_for."_id`"; 
 	}
 	
 	//Build FROM SQL
@@ -97,7 +104,7 @@ function list_arendas(){
 			
 	
 	//Build 'LEFT JOIN' SQL for binded entities
-	foreach($columns_binded as $name_for=>$name_plural_for){
+	foreach($binded_columns_database as $name_for=>$name_plural_for){
 		$sql.=" LEFT JOIN `phpbb_".$name_plural_for."` ON `phpbb_arendas`.`".$name_for."_id`=`phpbb_".$name_plural_for."`.`id` ";
 	}
 	
@@ -129,8 +136,8 @@ function list_arendas(){
 							<th>".$headers['object_name']['html']."</th>
 							<th>".$headers['status_name']['html']."</th>
 							<th>".$headers['next_step_name']['html']."</th>
+							<th>".$headers['priority_name']['html']."</th>
 							<th>Описание</th>
-							<th>Приоритет</th>
 							<th>Дата контакта</th>
 							<th>Комментарий</th>
 							<th>Next step (OLD)</th>
@@ -156,7 +163,7 @@ function list_arendas(){
 				$bottom_class="";
 			}
 			
-			//Put a dash for text data fields
+			//Put a dash for empty text data fields
 			foreach($config_arenda['standart_text_data_database'] as $name_for){
 				if($arenda_while[$name_for]==""){
 					$arenda_while[$name_for]="-";
@@ -190,7 +197,7 @@ function list_arendas(){
 
 								
 			//Build HTML columns for binded entities
-			foreach($columns_binded as $name_for=>$name_plural_for){
+			foreach($binded_columns_database as $name_for=>$name_plural_for){
 				//Put a dash for empty entity name
 				if(trim($arenda_while[$name_for.'_name'])=="" || $arenda_while[$name_for.'_id']==1){
 					$arenda_while[$name_for.'_name']="-";
@@ -208,7 +215,7 @@ function list_arendas(){
 			}
 			
 			//Set columns with text data
-			$columns=$config_arenda['columns'];
+			$columns=$config_arenda['columns_without_sort'];
 			
 			//Get number of columns
 			$columns_number=count($columns);

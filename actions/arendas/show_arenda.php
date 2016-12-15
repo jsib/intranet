@@ -6,20 +6,46 @@ function show_arenda(){
 	//Retrieve arenda id from browser
 	$arenda_id=(int)$_GET['arenda'];
 	
-	//Get SQL for request
-	$arenda_sql="SELECT *,`phpbb_arendas`.`name` as `name`, `phpbb_clusters`.`name` as `cluster_name`,
-								   `phpbb_categories`.`name` as `category_name`, `phpbb_objects`.`name` as `object_name`, `phpbb_statuses`.`name` as `status_name`, `phpbb_next_steps`.`name` as `next_step_name`
-								   FROM `phpbb_arendas`
-								   LEFT JOIN `phpbb_clusters` ON `phpbb_arendas`.`cluster_id`=`phpbb_clusters`.`id`
-								   LEFT JOIN `phpbb_categories` ON `phpbb_arendas`.`category_id`=`phpbb_categories`.`id`
-								   LEFT JOIN `phpbb_objects` ON `phpbb_arendas`.`object_id`=`phpbb_objects`.`id`
-								   LEFT JOIN `phpbb_statuses` ON `phpbb_arendas`.`status_id`=`phpbb_statuses`.`id`
-								   LEFT JOIN `phpbb_next_steps` ON `phpbb_arendas`.`next_step_id`=`phpbb_next_steps`.`id`
-								   WHERE `phpbb_arendas`.`id`=".$arenda_id;
-	//show($arenda_sql);
+	//Define binded entities columns
+	$binded_columns_database=$config_arenda['binded_columns_database'];
+	
+	//Build SQL for database request
+	$sql='SELECT `phpbb_arendas`.`id` as `id`';
+	
+	//Build SQL-piece for standart text columns of database table
+	if(isset($config_arenda['standart_text_data_database']) && count($config_arenda['standart_text_data_database'])>0){
+		foreach($config_arenda['standart_text_data_database'] as $name_for){
+			$sql.=', `phpbb_arendas`.`'.$name_for.'` as `'.$name_for.'`'; 
+		}
+	}
+	
+	//Build SQL-piece for date columns of database table
+	if(isset($config_arenda['standart_date_data_database']) && count($config_arenda['standart_date_data_database'])>0){
+		foreach($config_arenda['standart_date_data_database'] as $name_for){
+			$sql.=', `phpbb_arendas`.`'.$name_for.'` as `'.$name_for.'`'; 
+		}
+	}
+	
+	//Build SQL-pieces to retrieve information of binded entities
+	foreach($binded_columns_database as $name_for=>$name_plural_for){
+		$sql.=", `phpbb_".$name_plural_for."`.`name` as `".$name_for."_name`";
+		$sql.=", `phpbb_".$name_plural_for."`.`id` as `".$name_for."_id`"; 
+	}
+	
+	//Build FROM SQL
+	$sql.=" FROM `phpbb_arendas` ";
+	
+	//Build 'LEFT JOIN' SQL for binded entities
+	foreach($binded_columns_database as $name_for=>$name_plural_for){
+		$sql.=" LEFT JOIN `phpbb_".$name_plural_for."` ON `phpbb_arendas`.`".$name_for."_id`=`phpbb_".$name_plural_for."`.`id` ";
+	}
+	
+	//Build WHERE clause
+	$sql.=' WHERE `phpbb_arendas`.`id`='.$arenda_id;
 	
 	//Retrieve arenda entity from database
-	$arenda_res=db_query($arenda_sql);	
+	$arenda_res=db_query($sql);	
+	
 	if(db_count($arenda_res)>0){
 	 	$arenda=db_fetch($arenda_res); 
 		//show($arenda);
