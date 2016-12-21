@@ -6,7 +6,7 @@ $config_arenda['standart_text_data_database']=array('name', 'description', 'comm
 $config_arenda['standart_date_data_database']=array('date', 'contact_date');
 $config_arenda['standart_text_data_form']=array('name', 'cluster_name', 'category_name', 'object_name', 'status_name', 'next_step_name', 'priority_name', 'description', 'comment', 'next_step_old', 'contacts', 'responsible_adg', 'responsible_cw');
 $config_arenda['binded_columns_database']=array('cluster'=>'clusters', 'category'=>'categories', 'object'=>'objects', 'status'=>'statuses', 'next_step'=>'next_steps', 'priority'=>'priorities');
-$config_arenda['columns_without_sort']=array('description', 'contact_date', 'comment', 'next_step_old', 'date'=>'date', 'contacts', 'responsible_adg', 'responsible_cw');
+$config_arenda['columns_without_sort']=array('description', 'contact_date', 'comment', 'date'=>'date', 'contacts', 'responsible_adg', 'responsible_cw');
 
 $config_arenda['selects']=$config_arenda['binded_columns_database'];
 $config_arenda['standart_numeric_data_database']=$config_arenda['binded_columns_database'];

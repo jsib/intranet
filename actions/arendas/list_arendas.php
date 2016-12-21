@@ -140,7 +140,6 @@ function list_arendas(){
 							<th>Описание</th>
 							<th>Дата контакта</th>
 							<th>Комментарий</th>
-							<th>Next step (OLD)</th>
 							<th>Дата</th>
 							<th>Контакты</th>
 							<th>Ответственный ADG</th>
