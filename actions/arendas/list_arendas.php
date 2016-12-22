@@ -3,6 +3,9 @@ function list_arendas(){
 	//Bind global variables
 	global $config_arenda;
 	
+	//Helper
+	$headers=$config_arenda['headers'];
+	
 	//Get sort direction
 	if(isset($_GET['sortdirection'])){
 		$sort_direction=$_GET['sortdirection'];
@@ -17,47 +20,7 @@ function list_arendas(){
 		$sort=$_GET['sort'];
 	}else{
 		$sort="name";
-	}
-	
-	//Get headers of columns for sorting
-	$headers=array( 'name'=>array(
-						'rus'=>"Название арендатора",
-						'sortcolumn'=>"name"
-						),
-					'cluster_name'=>array(
-						'rus'=>'Кластер',
-						'sortcolumn'=>"`phpbb_clusters`.`name`"
-						),
-					'category_name'=>array(
-						'rus'=>'Категория',
-						'sortcolumn'=>"`phpbb_categories`.`name`"
-						),
-					'object_name'=>array(
-						'rus'=>'Объект',
-						'sortcolumn'=>"`phpbb_objects`.`name`"
-						),
-					'status_name'=>array(
-						'rus'=>'Статус',
-						'sortcolumn'=>"`phpbb_statuses`.`name`"
-						),
-					'next_step_name'=>array(
-						'rus'=>'Next Step',
-						'sortcolumn'=>"`phpbb_next_steps`.`name`"
-						),
-					'priority_name'=>array(
-						'rus'=>'Приоритет',
-						'sortcolumn'=>"`phpbb_priorities`.`name`"
-						)
-					);
-	
-	//Build headers for HTML table
-	foreach($headers as $name=>$value){
-		if($sort==$name){
-			$headers[$name]['html']="<a href='".uri_make(array('sortdirection'=>$link_sort_direction, 'sort'=>$name))."' class='header'>".$headers[$name]['rus']."<img src='/images/".$sort_direction.".png' class='header'></a>";
-		}else{
-			$headers[$name]['html']="<a href='".uri_make(array('sortdirection'=>'asc', 'sort'=>$name))."' class='header'>".$headers[$name]['rus']."</a>";
-		}
-	}
+	}	
 	
 	//Define first where flag
 	$sql_where_flag=false;
@@ -117,35 +80,36 @@ function list_arendas(){
 	//Get number of arendas
 	$arendas_number=db_count($arendas_res);
 	
+	//Define some variables
 	$arendas_counter=0;
 	$table_html="";
+	
 	if(check_rights('delete_arenda')){
 		$th_html="		
 						<th class='right'></th>";
 	}else{
-		$th_html="";
+		$falsex="";
 	}
 	
 	if(db_count($arendas_res)>0){
-		//Build HTML table
-		$table_html="<table class='listcontacts' cellpadding=0 cellspacing=0 border=0>
-						<tr>
-							<th class='left' style='width:180px;'>".$headers['name']['html']."</th>
-							<th>".$headers['cluster_name']['html']."</th>
-							<th>".$headers['category_name']['html']."</th>
-							<th>".$headers['object_name']['html']."</th>
-							<th>".$headers['status_name']['html']."</th>
-							<th>".$headers['next_step_name']['html']."</th>
-							<th>".$headers['priority_name']['html']."</th>
-							<th>Описание</th>
-							<th>Дата контакта</th>
-							<th>Комментарий</th>
-							<th>Дата</th>
-							<th>Контакты</th>
-							<th>Ответственный ADG</th>
-							<th class='{right_class}'>Ответственный C&W</th>
-							{th_html}
-						</tr>";
+		//Open <tr> tag
+		$table_html.="<table class='listcontacts' cellpadding=0 cellspacing=0 border=0><tr>";
+		
+		foreach($headers as $name_for=>$header_for){
+			if($header_for['sorted']==true){
+				if($sort==$name_for){
+					$html_for="<a href='".uri_make(array('sortdirection'=>$link_sort_direction, 'sort'=>$name_for))."' class='header'>".$headers[$name_for]['title']."<img src='/images/".$sort_direction.".png' class='header'></a>";
+				}else{
+					$html_for="<a href='".uri_make(array('sortdirection'=>'asc', 'sort'=>$name_for))."' class='header'>".$headers[$name_for]['title']."</a>";
+				}
+				
+				$table_html.="<th>".$html_for."</th>";	
+			}else{
+				$table_html.="<th>".$headers[$name_for]['title']."</th>";
+			}
+		}
+		
+		$table_html.=$th_html."</tr>";
 		
 		//Iterate arendas from database
 		while ($arenda_while = db_fetch($arendas_res)){
@@ -243,7 +207,7 @@ function list_arendas(){
 			if(check_rights('delete_arenda')){
 			$table_html.="
 			<td class='right'>
-				<a href='".$arenda_delete_link."' onclick=\"if(!confirm('Удалить точку аренды &laquo;".$arenda_while['name']."&raquo;?')) return false;\">Удалить</a>
+				<a href='".$arenda_delete_link."' onclick=\"if(!confirm('Удалить аренду &laquo;".$arenda_while['name']."&raquo;?')) return false;\">Удалить</a>
 				<br/>
 			</td>";
 			}
@@ -270,9 +234,6 @@ function list_arendas(){
 	
 	//Put table html to template
 	$template_replacements['table']=$table_html;
-	
-	//Put th html to template
-	$template_replacements['th_html']=$th_html;
 	
 	//Put right class to template
 	$template_replacements['right_class']=$right_class;

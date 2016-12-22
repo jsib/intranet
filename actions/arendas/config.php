@@ -13,5 +13,67 @@ $config_arenda['standart_numeric_data_database']=$config_arenda['binded_columns_
 $config_arenda['standart_date_data_form']=$config_arenda['standart_date_data_database'];
 
 //Empty datas array
-$config_arenda['empty_dates']=array("0000-00-00", "1970-01-01", "0001-11-30"); 
+$config_arenda['empty_dates']=array("0000-00-00", "1970-01-01", "0001-11-30");
+
+//Build headers for table
+$config_arenda['headers']=array(
+						'name'=>array(
+							'title'=>"Название арендатора",
+							'sortcolumn'=>"name",
+							'sorted'=>true
+							),
+						'cluster_name'=>array(
+							'title'=>'Кластер',
+							'sortcolumn'=>"`phpbb_clusters`.`name`",
+							'sorted'=>true
+							),
+						'object_name'=>array(
+							'title'=>'Объект',
+							'sortcolumn'=>"`phpbb_objects`.`name`",
+							'sorted'=>true
+							),
+						'status_name'=>array(
+							'title'=>'Статус',
+							'sortcolumn'=>"`phpbb_statuses`.`name`",
+							'sorted'=>true
+							),
+						'next_step_name'=>array(
+							'title'=>'Next Step',
+							'sortcolumn'=>"`phpbb_next_steps`.`name`",
+							'sorted'=>true
+							),
+						'priority_name'=>array(
+							'title'=>'Приоритет',
+							'sortcolumn'=>"`phpbb_priorities`.`name`",
+							'sorted'=>true
+							),
+						'description'=>array(
+							'title'=>'Описание',
+							'sorted'=>false
+							),
+						'contact_date'=>array(
+							'title'=>'Дата контакта',
+							'sorted'=>false
+							),
+						'comment'=>array(
+							'title'=>'Комментарий',
+							'sorted'=>false
+						),
+						'date'=>array(
+							'title'=>'Дата',
+							'sorted'=>false
+						),
+						'contacts'=>array(
+							'title'=>'Контакты',
+							'sorted'=>false
+						),
+						'responsible'=>array(
+							'title'=>'Ответственный',
+							'sorted'=>false
+						),
+						'responsible_cw'=>array(
+							'title'=>'Ответственный C&W',
+							'sorted'=>false
+						)
+					);		
 ?>
