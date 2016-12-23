@@ -26,7 +26,13 @@ function list_arendas(){
 	$sql_where_flag=false;
 	
 	//Define binded entities columns
-	$binded_columns_database=$config_arenda['binded_columns_database'];			
+	$binded_columns_database=$config_arenda['binded_columns_database'];
+
+	//Set columns with text data
+	$columns=$config_arenda['columns_without_sort'];
+	
+	//Get number of columns
+	$columns_number=count($columns);
 
 	//Build HTML for filtering bind entities
 	//Build SQL-piece for filtering by bind entities
@@ -85,17 +91,25 @@ function list_arendas(){
 	$table_html="";
 	
 	if(check_rights('delete_arenda')){
-		$th_html="		
+		$th_html="
 						<th class='right'></th>";
 	}else{
-		$falsex="";
+		$th_html="";
 	}
 	
 	if(db_count($arendas_res)>0){
 		//Open <tr> tag
 		$table_html.="<table class='listcontacts' cellpadding=0 cellspacing=0 border=0><tr>";
 		
+		//Build first row
 		foreach($headers as $name_for=>$header_for){
+			//Set width of column
+			if(isset($header_for['width'])){
+				$width_for='width:'.$header_for['width'].'px;';
+			}else{
+				$width_for='';
+			}
+			
 			if($header_for['sorted']==true){
 				if($sort==$name_for){
 					$html_for="<a href='".uri_make(array('sortdirection'=>$link_sort_direction, 'sort'=>$name_for))."' class='header'>".$headers[$name_for]['title']."<img src='/images/".$sort_direction.".png' class='header'></a>";
@@ -103,12 +117,13 @@ function list_arendas(){
 					$html_for="<a href='".uri_make(array('sortdirection'=>'asc', 'sort'=>$name_for))."' class='header'>".$headers[$name_for]['title']."</a>";
 				}
 				
-				$table_html.="<th>".$html_for."</th>";	
+				$table_html.='<th style="'.$width_for.'">'.$html_for."</th>";
 			}else{
-				$table_html.="<th>".$headers[$name_for]['title']."</th>";
+				$table_html.='<th style="'.$width_for.'">'.$headers[$name_for]['title']."</th>";
 			}
 		}
 		
+		//Retrieve HTML piece
 		$table_html.=$th_html."</tr>";
 		
 		//Iterate arendas from database
@@ -118,30 +133,14 @@ function list_arendas(){
 			
 			//Get delete arenda link
 			$arenda_delete_link="/manager.php?action=delete_arenda&arenda=".$arenda_while['id'];
-
+			
 			//Get special css class for last row
 			if($arendas_number==$arendas_counter){
 				$bottom_class="bottom";
 			}else{
 				$bottom_class="";
 			}
-			
-			//Put a dash for empty text data fields
-			foreach($config_arenda['standart_text_data_database'] as $name_for){
-				if($arenda_while[$name_for]==""){
-					$arenda_while[$name_for]="-";
-				}
-			}
-
-			//Put a dash for date data fields
-			foreach($config_arenda['standart_date_data_database'] as $name_for){
-				if(in_array($arenda_while[$name_for], $config_arenda['empty_dates'])){
-					$arenda_while[$name_for]="-";
-				}else{
-					$arenda_while[$name_for]=date("d.m.Y", strtotime($arenda_while[$name_for]));
-				}
-			}
-			
+	
 			//Get special css class for last column
 			if(check_rights('delete_arenda')){
 				$right_class='';
@@ -149,72 +148,87 @@ function list_arendas(){
 				$right_class='right';
 			}
 			
-			//Build first column
-			$table_html.="	<tr class='".$bottom_class."'>
-								<td class='left'>
-									<a href='/manager.php?action=show_arenda&arenda=".$arenda_while['id']."' style='font-size:9pt;'>".
-										$arenda_while['name'].
-									"</a>
-								</td>";
-			
-
-								
-			//Build HTML columns for binded entities
-			foreach($binded_columns_database as $name_for=>$name_plural_for){
-				//Put a dash for empty entity name
-				if(trim($arenda_while[$name_for.'_name'])=="" || $arenda_while[$name_for.'_id']==1){
-					$arenda_while[$name_for.'_name']="-";
-				}				
-				
-				//Get binded entity link
-				$entity_binded_link="/manager.php?action=show_".$name_for."&".$name_for."=".$arenda_while[$name_for.'_id'];
-				
-				$table_html.="
-								<td>
-									<a href='".$entity_binded_link."' style='font-size:9pt;'>".
-										$arenda_while[$name_for.'_name'].
-									"</a>
-								</td>";
-			}
-			
-			//Set columns with text data
-			$columns=$config_arenda['columns_without_sort'];
-			
-			//Get number of columns
-			$columns_number=count($columns);
-			
 			//Define columns counter
 			$columns_counter=0;
-			
-			//Build HTML columns for text entities
-			foreach($columns as $type_for=>$name_for){
-				$columns_counter++;
-				if($type_for=='date'){
-					//$arenda_while[$name_for]=date("d.m.Y", strtotime($arenda_while[$name_for])); 
-				}
-				if($columns_number==$columns_counter){
-					$table_html.="<td class=".$right_class.">".
-									$arenda_while[$name_for].
-								"</td>";
-				}else{
-					$table_html.="<td>".
-									$arenda_while[$name_for].
-								"</td>";
+			//Build other columns
+			foreach($headers as $name_for=>$header_for){
+				if(isset($header_for['binded_object'])){
+					//Helper for binded object name
+					$binded_object_name_for=$header_for['binded_object'];
+					//Put a dash for empty entity name
+					if(trim($arenda_while[$binded_object_name_for.'_name'])=="" || $arenda_while[$binded_object_name_for.'_id']==1){
+						$arenda_while[$binded_object_name_for.'_name']="-";
+					}				
 					
+					//Get binded entity link 
+					$entity_binded_link="/manager.php?action=show_".$binded_object_name_for."&".$binded_object_name_for."=".$arenda_while[$binded_object_name_for.'_id'];
+					
+					//Retrieve HTML piece
+					$table_html.="
+									<td style=''>
+										<a href='".$entity_binded_link."' style='font-size:9pt;'>".
+											$arenda_while[$binded_object_name_for.'_name'].
+										"</a>
+									</td>";
+				}else{
+					//Get first column sign
+					if(isset($header_for['first'])){
+						$first_for=(bool)$header_for['first'];
+					}else{
+						$first_for=false;
+					}
+					
+					if($first_for===true){
+						//Build first column
+						$table_html.="	<tr class='".$bottom_class."'>
+											<td class='left'>
+												<a href='/manager.php?action=show_arenda&arenda=".$arenda_while['id']."' style='font-size:9pt;'>".
+													$arenda_while['name'].
+												"</a>
+											</td>";
+					}else{
+						if(isset($config_arenda['standart_text_data_database'][$name_for]) && $arenda_while[$name_for]==""){
+							$arenda_while[$name_for]="-";
+						}
+						
+						if(isset($config_arenda['standart_date_data_database'][$name_for])){
+							if(in_array($arenda_while[$name_for], $config_arenda['empty_dates'])){
+								$arenda_while[$name_for]="-";
+							}else{
+								$arenda_while[$name_for]=date("d.m.Y", strtotime($arenda_while[$name_for]));
+							}
+						}
+						
+						$columns_counter++;
+
+						if($columns_number==$columns_counter){
+							$table_html.="<td class=".$right_class.">".
+											$arenda_while[$name_for].
+										"</td>";
+						}else{
+							$table_html.="<td>".
+											$arenda_while[$name_for].
+										"</td>";
+						}						
+							
+					}
 				}
 			}
-			
+
 			if(check_rights('delete_arenda')){
-			$table_html.="
-			<td class='right'>
-				<a href='".$arenda_delete_link."' onclick=\"if(!confirm('Удалить аренду &laquo;".$arenda_while['name']."&raquo;?')) return false;\">Удалить</a>
-				<br/>
-			</td>";
+				$table_html.="
+				<td class='right'>
+					<a href='".$arenda_delete_link."' onclick=\"if(!confirm('Удалить аренду &laquo;".$arenda_while['name']."&raquo;?')) return false;\">Удалить</a>
+					<br/>
+				</td>"; 
 			}
-		"</tr>";
+			
+			$table_html.='</tr>';
 		}
 		
-		$table_html.="</table>";
+		
+		$table_html.='</table>';
+		
 	}else{
 		$table_html="Записей не найдено.";
 	}

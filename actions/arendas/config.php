@@ -3,7 +3,7 @@
 //Don't put column(data field) here which behaviour is different, then standart.
 //Also this fields are editable by edit form.
 $config_arenda['standart_text_data_database']=array('name', 'description', 'comment', 'next_step_old', 'contacts', 'responsible_adg', 'responsible_cw');
-$config_arenda['standart_date_data_database']=array('date', 'contact_date');
+$config_arenda['standart_date_data_database']=array('date'=>'date', 'contact_date'=>'contact_date');
 $config_arenda['standart_text_data_form']=array('name', 'cluster_name', 'category_name', 'object_name', 'status_name', 'next_step_name', 'priority_name', 'description', 'comment', 'next_step_old', 'contacts', 'responsible_adg', 'responsible_cw');
 $config_arenda['binded_columns_database']=array('cluster'=>'clusters', 'category'=>'categories', 'object'=>'objects', 'status'=>'statuses', 'next_step'=>'next_steps', 'priority'=>'priorities');
 $config_arenda['columns_without_sort']=array('description', 'contact_date', 'comment', 'date'=>'date', 'contacts', 'responsible_adg', 'responsible_cw');
@@ -20,17 +20,27 @@ $config_arenda['headers']=array(
 						'name'=>array(
 							'title'=>"Название арендатора",
 							'sortcolumn'=>"name",
-							'sorted'=>true
+							'sorted'=>true,
+							'first'=>true,
+							'width'=>170
+							),
+						'category_name'=>array(
+							'title'=>'Категория',
+							'sortcolumn'=>"`phpbb_categories`.`name`",
+							'sorted'=>true,
+							'binded_object'=>'category'
 							),
 						'cluster_name'=>array(
 							'title'=>'Кластер',
 							'sortcolumn'=>"`phpbb_clusters`.`name`",
-							'sorted'=>true
+							'sorted'=>true,
+							'binded_object'=>'cluster'
 							),
 						'object_name'=>array(
 							'title'=>'Объект',
 							'sortcolumn'=>"`phpbb_objects`.`name`",
-							'sorted'=>true
+							'sorted'=>true,
+							'binded_object'=>'object'
 							),
 						'status_name'=>array(
 							'title'=>'Статус',
@@ -53,7 +63,8 @@ $config_arenda['headers']=array(
 							),
 						'contact_date'=>array(
 							'title'=>'Дата контакта',
-							'sorted'=>false
+							'sorted'=>false,
+							'width'=>90
 							),
 						'comment'=>array(
 							'title'=>'Комментарий',
@@ -61,14 +72,15 @@ $config_arenda['headers']=array(
 						),
 						'date'=>array(
 							'title'=>'Дата',
-							'sorted'=>false
+							'sorted'=>false,
+							'width'=>90
 						),
 						'contacts'=>array(
 							'title'=>'Контакты',
 							'sorted'=>false
 						),
 						'responsible'=>array(
-							'title'=>'Ответственный',
+							'title'=>'Ответственный ADG',
 							'sorted'=>false
 						),
 						'responsible_cw'=>array(
