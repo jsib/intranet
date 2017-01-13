@@ -122,7 +122,7 @@ function show_contact(){
 	/*КОНЕЦ: Учет рабочего времени*/
 	
 	if(check_rights('hr_manager') && $contact['notimetable']!=1){
-		$raschet_rabochego_vremeni=get_vac_sick_info( get_vac_sick_credit($contact, 'vacation', VACATION_DAYS_CREDIT), get_vac_sick_credit($contact, 'sickleave', SICKLEAVE_DAYS_CREDIT) );
+		$raschet_rabochego_vremeni=get_hire_credit_info($contact);
 	}
 	
 	$html.=template_get("contacts/show_contact", array(
@@ -197,14 +197,14 @@ function get_days_str($user_id, $year, $status){
 	return array('when'=>$when, 'used'=>$used, 'used_hours'=>$hours);
 }
 
-//Get user's vacations, sick leave, credit days number
-function get_vac_sick_credit($user, $object, $days_credit_norm){
+//Get user's hire info
+function get_hire_info($user){
 	//In case of uknown hire date we don't give vacation days to employee
 	if($user['hire']=='0000-00-00'){
-		$credit_days=0;
-		$credit_hours=0;
-		$user_hire_date="не определено";
+		$user_hire_date='<span class="attention">не определено</span>';
 		$months_work=0;
+		$days_work=0;
+		$days_work_total=0;
 	//If hire date is defined
 	}else{
 		//Get hire property of user which stored in database
@@ -213,16 +213,13 @@ function get_vac_sick_credit($user, $object, $days_credit_norm){
 		
 		//Get formatted date when employee begin working
 		$user_hire_date=$user_hire_month.'.'.$user_hire_year; 
-		$this_month_work=round(date('d')/date('t'), 1);
 		
 		//Get number of days which employee works till now since hire date
 		if($user_hire_year==date('Y')){
-			//$months_work=(int)date('m')-(int)$user_hire_month+$this_month_work;
 			$days_work_total=(int)((strtotime('now')-strtotime(date('01.'.$user_hire_month.'.'.$user_hire_year)))/(60*60*24));
 			
 		//Or 1st of Junuary
 		}else{
-			//$months_work=(int)date('m')-1+$this_month_work;
 			$days_work_total=(int)((strtotime('now')-strtotime(date('01.01.Y')))/(60*60*24));
 		}
 		
@@ -233,33 +230,69 @@ function get_vac_sick_credit($user, $object, $days_credit_norm){
 		$months_work=(int)($days_work_total/$days_aver);
 		$days_work=$days_work_total%$days_aver;
 		
-		//Get credit in hours
-		$credit_hours_total=$days_credit_norm/12*($days_work_total/$days_aver)*8;
-		
-		//Get credit in days with hours
-		$credit_days=(int)($credit_hours_total/8);
-		$credit_hours=$credit_hours_total%8;
+	}
+
+	//Get hire info
+	$hire_info['user_hire_date']=$user_hire_date;
+	$hire_info['months_work']=$months_work;
+	$hire_info['days_work']=$days_work;
+	$hire_info['days_work_total']=$days_work_total;
+	
+	//Return hire info
+	return $hire_info;
+}
+
+//Get user's vacations, sick leave credit days number
+function get_credit_info($user, $object, $days_credit_norm, $days_work_total, $year=false){
+	//For not current year
+	if($year==date('Y')){
+		//In case of uknown hire date we don't give vacation days to employee
+		if($user['hire']=='0000-00-00'){
+			$credit_days=0;
+			$credit_hours=0;
+		//If hire date is defined
+		}else{
+			//Get average days number per month in current year
+			$days_aver=(date('L')?366:365)/12;
+			
+			//Get credit in hours
+			$credit_hours_total=(int)(($days_credit_norm/12)*($days_work_total/$days_aver)*8);
+
+			//Get credit in days with hours
+			$credit_days=(int)($credit_hours_total/8);
+			$credit_hours=$credit_hours_total%8;
+		}
+	//For current year
+	}else{
+		$credit_days=$days_credit_norm;
+		$credit_hours=0;
+		$credit_hours_total=$credit_days*8;
 	}
 	
-	//Get result array
-	$credit_info['user_hire_date']=$user_hire_date;
-	$credit_info['days_work']=$days_work;
-	$credit_info['months_work']=$months_work;
-	$credit_info['days_work']=$days_work;
+	//Get credit info
 	$credit_info[$object.'_credit_days']=$credit_days;
 	$credit_info[$object.'_credit_hours']=$credit_hours;
+	$credit_info[$object.'_credit_hours_total']=$credit_hours_total;
 	
-	//Return function value
+	//Return credit info
 	return $credit_info;
 }
 
 //Get HTML with information about rest of vacation, sick leave, etc
-function get_vac_sick_info($vacation_credit_info, $sickleave_credit_info){
-	//Get array of replacements for template
-	$replacements=$vacation_credit_info;
+function get_hire_credit_info($user){
+	//Define credits info array
+	$credits_info=array();
 	
-	//Return function result
-	return template_get("contacts/raschet_rabochego_vremeni", $replacements);
+	//Get hire info
+	$hire_info=get_hire_info($user);
+	
+	//Get vacations and sick leave credits info
+	foreach(array('vacation'=>VACATION_DAYS_CREDIT, 'sickleave'=>SICKLEAVE_DAYS_CREDIT) as $object=>$days_credit_norm){
+		$credits_info=$credits_info+get_credit_info($user, $object, $days_credit_norm, $hire_info['days_work_total']);
+	}
+	
+	//Return HTML flow
+	return template_get("contacts/raschet_rabochego_vremeni", $hire_info+$credits_info);
 }
 
 ?>

@@ -1,4 +1,8 @@
 <?php
+//Include script with functions to calculate credit of vacation days for employee
+require_once($_SERVER['DOCUMENT_ROOT'].'/actions/contacts/show_contact.php');
+
+//Action function
 function show_timetable(){
 	//Получаем глобальные переменные
 	global $Month;
@@ -569,9 +573,13 @@ function create_report(){
 				<td class='gnolast vfirst' style='width:100px;background:#E2B1E2;'>За свой счет</td>
 				<td class='gnolast vfirst' style='width:100px;background:#9fc5e8;'>Командировки</td>
 				<td class='gnolast vfirst' style='width:100px;background:#BBBBBB;'>Отработано</td>
-				<td class='glast vfirst' style='width:100px;background:#ECC0C0;'>Выходных</td>
-				<td class='glast vfirst' style='width:100px;background:#DAE5F1;'>Остаток отпуска</td>
-			</tr>";
+				<td class='glast vfirst' style='width:100px;background:#ECC0C0;'>Выходных</td>";
+				
+	if(@$_GET['report']=='year'){
+		$html.="<td class='glast vfirst' style='width:100px;background:#DAE5F1;'>Остаток отпуска</td>";
+	}
+	
+	$html.='</tr>';
 	
 	/*НАЧАЛО: Создаем массив ускоряющий работу (чтобы не делать запрос sql на каждое число*/
 	if(@$_GET['report']=='year'){
@@ -605,7 +613,6 @@ function create_report(){
 	/*КОНЕЦ: Создаем массив, ускоряющий работу (чтобы не делать запрос sql на каждое число*/
 	
 	/*НАЧАЛО: Строим тело таблицы*/
-	
 	//IF
 	if(db_count($usersRES)>0){
 		//Определяем переменные
@@ -632,6 +639,7 @@ function create_report(){
 			//Define variable
 			$day_total=0;
 			
+			//Year report
 			if(@$_GET['report']=='year'){
 				if($Year==date("Y")){
 					$monthMAX=date("n");
@@ -643,7 +651,7 @@ function create_report(){
 					if($Year==date("Y") && $monthFOR==date("n")){
 						$day_numberFOR=date("j");
 					}else{
-						$day_numberFOR=cal_days_in_month(CAL_GREGORIAN, $monthFOR, $Year);	
+						$day_numberFOR=cal_days_in_month(CAL_GREGORIAN, $monthFOR, $Year);
 					}
 					$day_total+=$day_numberFOR;
 					//show($monthFOR);
@@ -665,7 +673,10 @@ function create_report(){
 						}
 					}
 				}
-			//ELSE
+				
+				//Get rest of vacations
+				$total[7]=get_row_rest($userWHILE, 'vacation', VACATION_DAYS_CREDIT, $Year)-$total[2];
+			//Month report
 			}else{
 				//Вычисляем количество дней в месяце
 				if($Year==date("Y") && $Month==date("n")){
@@ -675,16 +686,20 @@ function create_report(){
 				}
 				$day_total=$day_number;
 				
-				//FOR
+				//Iterate over days in current month
 				for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
 					$day_of_weekFOR=date("N", strtotime("$Year-$Month-$dayFOR"));
+					//Status defined for this user and employee
 					if(isset($timetable[$userWHILE['user_id']][$dayFOR]['status'])){
 						$status=$timetable[$userWHILE['user_id']][$dayFOR]['status'];
 						$total[$status]+=$timetable[$userWHILE['user_id']][$dayFOR]['hours'];
 						if($status==6) $total_holidays++;
-					}else{ 
+					//No status defined for this day and employee
+					}else{
+						//For holidays
 						if($day_of_weekFOR==6 || $day_of_weekFOR==7){
 							$total_holidays++;
+						//For work days
 						}else{
 							$status=1;
 							$total[$status]+=8;							
@@ -693,8 +708,8 @@ function create_report(){
 				}
 			}
 			
-			//FOR
-			for($status=1;$status<=5;$status++){
+			//Format hours to day with hours
+			for($status=1;$status<=7;$status++){
 				if($total[$status]>0){
 					$total_str[$status]=get_time_str($total[$status]);
 				}else{
@@ -714,11 +729,23 @@ function create_report(){
 			//Определяем переменную
 			$html.="<td class='gfirst'><a href='/manager.php?action=show_contact&contact={$userWHILE['user_id']}'>{$userWHILE['username']}</a></td>";
 			
-			//Определяем переменную
-			//$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='gnolast'>{$total_str[5]}</td><td class='gnolast'>{$total_str[1]}</td><td class='gnolast'>{$total_holidays}</td><td class='glast'>{$day_total}</td>";
-			$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='gnolast'>{$total_str[5]}</td><td class='gnolast'>{$total_str[1]}</td><td class='glast'>{$total_holidays}</td>";
+			//Build row HTML
+			$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='gnolast'>{$total_str[5]}</td><td class='gnolast'>{$total_str[1]}</td>";
 			
-			//Определяем переменную
+			//Build extra column
+			if(@$_GET['report']=='year'){
+				$last_col_class='gnolast';
+				$new_last_col='<td class="glast">'.$total_str[7].'</td>';
+			}else{
+				$last_col_class='glast';
+				$new_last_col='';
+			}
+			
+			//Build 
+			$html.='<td class="'.$last_col_class.'">'.$total_holidays.'</td>'.$new_last_col;
+			
+			
+			//Close TR tag
 			$html.="</tr>";			
 			
 		}	
@@ -728,5 +755,17 @@ function create_report(){
 	
 	//Возвращаем значение функции
 	return $html;
+}
+
+//Calculate rest of vacation days for employee
+function get_row_rest($user, $object='vacation', $days_credit_norm=VACATION_DAYS_CREDIT, $year){
+	//Get datailed hire info
+	$hire_info=get_hire_info($user);
+	
+	//Get vacations credits info
+	$credit_info=get_credit_info($user, $object, $days_credit_norm, $hire_info['days_work_total'], $year);
+	
+	//Return total credit hours number_format
+	return $credit_info[$object.'_credit_hours_total'];
 }
 ?>
