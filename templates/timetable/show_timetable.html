@@ -24,6 +24,7 @@
 	li#otpusk{background:#ffe599;border-bottom:1px solid #555}
 	li#bolnichny{background:#b6d7a8;border-bottom:1px solid #555}
 	li#zasvoischet{background:#E2B1E2;border-bottom:1px solid #555}
+	li#pererabotka{background:#DBC9B3;border-bottom:1px solid #555}
 	li#comandirovka{background:#9fc5e8;}
 	li#prazdnik{background:#FFF;}
 	li#work_before_lunch, li#comand_engineer, li#prazdn_engineer, li#work_after_lunch{background:#fff;border-bottom:1px solid #555}
@@ -133,6 +134,7 @@ function timecell(id){
 		list[2]=[false, 'otpusk', 'Отпуск', '#f9d466', '#ffe599', 2]
 		list[3]=[false, 'bolnichny', 'Больничный', '#9AC289', '#b6d7a8', 3]
 		list[4]=[false, 'zasvoischet', 'За свой счет', '#C87EC8', '#E2B1E2', 4]
+		list[5]=[false, 'pererabotka', 'Переработка', '#D4B691', '#DBC9B3', 10]
 	}
 	
 	if(engineer==1){
@@ -160,7 +162,7 @@ function timecell(id){
 	if(engineer==0){
 		list[8]=[true, 'comandirovka', 'Командировка', '#6FA3D3', '#9fc5e8', 5]
 		//list[9]=[true, 'prazdnik', 'Выходной/праздник', '#E33B3F', '#FFF', 6]
-		list[9]=[true, 'prazdnik', "<img src='/images/krestik2.png' class='krestik'/>", '#FFF', '#FFF', 6, 'engineer']		
+		list[9]=[true, 'prazdnik', "<img src='/images/krestik2.png' class='krestik'/>", '#FFF', '#FFF', 6, 'engineer']
 	}
 	for(order in list){
 		//Рабочий
@@ -300,6 +302,7 @@ function li_out(id, color){
 	document.getElementById(id).style.fontWeight="normal";
 }
 function set_td_remote(status, hours, color){
+	//alert(status)
 	$.ajax({
 		type: "GET",
 		data: "td="+popup_id+"&status="+status+"&hours="+hours,
@@ -349,6 +352,9 @@ function set_td(status, hours, color){
 			break
 		case 6:
 			word=""
+			break
+		case 10:
+			word="п"+addtext
 			break
 		case 51:
 			word="/-"+addtext

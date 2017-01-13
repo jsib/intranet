@@ -291,4 +291,7 @@ const REGEXP_USERNAME="/^[a-zа-яё0-9 \.]{1,70}$/ui";
 //const REGEXP_OCCUPATION="/^[a-zа-я \.]{1,70}$/ui";
 //const REGEXP_SKYPE="/^[a-zа-я \.]{1,70}$/ui";
 
+const VACATION_DAYS_CREDIT=20; //Number of days provided to employee for vacation
+const SICKLEAVE_DAYS_CREDIT=5; //Number of days provided to employee for sick leaves
+
 ?>

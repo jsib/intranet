@@ -420,6 +420,10 @@ function create_timetable(){
 						$status_html='к'.$addtext;
 						$color='#9fc5e8';
 						break;
+					case 10:
+						$status_html='п'.$addtext;
+						$color='#DBC9B3';
+						break;
 					case 6:
 						$status_html="";
 						$color="#FFF;";
@@ -566,6 +570,7 @@ function create_report(){
 				<td class='gnolast vfirst' style='width:100px;background:#9fc5e8;'>Командировки</td>
 				<td class='gnolast vfirst' style='width:100px;background:#BBBBBB;'>Отработано</td>
 				<td class='glast vfirst' style='width:100px;background:#ECC0C0;'>Выходных</td>
+				<td class='glast vfirst' style='width:100px;background:#DAE5F1;'>Остаток отпуска</td>
 			</tr>";
 	
 	/*НАЧАЛО: Создаем массив ускоряющий работу (чтобы не делать запрос sql на каждое число*/
@@ -655,7 +660,7 @@ function create_report(){
 								$total_holidays++;
 							}else{
 								$status=1;
-								$total[$status]+=8;							
+								$total[$status]+=8;
 							}
 						}
 					}

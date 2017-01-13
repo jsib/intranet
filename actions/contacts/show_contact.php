@@ -108,10 +108,8 @@ function show_contact(){
 		
 		$uchet_rabochego_vremeni=template_get("contacts/uchet_rabochego_vremeni", array(
 																	'vocations_num'=>$vocations['used'],
-																	'vocations_rest'=>get_rest($vocations['used_hours'], 20*8),
 																	'vocations_str'=>$vocations['when'],
 																	'bolnichny_num'=>$bolnichny['used'],
-																	'bolnichny_rest'=>get_rest($bolnichny['used_hours'], 5*8),
 																	'bolnichny_str'=>$bolnichny['when'],
 																	'zasvoischet_num'=>$zasvoischet['used'],
 																	'zasvoischet_str'=>$zasvoischet['when'],
@@ -121,8 +119,11 @@ function show_contact(){
 	}else{
 		$uchet_rabochego_vremeni='';
 	}
-	
 	/*КОНЕЦ: Учет рабочего времени*/
+	
+	if(check_rights('hr_manager') && $contact['notimetable']!=1){
+		$raschet_rabochego_vremeni=get_vac_sick_info( get_vac_sick_credit($contact, 'vacation', VACATION_DAYS_CREDIT), get_vac_sick_credit($contact, 'sickleave', SICKLEAVE_DAYS_CREDIT) );
+	}
 	
 	$html.=template_get("contacts/show_contact", array(
 																'name'=>$contact['username'],
@@ -142,7 +143,8 @@ function show_contact(){
 																'previous'=>"/manager.php?action=show_contact&contact=$previous_id",
 																'next'=>"/manager.php?action=show_contact&contact=$next_id",
 																'current'=>($current+1)." из ".$count_contacts,
-																'uchet_rabochego_vremeni'=>$uchet_rabochego_vremeni
+																'uchet_rabochego_vremeni'=>$uchet_rabochego_vremeni,
+																'raschet_rabochego_vremeni'=>$raschet_rabochego_vremeni
 												));
 	return $html;
 }
@@ -195,23 +197,69 @@ function get_days_str($user_id, $year, $status){
 	return array('when'=>$when, 'used'=>$used, 'used_hours'=>$hours);
 }
 
-/*Возвращает количество оставшихся дней/часов в формате строки*/
-function get_rest($used_hours, $avail_hours){
-	//Определяем переменную
-	$str="";
-	
-	//Определяем переменную
-	$hours=$avail_hours-$used_hours;
-	
-	//Определяем переменную
-	$str.=round(($hours-($hours%8))/8, 0).'д ';
-	
-	//IF
-	if($hours%8!=0){
-		$str.=($hours%8).'ч';
+//Get user's vacations, sick leave, credit days number
+function get_vac_sick_credit($user, $object, $days_credit_norm){
+	//In case of uknown hire date we don't give vacation days to employee
+	if($user['hire']=='0000-00-00'){
+		$credit_days=0;
+		$credit_hours=0;
+		$user_hire_date="не определено";
+		$months_work=0;
+	//If hire date is defined
+	}else{
+		//Get hire property of user which stored in database
+		$user_hire_month=date("m", strtotime($user['hire']));
+		$user_hire_year=date("Y", strtotime($user['hire']));
+		
+		//Get formatted date when employee begin working
+		$user_hire_date=$user_hire_month.'.'.$user_hire_year; 
+		$this_month_work=round(date('d')/date('t'), 1);
+		
+		//Get number of days which employee works till now since hire date
+		if($user_hire_year==date('Y')){
+			//$months_work=(int)date('m')-(int)$user_hire_month+$this_month_work;
+			$days_work_total=(int)((strtotime('now')-strtotime(date('01.'.$user_hire_month.'.'.$user_hire_year)))/(60*60*24));
+			
+		//Or 1st of Junuary
+		}else{
+			//$months_work=(int)date('m')-1+$this_month_work;
+			$days_work_total=(int)((strtotime('now')-strtotime(date('01.01.Y')))/(60*60*24));
+		}
+		
+		//Get average days number per month in current year
+		$days_aver=(date('L')?366:365)/12;
+		
+		//Get number of months and rest of days which employee works 
+		$months_work=(int)($days_work_total/$days_aver);
+		$days_work=$days_work_total%$days_aver;
+		
+		//Get credit in hours
+		$credit_hours_total=$days_credit_norm/12*($days_work_total/$days_aver)*8;
+		
+		//Get credit in days with hours
+		$credit_days=(int)($credit_hours_total/8);
+		$credit_hours=$credit_hours_total%8;
 	}
 	
-	//Возвращаем значение функции
-	return $str;
+	//Get result array
+	$credit_info['user_hire_date']=$user_hire_date;
+	$credit_info['days_work']=$days_work;
+	$credit_info['months_work']=$months_work;
+	$credit_info['days_work']=$days_work;
+	$credit_info[$object.'_credit_days']=$credit_days;
+	$credit_info[$object.'_credit_hours']=$credit_hours;
+	
+	//Return function value
+	return $credit_info;
 }
+
+//Get HTML with information about rest of vacation, sick leave, etc
+function get_vac_sick_info($vacation_credit_info, $sickleave_credit_info){
+	//Get array of replacements for template
+	$replacements=$vacation_credit_info;
+	
+	//Return function result
+	return template_get("contacts/raschet_rabochego_vremeni", $replacements);
+}
+
 ?>
