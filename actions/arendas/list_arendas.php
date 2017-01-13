@@ -41,6 +41,9 @@ function list_arendas(){
 		$template_replacements[$name_plural_for]=build_filter_of_bind_entities($name_for, $name_plural_for);
 	}
 	
+	//Build SQL-piece for filtering by responsible users
+	$responsible_users_sql_where
+	
 	//Build SQL-piece for filtering by dates
 	$dates_sql_where.=build_dates_filter_sql('date');
 	$template_replacements['date']=build_filter_of_dates('date');
@@ -76,8 +79,11 @@ function list_arendas(){
 	foreach($binded_columns_database as $name_for=>$name_plural_for){
 		$sql.=" LEFT JOIN `phpbb_".$name_plural_for."` ON `phpbb_arendas`.`".$name_for."_id`=`phpbb_".$name_plural_for."`.`id` ";
 	}
+
+	//Build 'LEFT JOIN' SQL for responsible users
+	$sql.=" LEFT JOIN `phpbb_users` ON `phpbb_arendas`.`user_id`=`phpbb_users`.`user_id` ";
 	
-	$sql.=$bind_entities_sql_where.$dates_sql_where;
+	$sql.=$bind_entities_sql_where.$responsible_users_sql_where.$dates_sql_where;
 	$sql.=" ORDER BY ".$headers[$sort]['sortcolumn']." ".$sort_direction;
 	
 	//Perform request to database
@@ -251,6 +257,11 @@ function list_arendas(){
 	
 	//Put right class to template
 	$template_replacements['right_class']=$right_class;
+	
+	//Get filter of responsible users
+	foreach(array(26=>'responsible_adg', 27=>'responsible_cw') as $key=>$value){
+		$template_replacements[$value.'s']=build_filter_of_responsible_users($value, $key);
+	}
 
 	$html.=template_get("arendas/list_arendas", $template_replacements);
 	return $html;
@@ -319,6 +330,71 @@ function build_bind_entities_filter_sql($object, $object_plural){
 	//Return SQL piece
 	return $sql_where;
 }
+
+//Build filter of responsible user and SQL for database requests
+function build_filter_of_responsible_users($object, $point_id){
+	//Define HTML flow
+	$entities_html="";
+	
+	//Retrieve entity id from browser
+	if(isset($_GET[$object])){
+		$entity_id=(int)$_GET[$object];
+	}else{
+		$entity_id=0;
+	}
+	
+	//Retrieve clusters from database
+	$entities_res = db_query('SELECT * FROM `phpbb_users` WHERE `point_id`='.$point_id.' ORDER BY `username`');
+	
+	//Add all clusters option
+	$entities_html.="<option value='0' $selected>".TXT_OPTION_ALL."</option>";
+
+	//Look over clusters in database
+	while($entity=db_fetch($entities_res)){
+		if($entity_id==$entity['user_id']){
+			$selected="selected";
+		}else{
+			$selected="";
+		}
+		if($entity['id']!=1){
+			$entities_html.="<option value='".$entity['user_id']."' ".$selected.">".$entity['username']."</option>";
+		}
+	}
+	
+	//Return HTML flow and sql-s
+	return $entities_html;
+}
+
+//Build SQL piece to filter by responsible user
+function build_responsible_users_filter_sql($object, $object_plural){
+	//Bind global variables
+	global $sql_where_flag;
+	
+	//Build sql-piece
+	if(isset($_GET[$object])){
+		//Retrieve entity id from browser
+		$entity_id=(int)$_GET[$object];
+
+		if($entity_id!=0){
+			if($sql_where_flag){
+				$sql_where=' AND ';
+			}else{
+				$sql_where=' WHERE ';
+				$sql_where_flag=true;
+			}
+			
+			$sql_where.=' `phpbb_users`.`user_id`='.$entity_id.' ';
+		}else{
+			$sql_where='';
+		}
+	}else{
+		$sql_where='';
+	}
+	
+	//Return SQL piece
+	return $sql_where;
+}
+
 
 //Build HTML for filter of date
 function build_filter_of_dates(){

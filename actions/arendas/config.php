@@ -24,17 +24,17 @@ $config_arenda['headers']=array(
 							'first'=>true,
 							'width'=>170
 							),
-						'category_name'=>array(
-							'title'=>'Категория',
-							'sortcolumn'=>"`phpbb_categories`.`name`",
-							'sorted'=>true,
-							'binded_object'=>'category'
-							),
 						'cluster_name'=>array(
 							'title'=>'Кластер',
 							'sortcolumn'=>"`phpbb_clusters`.`name`",
 							'sorted'=>true,
 							'binded_object'=>'cluster'
+							),
+						'category_name'=>array(
+							'title'=>'Категория',
+							'sortcolumn'=>"`phpbb_categories`.`name`",
+							'sorted'=>true,
+							'binded_object'=>'category'
 							),
 						'object_name'=>array(
 							'title'=>'Объект',
@@ -79,7 +79,7 @@ $config_arenda['headers']=array(
 							'title'=>'Контакты',
 							'sorted'=>false
 						),
-						'responsible'=>array(
+						'responsible_adg'=>array(
 							'title'=>'Ответственный ADG',
 							'sorted'=>false
 						),
