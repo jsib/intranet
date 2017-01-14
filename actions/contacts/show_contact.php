@@ -7,7 +7,7 @@ function show_contact(){
 	$user_id=(int)$_GET['contact'];
 	
 
-	//Update user status
+	//Update user status. Should be before fetching $status from database!!!
 	if(isset($_POST['status'])){
 		$post_status=$_POST['status'];
 		db_query('UPDATE `phpbb_profile_fields_data` SET `pf_status`="'.$post_status.'" WHERE `user_id`='.$user_id);
@@ -32,150 +32,154 @@ function show_contact(){
 	//Get user mobile phone
 	$mobilephones_html="";
 	if($user['user_workmobilephone']!=""){
-		$mobilephones_html.="<tr><td>Мобильный телефон (рабочий)</td><td>{$user['user_workmobilephone']}</td>";
+		$mobilephones_html.='<tr><td>Мобильный телефон (рабочий)</td><td>'.$user['user_workmobilephone'].'</td>';
 	}
 	if($user['user_privatemobilephone']!=""){
-		$mobilephones_html.="<tr><td>Мобильный телефон (личный)</td><td>{$user['user_privatemobilephone']}</td>";
+		$mobilephones_html.='<tr><td>Мобильный телефон (личный)</td><td>'.$user['user_privatemobilephone'].'</td>';
 	}
-	
-	//Allow to show hidden users
-	if(check_rights('show_hidden_contacts')){
-		$user['user_type']==9 ? $sql_hidden_contacts="OR `user_type`=9" : $sql_hidden_contacts="";
-	}
-	
+		
 	//Get user's chief
 	if($user['mychief_id']!=0){
 		$mychief=db_easy('SELECT * FROM `phpbb_users` WHERE `user_id`='.$user['mychief_id']);
-		$mychief_html="<tr><td>Руководитель:</td><td><a href='/manager.php?action=show_contact&contact={$user['mychief_id']}'>{$mychief['username']}</a></td></tr>";
+		$mychief_html='<tr><td>Руководитель:</td><td><a href="/manager.php?action=show_contact&contact='.$user['mychief_id'].'">'.$mychief['username'].'</a></td></tr>';
 	}else{
 		$mychief_html="";
 	}
 	
-
 	//Get user's employees
 	$replacements['employees']=get_user_employees($user);
 	
 	if($point['name']=="" || $point['name']=="--не определено--"){
 		$point_html="не определено";
 	}else{
-		$point_html="<a href='/manager.php?action=show_point&point={$point['id']}'>{$point['name']}</a>";
-	}
-	if(check_rights('edit_contact')){
-		$edit_contact_html="<a href='/manager.php?action=edit_contact&contact=$user_id' style='font-size:8pt;'>Редактировать</a>";
+		$point_html='<a href="/manager.php?action=show_point&point='.$point['id'].'">'.$point['name'].'</a>';
 	}
 	
+	//Build edit user link
+	if(check_rights('edit_contact')){
+		$replacements['edit_user_link']='<a href="/manager.php?action=edit_contact&contact='.$user_id.'" style="font-size:8pt;">Редактировать</a>';
+	}else{
+		$replacements['edit_user_link']='';
+	}
+	
+	//Build list users link
+	$replacements['list_users_link']='<a href="/manager.php?action=list_contacts" class="page">Все сотрудники</a>';
+	
+	//Build edit status form for usual users
 	if($auth_user->data['user_id']==$user_id && !check_rights('edit_contact')){
-		$status_html="<form action='/manager.php?action=show_contact&contact=$user_id' method='post'>
-								<input type='text' name='status' value='{$status['pf_status']}' style='width:350px;' /><br/>
-								$status_update_message
-								<input type='submit' value='Обновить'  style='margin:6px 0 0 0; width:80px;' />
-						</form>";
+		$status_html=template_get('contacts/status', array('action'=>'/manager.php?action=show_contact&contact='.$user_id,
+														   'status'=>$status['pf_status'],
+														   'update_result_message'=>$status_update_message,
+		                         ));
 	}else{
 		$status_html=$status['pf_status'];
 	}
 	
-	//НАЧАЛО: Переключатели "Следующий" и "Предыдущий"
-	$previous_html="";$next_html="";
-	$all_contactsRES=db_query("SELECT * FROM `phpbb_users`
-								WHERE (`user_type`=0 OR `user_type`=3 $sql_hidden_contacts) AND `username`!='root'
-									ORDER BY `username`
-										");
-	$count_contacts=db_count($all_contactsRES);
-	$i=0;$all_contacts=array();
-	while ($a_contact = db_fetch($all_contactsRES)){
-		$all_contacts[$i]=$a_contact['user_id'];
-		if($a_contact['user_id']==$user_id) $current=$i;
-		$i++;
-	}
-	$previous=$current;$next=$current;$previous_id=$user_id;$next_id=$user_id;
-	if($current>0){$previous=$current-1;$previous_id=$all_contacts[$previous];}
-	if($current<$count_contacts-1){$next=$current+1;$next_id=$all_contacts[$next];}
-	//КОНЕЦ: Переключатели "Следующий" и "Предыдущий"
+	//Get users previous id and next id for user switcher 
+	$switcher=get_users_switcher($user);
 	
 	//Get attendance info if user has proper rights
 	if( ($auth_user->data['user_id']==$user_id ||
 	    ($auth_user->data['timetable_editor']==1 && $user['my_timetable_editor_id']==$auth_user->data['user_id']) ||
 	    check_rights('hr_manager')) && $user['notimetable']!=1){	
 		
-		//Get HTML
-		$replacements['attendance_info']=get_user_attendance_info($user);
+		$replacements['attendance_info']=get_attendance_info($user);
 	}else{
 		$replacements['attendance_info']='';
 	}
 	
-	//Extra attendance calculation info
+	//Get extra attendance info
 	if(check_rights('hr_manager') && $user['notimetable']!=1){
-		$raschet_rabochego_vremeni=get_hire_credit_info($user);
+		$replacements['extra_attendance_info']=get_extra_attendance_info($user);
 	}else{
-		$raschet_rabochego_vremeni='';
+		$replacements['extra_attendance_info']='';
 	}
 	
-	$html.=template_get("contacts/show_contact", array(
-																'name'=>$user['username'],
-																'occupation'=>$user['user_occ'],
-																'email'=>$user['user_email'],
-																'skype'=>$user['user_skype'],
-																'officephone'=>$point['phone'],
-																'extphone'=>$user['user_extphone'],
-																'mobilephones'=>$mobilephones_html,
-																'status'=>$status_html,
-																'point'=>$point_html,
-																'editcontact'=>$edit_contact_html,
-																'mychief'=>$mychief_html,
-																'photo'=>get_user_avatar($user['user_avatar'], $user['user_avatar_type'], $user['user_avatar_width'], $user['user_avatar_height']),
-																'previous'=>"/manager.php?action=show_contact&contact=$previous_id",
-																'next'=>"/manager.php?action=show_contact&contact=$next_id",
-																'current'=>($current+1)." из ".$count_contacts,
-																'raschet_rabochego_vremeni'=>$raschet_rabochego_vremeni
-												) + $replacements);
-	return $html;
+	//Return HTML flow
+	return template_get('contacts/show_contact', array(	'officephone'=>$point['phone'],
+														'extphone'=>$user['user_extphone'],
+														'mobilephones'=>$mobilephones_html,
+														'status'=>$status_html,
+														'point'=>$point_html,
+														'mychief'=>$mychief_html,
+														'photo'=>get_user_avatar($user['user_avatar'],
+																				 $user['user_avatar_type'],
+																				 $user['user_avatar_width'],
+																				 $user['user_avatar_height']
+																				),
+												) + $replacements + $user + $switcher);
 }
 
-/*Строит список дней из timetable в виде строки*/
-function get_days_str($user_id, $year, $status){
+//Get number of attendance gaps for specified user, year and status
+function get_attendance_gaps($user_id, $year, $status){
+	//Here we store date when user had a attendance gap
 	$when="";
+	
+	//Here we store information how many days and hours were spent
 	$used="";
 	
-	$res=db_query("SELECT * FROM `phpbb_timetable`
-									WHERE `user_id`=$user_id
-											AND `year`=$year
-											AND `status`=$status
-									ORDER BY `month`, `day` ASC");
-	if(db_count($res)>0){
-		$when.="Когда: ";
-		$iWHILE=0;
+	//Get attendance info from database
+	$attendance_res=db_query('SELECT * FROM `phpbb_timetable`
+					        WHERE `user_id`='.$user_id.'
+								  AND `year`='.$year.'
+								  AND `status`='.$status.'
+							ORDER BY `month`, `day` ASC'
+				 );
+	
+	//If there are some attendance gaps
+	if(db_count($attendance_res)>0){
+		//Write 'when' information only if there are some gaps
+		$when.='Когда: ';
+		
+		//Line wrapper flag
+		$lw_flag=0;
+		
+		//Hours which user spent
 		$hours=0;
 		
-		//WHILE
-		while($fetch=db_fetch($res)){
-			$iWHILE++;
-			//IF
+		//Iterate over attendance results
+		while($fetch=db_fetch($attendance_res)){
+			//Increase line wrapper flag value
+			$lw_flag++;
+			
+			//If attendance gap is not full day
 			if($fetch['hours']>=1 && $fetch['hours']<=7){
 				$addtext='('.$fetch['hours'].'ч)';
-			//ELSE
+			//For full day attendance gap
 			}else{
 				$addtext='(полный)';
 			}
 			
-			//
+			//Calculate total number of hours for this year
 			$hours+=$fetch['hours'];
 			
+			//Add '0' before single-digit day numbers
 			if(strlen($fetch['day'])==1) $fetch['day']="0".$fetch['day'];
-			if(strlen($fetch['month'])==1) $fetch['month']="0".$fetch['month'];
-			$when.=$fetch['day'].".".$fetch['month'].$addtext."&nbsp;&nbsp;";
-			if($iWHILE%10==0) $when.="<br/>";
 			
+			//Add '0' before single-digit month numbers
+			if(strlen($fetch['month'])==1) $fetch['month']="0".$fetch['month'];
+			
+			//Get when gap was the case
+			$when.=$fetch['day'].".".$fetch['month'].$addtext."&nbsp;&nbsp;";
+			
+			//Add line wrapping if there are more then 10 records
+			if($lw_flag%10==0) $when.="<br/>";
 		}
-		$when.="<br/>";
+		
+		//Put line wrapping only if there are some gaps
+		$when.='<br/>';
 	}
-
+	
+	//Get how many gays were spent
 	$used.=round(($hours-($hours%8))/8, 0).'д ';
 	
+	//Get how many hours were spent
 	if($hours%8!=0){
 		$used.=($hours%8).'ч';
 	}
 	
-	return array('when'=>$when, 'used'=>$used, 'used_hours'=>$hours);
+	//Return
+	return array('when'=>$when, 'used'=>$used);
 }
 
 //Get user's hire info
@@ -224,7 +228,7 @@ function get_hire_info($user){
 }
 
 //Get user's vacations, sick leave credit days number
-function get_credit_info($user, $object, $days_credit_norm, $days_work_total, $year=false){
+function get_credit_info($user, $object, $days_credit_norm, $days_work_total, $year){
 	//For not current year
 	if($year==date('Y')){
 		//In case of uknown hire date we don't give vacation days to employee
@@ -260,7 +264,7 @@ function get_credit_info($user, $object, $days_credit_norm, $days_work_total, $y
 }
 
 //Get HTML with information about rest of vacation, sick leave, etc
-function get_hire_credit_info($user){
+function get_extra_attendance_info($user){
 	//Define credits info array
 	$credits_info=array();
 	
@@ -269,11 +273,11 @@ function get_hire_credit_info($user){
 	
 	//Get vacations and sick leave credits info
 	foreach(array('vacation'=>VACATION_DAYS_CREDIT, 'sickleave'=>SICKLEAVE_DAYS_CREDIT) as $object=>$days_credit_norm){
-		$credits_info=$credits_info+get_credit_info($user, $object, $days_credit_norm, $hire_info['days_work_total']);
+		$credits_info=$credits_info+get_credit_info($user, $object, $days_credit_norm, $hire_info['days_work_total'], date('Y'));
 	}
 	
 	//Return HTML flow
-	return template_get("contacts/raschet_rabochego_vremeni", $hire_info+$credits_info);
+	return template_get("contacts/extra_attendance_info", $hire_info+$credits_info);
 }
 
 //Get HTML with info about user's subordinates
@@ -301,8 +305,8 @@ function get_user_employees($user){
 	return $html;
 }
 
-//Get user's attendance info
-function get_user_attendance_info($user){
+//Get attendance of employees info
+function get_attendance_info($user){
 	//User id helper
 	$user_id=$user['user_id'];
 	
@@ -312,7 +316,7 @@ function get_user_attendance_info($user){
 	//Iterate over attendance statuses	
 	foreach(array(2=>'Отпуск', 3=>'Больничный', 4=>'За свой счёт', 5=>'Командировка') as $status_id_for=>$status_name_for){
 		//Collect attendance info for this status
-		$info=get_days_str($user_id, date("Y"), $status_id_for);
+		$info=get_attendance_gaps($user_id, date("Y"), $status_id_for);
 		
 		//Build HTML piece
 		$info_html.=template_get('contacts/attendance_info_item',
@@ -325,5 +329,69 @@ function get_user_attendance_info($user){
 	
 	//Return summary HTML
 	return template_get('contacts/attendance_info', array('info'=>$info_html));
+}
+
+//Get users switcher
+function get_users_switcher($user){
+	//User id helper
+	$user_id=$user['user_id'];
+	
+	//Build "Next"/"Previous" switcher
+	if(check_rights('show_hidden_contacts')){
+		$user['user_type']==9 ? $sql_hidden_contacts="OR `user_type`=9" : $sql_hidden_contacts="";
+	}
+	
+	//Query database
+	$users_res=db_query('SELECT * FROM `phpbb_users`
+								      WHERE (`user_type`=0 OR `user_type`=3 '.$sql_hidden_contacts.')
+									        AND `username`!=\'root\'
+									  ORDER BY `username`'
+						   );
+	
+	
+	//Get number of users
+	$number_users=db_count($users_res);
+	
+	//Ordinal user number
+	$user_number=0;
+	
+	//Define array for users got from database
+	$users=array();
+	
+	//Iterate over users we got from database
+	while($user_while = db_fetch($users_res)){
+		//Build switching list array
+		$users[$user_number]=$user_while['user_id'];
+		
+		//Identify current_id user from switching list
+		if($user_while['user_id']==$user_id){
+			$current_id=$user_number;
+		}
+		
+		//Increse ordinal number of user
+		$user_number++;
+	}
+	
+	$previous=$current_id;
+	$next=$current_id;
+	$previous_id=$user_id;
+	$next_id=$user_id;
+	
+	
+	if($current_id>0){
+		$previous=$current_id-1;
+		$previous_id=$users[$previous];
+	}
+	
+	if($current_id<$number_users-1){
+		$next=$current_id+1;
+		$next_id=$users[$next];
+	}
+	
+	//Return switcher links
+	return array('previous'=>'/manager.php?action=show_contact&contact='.$previous_id,
+	             'next'=>'/manager.php?action=show_contact&contact='.$next_id,
+	             'current'=>($current_id+1).' из '.$number_users
+				);
 }
 ?>

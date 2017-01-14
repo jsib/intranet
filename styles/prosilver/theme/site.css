@@ -3,7 +3,7 @@
 	text-decoration:none;
 }
 /*u_r_v - учёт рабочего времени
-r_d_o - расчёт дней отпуска
+r_d_o - расчет начисления дней отпуска
 */
 h3.u_r_v, h4.u_r_v{
 	margin:0;
@@ -25,4 +25,38 @@ h4.u_r_v{
 
 .attention{
 	color:red;
+}
+
+a.page, a.page:visited, a.page:link{
+	color:black;
+	font-size:8pt;
+	text-decoration:underline;
+}
+
+a.page:hover{
+	text-decoration:none;
+}
+
+div.users_switcher{
+	margin:25px 0 0 80px;
+	font-size:8pt;'
+}
+
+div.users_switcher a{
+	color:black;
+	text-decoration:underline;
+}
+
+div.user_photo{
+	float:left;
+	margin:10px 30px 15px 0px;
+}
+
+div.user_card{
+	float:left;
+	padding-top:5px;	
+}
+
+div.user_card table{
+	margin-top:10px;
 }

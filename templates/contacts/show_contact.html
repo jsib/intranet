@@ -1,23 +1,26 @@
-<br/><span style='font-size:8pt;'></span><a href="/manager.php?action=list_contacts" style="font-size:8pt;color:black;text-decoration:underline;">Все сотрудники</a><br/>
-<div style='margin:25px 0 0 80px;font-size:8pt;'>
-	<a href='{previous}' style='color:black;text-decoration:underline;'><img src='/images/left.png' /></a>
+<br/>
+{list_users_link}
+<div class='users_switcher'>
+	<a href='{previous}'><img src='/images/left.png' /></a>
 		&nbsp;&nbsp;&nbsp;&nbsp;{current}&nbsp;&nbsp;&nbsp;&nbsp;
-	<a href='{next}' style='color:black;text-decoration:underline;'><img src='/images/right.png' /></a>
+	<a href='{next}'><img src='/images/right.png' /></a>
 </div>
-<div style="float:left;margin:10px 30px 15px 0px;">
+
+<div class='user_photo'>
 	{photo}
 </div>
-<div style="float:left;padding-top:5px;">
+
+<div class='user_card'>
 	<h2>Карточка сотрудника</h2>
-	{editcontact}
-	<table cellspacing=5 cellpadding=0 border=0 style='margin-top:10px;'>
+	{edit_user_link}
+	<table cellspacing=5 cellpadding=0 border=0>
 		<tr>
 			<td style='width:220px;'>ФИО</td>
-			<td>{name}</td>
+			<td>{username}</td>
 		</tr>
 		<tr>
 			<td>Должность</td>
-			<td>{occupation}</td>
+			<td>{user_occ}</td>
 		</tr>
 		{mychief}
 		{employees}
@@ -27,11 +30,11 @@
 		</tr>
 		<tr>
 			<td>E-mail</td>
-			<td>{email}</td>
+			<td>{user_email}</td>
 		</tr>
 		<tr>
 			<td>Скайп</td>
-			<td>{skype}</td>
+			<td>{user_skype}</td>
 		</tr>
 		<tr>
 			<td>Телефон офиса</td>
@@ -48,7 +51,7 @@
 		</tr>
 	</table>
 	{attendance_info}
-	{raschet_rabochego_vremeni}
+	{extra_attendance_info}
 </div>
 <div class="clear"></div>
 
