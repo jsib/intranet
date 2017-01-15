@@ -107,6 +107,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/service.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/uris.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/auth.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/special_variables.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/smarty/Smarty.class.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/blocks/blocks.php");
 
 /*Запись в статистику*/
@@ -123,8 +124,13 @@ while($subdir = readdir($dp)){
 	if($subdir != '.' && $subdir != '..' && is_dir($dir."/".$subdir)){
 		$action_file=$dir."/".$subdir."/".$action.".php";
 		if(file_exists($action_file)){
+			//Include action file
 			require_once($action_file);
+			
+			//Connect to database
 			db_connect();
+			
+			//Get HTML flow from action's function
 			$html.=$action();
 		}
 	}

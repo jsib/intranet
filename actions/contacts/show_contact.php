@@ -189,7 +189,7 @@ function get_hire_info($user){
 		$user_hire_date='<span class="attention">не определено</span>';
 		$months_work=0;
 		$days_work=0;
-		$days_work_total=0;
+		$days_work_in_this_year=0;
 	//If hire date is defined
 	}else{
 		//Get hire property of user which stored in database
@@ -197,57 +197,58 @@ function get_hire_info($user){
 		$user_hire_year=date("Y", strtotime($user['hire']));
 		
 		//Get formatted date when employee begin working
-		$user_hire_date=$user_hire_month.'.'.$user_hire_year; 
+		$user_hire_date=$user_hire_month.'.'.$user_hire_year;
 		
-		//Get number of days which employee works till now since hire date
+		//Get number of days which employee has worked already in this year
 		if($user_hire_year==date('Y')){
-			$days_work_total=(int)((strtotime('now')-strtotime(date('01.'.$user_hire_month.'.'.$user_hire_year)))/(60*60*24));
+			//If user start working this year
+			$count_from_begin_of_this_year=false;			
 			
-		//Or 1st of Junuary
+			//Count days from hire date
+			$days_work_in_this_year=(int)((strtotime('now')-strtotime(date('01.'.$user_hire_month.'.'.$user_hire_year)))/(60*60*24));
 		}else{
-			$days_work_total=(int)((strtotime('now')-strtotime(date('01.01.Y')))/(60*60*24));
+			//If user start working one of previous years
+			$count_from_begin_of_this_year=true;	
+			
+			//Count days from 1st of Junuary of current year
+			$days_work_in_this_year=(int)((strtotime('now')-strtotime(date('01.01.Y')))/(60*60*24));
 		}
 		
 		//Get average days number per month in current year
 		$days_aver=(date('L')?366:365)/12;
 		
 		//Get number of months and rest of days which employee works
-		$months_work=(int)($days_work_total/$days_aver);
-		$days_work=$days_work_total%$days_aver;
+		$months_work=(int)($days_work_in_this_year/$days_aver);
+		$days_work=$days_work_in_this_year%$days_aver;
 		
 	}
 
 	//Get hire info
 	$hire_info['user_hire_date']=$user_hire_date;
+	$hire_info['count_from_begin_of_this_year']=$count_from_begin_of_this_year;
 	$hire_info['months_work']=$months_work;
 	$hire_info['days_work']=$days_work;
-	$hire_info['days_work_total']=$days_work_total;
+	$hire_info['days_work_in_this_year']=$days_work_in_this_year;
 	
 	//Return hire info
 	return $hire_info;
 }
 
 //Get user's vacations, sick leave credit days number
-function get_credit_info($user, $object, $days_credit_norm, $days_work_total, $year){
-	//For not current year
+function get_credit_info($user, $days_credit_norm, $days_work_in_this_year, $year){
+	//For not current year, this option we use for reports, when we need report for previous years
 	if($year==date('Y')){
-		//In case of uknown hire date we don't give vacation days to employee
-		if($user['hire']=='0000-00-00'){
-			$credit_days=0;
-			$credit_hours=0;
-		//If hire date is defined
-		}else{
-			//Get average days number per month in current year
-			$days_aver=(date('L')?366:365)/12;
-			
-			//Get credit in hours
-			$credit_hours_total=(int)(($days_credit_norm/12)*($days_work_total/$days_aver)*8);
+		//Get average days number per month in current year
+		$days_aver=(date('L')?366:365)/12;
+		
+		//Get credit in hours. Here we rely on $days_work_in_this_year variable which show how many days employee work in this year
+		$credit_hours_total=(int)(($days_credit_norm/12)*($days_work_in_this_year/$days_aver)*8);
 
-			//Get credit in days with hours
-			$credit_days=(int)($credit_hours_total/8);
-			$credit_hours=$credit_hours_total%8;
-		}
-	//For current year
+		//Get credit in days with hours
+		$credit_days=(int)($credit_hours_total/8);
+		$credit_hours=$credit_hours_total%8;
+
+	//For current year, this option we use for extra attendance information in user card
 	}else{
 		$credit_days=$days_credit_norm;
 		$credit_hours=0;
@@ -255,9 +256,9 @@ function get_credit_info($user, $object, $days_credit_norm, $days_work_total, $y
 	}
 	
 	//Get credit info
-	$credit_info[$object.'_credit_days']=$credit_days;
-	$credit_info[$object.'_credit_hours']=$credit_hours;
-	$credit_info[$object.'_credit_hours_total']=$credit_hours_total;
+	$credit_info['credit_days']=$credit_days;
+	$credit_info['credit_hours']=$credit_hours;
+	$credit_info['credit_hours_total']=$credit_hours_total;
 	
 	//Return credit info
 	return $credit_info;
@@ -265,19 +266,42 @@ function get_credit_info($user, $object, $days_credit_norm, $days_work_total, $y
 
 //Get HTML with information about rest of vacation, sick leave, etc
 function get_extra_attendance_info($user){
+	//Activate smarty
+	$smarty=new Smarty();
+	
 	//Define credits info array
 	$credits_info=array();
 	
-	//Get hire info
-	$hire_info=get_hire_info($user);
+	//Put user hire date to smarty
+	$smarty->assign('user_hire',$user['hire']);
 	
-	//Get vacations and sick leave credits info
-	foreach(array('vacation'=>VACATION_DAYS_CREDIT, 'sickleave'=>SICKLEAVE_DAYS_CREDIT) as $object=>$days_credit_norm){
-		$credits_info=$credits_info+get_credit_info($user, $object, $days_credit_norm, $hire_info['days_work_total'], date('Y'));
+	//Get hire and credit attendance info
+	if($user['hire']!='0000-00-00'){
+		//Get hire info
+		$hire_info=get_hire_info($user);
+		
+		//Put hire info to smarty
+		$smarty->assign('hire_info',$hire_info);
+		
+		//Get vacations and sick leave credits info
+		foreach(array('vacation'=>VACATION_DAYS_CREDIT, 'sickleave'=>SICKLEAVE_DAYS_CREDIT) as $attendance_type=>$days_credit_norm){
+			$credits_info[$attendance_type]=get_credit_info($user, $days_credit_norm, $hire_info['days_work_in_this_year'], date('Y'));
+		}
+		
+		//Put credit info to smarty
+		$smarty->assign('credits_info', $credits_info);
+		
+		//Build "since" phrase
+		if($hire_info['count_from_begin_of_this_year']===true){
+			$replacements['since_phrase']='с начала этого года';
+		}else{
+			$replacements['since_phrase']='с момента устройства на работу';
+		}
 	}
 	
 	//Return HTML flow
-	return template_get("contacts/extra_attendance_info", $hire_info+$credits_info);
+	//return template_get("contacts/extra_attendance_info", $hire_info+$replacements);
+	return $smarty->fetch('contacts/extra_attendance_info.tpl');
 }
 
 //Get HTML with info about user's subordinates

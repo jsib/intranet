@@ -1,9 +1,8 @@
 <?
-//Подключаемся к базе
-//Implement connection to database
+//Connect to database
 function db_connect($database="", $characterset='utf8')
 {
-	//Получаем глобальные переменные
+	//Bind global variables
 	global $dbhost;
 	global $dbname;
 	global $dbuser;
@@ -18,26 +17,18 @@ function db_connect($database="", $characterset='utf8')
         exit();
     }
 
-	//Устанавливаем кодировку для работы с базой
+	//Set encoding to work with database
 	mysql_query("SET NAMES '$characterset'");
 	mysql_query("SET CHARACTER SET '$characterset'");
-	mysql_query("SET SESSION collation_connection = '$characterset_general_ci'");
+	mysql_query("SET SESSION collation_connection = '".$characterset."_general_ci'");
 	
-	/*mysqli*/
-	/*global $MySQLi;
-	$MySQLi = new mysqli($dbhost, $dbuser, $dbpasswd2, $dbname);
-	if ($MySQLi->connect_errno) {
-		echo "Не удалось подключиться к MySQLi: (" . $MySQLi->connect_errno . ") " . $MySQLi->connect_error;
-		exit;
-	}*/
-	
-	//PDO
+	//Connection using PDO
 	global $Dbh;
 	try {
 		$Dbh = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbuser, $dbpasswd2);
 		$Dbh->query("SET NAMES '$characterset'");
 		$Dbh->query("SET CHARACTER SET '$characterset'");
-		$Dbh->query("SET SESSION collation_connection = '$characterset_general_ci'");
+		$Dbh->query("SET SESSION collation_connection = '".$characterset."_general_ci'");
 
 	} catch (PDOException $e) {
 		print "Error!: " . $e->getMessage() . "<br/>";
@@ -45,7 +36,8 @@ function db_connect($database="", $characterset='utf8')
 	}	
 }
 
-function db_query($question)	//Wrapper for mysql_query
+//Wrapper for mysql_query
+function db_query($question)	
 {
     $debug=debug_backtrace();
 	//show($debug);
@@ -57,16 +49,19 @@ function db_query($question)	//Wrapper for mysql_query
     }
 }
 
-function db_fetch($query)	//Wrapper for mysql_fetch_array
+//Wrapper for mysql_fetch_array
+function db_fetch($query)	
 {
     return mysql_fetch_array($query);
 }
 
-function db_count($query)	//Wrapper for mysql_num_rows
+//Wrapper for mysql_num_rows
+function db_count($query)	
 {
     return mysql_num_rows($query);
 }
 
+//Wrapper for mysql_affected_rows
 function db_result($query='notdefined')
 {
     if($query=='notdefined')
@@ -77,7 +72,7 @@ function db_result($query='notdefined')
     }
 }
 
-//Easy implement a query to database and return result immediately (e.g. query + fetch = both in one)
+//Request to database and return result immediately (e.g. query + fetch = both in one)
 function db_easy($question, $file='', $line='')
 {
     if($a=db_query($question, $file, $line))
@@ -88,6 +83,7 @@ function db_easy($question, $file='', $line='')
     }
 }
 
+//Same as db_easy, but also return 1st column value
 function db_short_easy($question, $file='', $line='')
 {
     if($a=db_query($question, $file, $line))
@@ -99,11 +95,12 @@ function db_short_easy($question, $file='', $line='')
     }
 }
 
-//Простой подсчет количества возвращаемых результатов поиска по базе
+//Wrapper for mysql_num_rows
 function db_easy_count($question){
     return mysql_num_rows(db_query($question));
 }
 
+//Fast request to database with INSERT, UPDATE operators
 function db_easy_result($question)
 {
     if($a=db_query($question))
@@ -114,6 +111,7 @@ function db_easy_result($question)
     }
 }
 
+//Get last inserted row id
 function db_insert_id($q="not-defined"){
 	if($q=="not-defined"){
 		return mysql_insert_id();
@@ -121,6 +119,8 @@ function db_insert_id($q="not-defined"){
 		return mysql_insert_id($q);
 	}
 }
+
+//Wrapper for mysql_close
 function db_disconnect($conn="none"){
 	if($conn=="none"){
 		mysql_close();
@@ -128,7 +128,7 @@ function db_disconnect($conn="none"){
 		mysql_close($conn);
 	}	
 }
-/*Проверяет строку на наличие ключевых слов MySQL*/
+//Check string for mysql key words existence
 function sql_dirty($str){
 	if(preg_match("/(SELECT )|(UPDATE )|(INSERT )|(DROP )|(ALTER )|(ORDER )|(FROM )|(CHANGE )|(CALL )|(CREATE )|(INTO )/i", $str)){
 		return true;
@@ -136,7 +136,7 @@ function sql_dirty($str){
 		return false;
 	}
 }
-//Алиас для mysql_real_escape_string
+//Wrapper for mysql_real_escape_string
 function db_escape($val){
 	return mysql_real_escape_string($val);
 }

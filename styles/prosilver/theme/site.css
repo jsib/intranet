@@ -2,21 +2,31 @@
 	color:#000;
 	text-decoration:none;
 }
-/*u_r_v - учёт рабочего времени
-r_d_o - расчет начисления дней отпуска
-*/
-h3.u_r_v, h4.u_r_v{
+/*a_i - additional info block headers. used in 'attendancy info block', 'attendancy extra info block', etc*/
+h3.a_i_b, h4.a_i_b{
 	margin:0;
 	padding:0;
 	border:none;
 	font-size:1.7em;
 	font-weight:normal;
 	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
-	color:#28313F;
+	color:#222;
 	text-transform:none;
 }
-h4.u_r_v{
+h4.a_i_b{
 	font-size:1.4em;
+	color:#333;
+}
+
+/*b_i_d - bold inside div, т.к. все теги b внутри заданного div будут оформлены*/
+div.b_i_d b{
+	color:#983416;
+}
+
+/*e_a - easy annotation, tipically used under headers*/
+span.e_a{
+	font-size:8pt;
+	font-style:italic;
 }
 
 .remark{

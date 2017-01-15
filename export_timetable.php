@@ -1,7 +1,7 @@
 <?php
 //Экспорт данных об использовании рабочего времени в csv файл
 require_once("/home/intranet.acoustic-group.net/www/includes/manager/files.php");
-require_once("/home/intranet.acoustic-group.net/www/includes/manager/db_v2.php");
+require_once("/home/intranet.acoustic-group.net/www/includes/manager/db.php");
 require_once("/home/intranet.acoustic-group.net/www/includes/manager/service.php");
 require_once("/home/intranet.acoustic-group.net/www/config.php");
 

@@ -675,7 +675,7 @@ function create_report(){
 				}
 				
 				//Get rest of vacations
-				$total[7]=get_row_rest($userWHILE, 'vacation', VACATION_DAYS_CREDIT, $Year)-$total[2];
+				$total[7]=get_row_rest($userWHILE, VACATION_DAYS_CREDIT, $Year)-$total[2];
 			//Month report
 			}else{
 				//Вычисляем количество дней в месяце
@@ -758,14 +758,14 @@ function create_report(){
 }
 
 //Calculate rest of vacation days for employee
-function get_row_rest($user, $object='vacation', $days_credit_norm=VACATION_DAYS_CREDIT, $year){
+function get_row_rest($user, $days_credit_norm, $year){
 	//Get datailed hire info
 	$hire_info=get_hire_info($user);
 	
 	//Get vacations credits info
-	$credit_info=get_credit_info($user, $object, $days_credit_norm, $hire_info['days_work_total'], $year);
+	$credit_info=get_credit_info($user, $days_credit_norm, $hire_info['days_work_in_this_year'], $year);
 	
 	//Return total credit hours number_format
-	return $credit_info[$object.'_credit_hours_total'];
+	return $credit_info['credit_hours_total'];
 }
 ?>
