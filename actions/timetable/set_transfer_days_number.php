@@ -38,7 +38,7 @@ function set_transfer_days_number(){
 						       `year`='.$year.',
 						       `user_id`='.$user_id
 						 )){
-			return 'insert'.$year;
+			return 1;
 		}else{
 			//Error on INSERT operation
 			return 'Ошибка записи';

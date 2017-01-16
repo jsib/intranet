@@ -9,9 +9,14 @@
 	Кол-во полных месяцев/дней прошло : <b>{$hire_info.months_work}мес {$hire_info.days_work}д</b><br/><br/>
 	
 	<h4 class='a_i_b'>Отпуск</h4>
-	Кол-во автоматически начисленных дней/часов отпуска: <b>{$credits_info.vacation.credit_days}д {$credits_info.vacation.credit_hours}ч</b><br/>
-	Перенести дней отпуска с прошлого года: <input type='text' value='{$transfer_days_number}' class='e_s_t' onblur='set_transfer_days_number(this.value)' />&nbsp;&nbsp;<span id='transfer_days_number_message'></span><br/>
-	Кол-во начисленных дней/часов отпуска с учетом перенесенных дней: <b>{$credits_info.vacation.credit_days}д {$credits_info.vacation.credit_hours}ч</b><br/><br/>
+	Кол-во автоматически начисленных дней/часов отпуска: <b>{$credits_info.vacation.credit_days}д {$credits_info.vacation.credit_hours}ч</b>
+	<div class='o_s'>
+		Перенести дней отпуска с прошлого года:&nbsp;
+		<input type='text' value='{$hire_info.transfer_days_number}' class='e_s_t' maxlength='2' onblur='set_transfer_days_number(this.value)' onfocus='say_result("", "")' />
+		&nbsp;&nbsp;<span id='transfer_days_number_message'></span>
+	</div>
+	Итого с учетом перенесенных дней: <b><span id='vacation_credit_with_transferred'>{$credits_info.vacation.credit_days+$hire_info.transfer_days_number}</span>д
+	&nbsp;{$credits_info.vacation.credit_hours}ч</b><br/><br/>
 	
 	<h4 class='a_i_b'>Больничный</h4>
 	Кол-во автоматически начисленных дней/часов больничного: <b>{$credits_info.sickleave.credit_days}д {$credits_info.sickleave.credit_hours}ч</b><br/>

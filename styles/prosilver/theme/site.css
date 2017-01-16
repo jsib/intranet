@@ -36,6 +36,17 @@ span.e_a{
 	text-align:center;
 }
 
+/*s_b - standart button*/
+button.s_b{
+	margin:0 15px;
+	font-size:9pt;
+}
+
+/*o_s - other string*/
+div.o_s{
+	padding:2px 0;
+}
+
 /*sm_s, sm_e - small message success, error*/
 span.sm_s, span.sm_e{
 	font-size:8pt;

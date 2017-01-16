@@ -3,24 +3,12 @@ function set_transfer_days_number(days_number){
 	date=new Date();
 	uri=getQueryParams(document.location.search);
 	transfer_days_number_message=document.getElementById('transfer_days_number_message')
-	alert(1)
+
 	//Check correct number of days
-	if(!isInteger(days_number)){
-		alert(3)
-		transfer_days_number_message.innerHTML='Ошибка. Должно быть введено число.';
-		transfer_days_number_message.className='sm_e'
-		exit;		
-	}else{
-		alert(2)
+	if(!isInt(days_number)){
+		say_result('Ошибка. Допускаются только целые числа.', 'sm_e')
+		return;		
 	}
-	
-	if(days_number < -127 || days_number > 127){
-		transfer_days_number_message.innerHTML='Ошибка. Значение должно быть в диапазоне от -127 до 127.';
-		transfer_days_number_message.className='sm_e'
-		exit;
-	}
-	
-	alert('ok')
 	
 	$.ajax({
 		type: "GET",
@@ -30,10 +18,11 @@ function set_transfer_days_number(days_number){
 		dataType: "text",
 		success: function(result){
 			if(result==1){
-				alert('Запись произведена успешно')
+				document.getElementById('vacation_credit_with_transferred').innerHTML=days_number
+				say_result('Изменения успешно сохранены', 'sm_s')
 			}else{
-				//alert('Возникла ошибка при обновлении данных в графике работы (db error).')
-				alert(result);
+				say_result('Ошибка. Не удалось сохранить значение Обратитесь к системному администратору.', 'sm_e')
+				return;		
 			}
 		},
 		
@@ -69,3 +58,13 @@ function getQueryParams(qs) {
     return params;
 }
 
+function isInt(value) {
+  return !isNaN(value) && 
+         parseInt(Number(value)) == value && 
+         !isNaN(parseInt(value, 10));
+}
+
+function say_result(message_text, class_name){
+	transfer_days_number_message.innerHTML=message_text;
+	transfer_days_number_message.className=class_name
+}

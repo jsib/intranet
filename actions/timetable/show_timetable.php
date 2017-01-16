@@ -760,13 +760,13 @@ function create_report(){
 //Calculate rest of vacation days for employee
 function get_row_rest($user, $days_credit_norm, $year){
 	//Get datailed hire info
-	$hire_info=get_hire_info($user);
+	$hire_info=get_hire_info($user, $year);
 	
 	//Get vacations credits info
 	$credit_info=get_credit_info($user, $days_credit_norm, $hire_info['days_work_in_this_year'], $year);
 	
 	//Return total credit hours number_format
-	return $credit_info['credit_hours_total'];
+	return $credit_info['credit_hours_total']+$hire_info['transfer_days_number']*8;
 }
 
 //Convert number of hours to days+hours marking with proper letter

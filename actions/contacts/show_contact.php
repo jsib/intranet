@@ -183,45 +183,50 @@ function get_attendance_gaps($user_id, $year, $status){
 }
 
 //Get user's hire info
-function get_hire_info($user){
-	//In case of uknown hire date we don't give vacation days to employee
-	if($user['hire']=='0000-00-00'){
-		$user_hire_date='<span class="attention">не определено</span>';
-		$months_work=0;
-		$days_work=0;
-		$days_work_in_this_year=0;
-	//If hire date is defined
+function get_hire_info($user, $year){
+	//Get hire property of user which stored in database
+	$user_hire_month=date("m", strtotime($user['hire']));
+	$user_hire_year=date("Y", strtotime($user['hire']));
+	
+	//Get formatted date when employee begin working
+	$user_hire_date=$user_hire_month.'.'.$user_hire_year;
+	
+	//Get number of days which employee has worked already in this year
+	if($user_hire_year==date('Y')){
+		//If user start working this year
+		$count_from_begin_of_this_year=false;			
+		
+		//Count days from hire date
+		$days_work_in_this_year=(int)((strtotime('now')-strtotime(date('01.'.$user_hire_month.'.'.$user_hire_year)))/(60*60*24));
 	}else{
-		//Get hire property of user which stored in database
-		$user_hire_month=date("m", strtotime($user['hire']));
-		$user_hire_year=date("Y", strtotime($user['hire']));
+		//If user start working one of previous years
+		$count_from_begin_of_this_year=true;	
 		
-		//Get formatted date when employee begin working
-		$user_hire_date=$user_hire_month.'.'.$user_hire_year;
-		
-		//Get number of days which employee has worked already in this year
-		if($user_hire_year==date('Y')){
-			//If user start working this year
-			$count_from_begin_of_this_year=false;			
-			
-			//Count days from hire date
-			$days_work_in_this_year=(int)((strtotime('now')-strtotime(date('01.'.$user_hire_month.'.'.$user_hire_year)))/(60*60*24));
-		}else{
-			//If user start working one of previous years
-			$count_from_begin_of_this_year=true;	
-			
-			//Count days from 1st of Junuary of current year
-			$days_work_in_this_year=(int)((strtotime('now')-strtotime(date('01.01.Y')))/(60*60*24));
-		}
-		
-		//Get average days number per month in current year
-		$days_aver=(date('L')?366:365)/12;
-		
-		//Get number of months and rest of days which employee works
-		$months_work=(int)($days_work_in_this_year/$days_aver);
-		$days_work=$days_work_in_this_year%$days_aver;
-		
+		//Count days from 1st of Junuary of current year
+		$days_work_in_this_year=(int)((strtotime('now')-strtotime(date('01.01.Y')))/(60*60*24));
 	}
+	
+	//Get average days number per month in current year
+	$days_aver=(date('L')?366:365)/12;
+	
+	//Get number of transferred vacation credit from previous year
+	$transfer_days_res=db_query('SELECT `days_number`
+								 FROM `phpbb_transferred_attendance_credit`
+								 WHERE `user_id`='.$user['user_id'].
+									   ' AND `year`='.$year
+							   );
+							   
+	//Take days number from database
+	if(db_count($transfer_days_res)>0){
+		$transfer_days_number=db_fetch($transfer_days_res)['days_number'];
+	//Put default value
+	}else{
+		$transfer_days_number=0;
+	}		
+	
+	//Get number of months and rest of days which employee works
+	$months_work=(int)($days_work_in_this_year/$days_aver);
+	$days_work=$days_work_in_this_year%$days_aver;
 
 	//Get hire info
 	$hire_info['user_hire_date']=$user_hire_date;
@@ -229,6 +234,7 @@ function get_hire_info($user){
 	$hire_info['months_work']=$months_work;
 	$hire_info['days_work']=$days_work;
 	$hire_info['days_work_in_this_year']=$days_work_in_this_year;
+	$hire_info['transfer_days_number']=$transfer_days_number;
 	
 	//Return hire info
 	return $hire_info;
@@ -281,7 +287,7 @@ function get_extra_attendance_info($user){
 	//Get hire and credit attendance info
 	if($user['hire']!='0000-00-00'){
 		//Get hire info
-		$hire_info=get_hire_info($user);
+		$hire_info=get_hire_info($user, date('Y'));
 		
 		//Put hire info to smarty
 		$smarty->assign('hire_info',$hire_info);
@@ -293,24 +299,6 @@ function get_extra_attendance_info($user){
 		
 		//Put credit info to smarty
 		$smarty->assign('credits_info', $credits_info);
-		
-		//Get number of transferred vacation credit from previous year
-		$transfer_days_res=db_query('SELECT `days_number`
-		                             FROM `phpbb_transferred_attendance_credit`
-		                             WHERE `user_id`='.$user['user_id'].
-									       ' AND `year`='.date('Y')
-								   );
-								   
-		if(db_count($transfer_days_res)>0){
-			//Take days number from database
-			$transfer_days_number=db_fetch($transfer_days_res)['days_number'];
-		}else{
-			//Put default value
-			$transfer_days_number=0;
-		}
-		
-		//Put number of transferred vacation credit to smarty
-		$smarty->assign('transfer_days_number', $transfer_days_number);
 		
 		//Build "since" phrase
 		if($hire_info['count_from_begin_of_this_year']===true){
