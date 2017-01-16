@@ -14,8 +14,9 @@ h3.a_i_b, h4.a_i_b{
 	text-transform:none;
 }
 h4.a_i_b{
-	font-size:1.4em;
+	font-size:1.3em;
 	color:#333;
+	font-weight:bold
 }
 
 /*b_i_d - bold inside div, т.к. все теги b внутри заданного div будут оформлены*/
@@ -27,6 +28,25 @@ div.b_i_d b{
 span.e_a{
 	font-size:8pt;
 	font-style:italic;
+}
+
+/*e_s_t - edit short text*/
+#manager input.e_s_t{
+	width:30px;
+	text-align:center;
+}
+
+/*sm_s, sm_e - small message success, error*/
+span.sm_s, span.sm_e{
+	font-size:8pt;
+	font-weight:bold;
+}
+span.sm_s{
+	color:green;
+}
+
+span.sm_e{
+	color:red;
 }
 
 .remark{
@@ -70,3 +90,4 @@ div.user_card{
 div.user_card table{
 	margin-top:10px;
 }
+

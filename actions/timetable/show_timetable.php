@@ -768,4 +768,29 @@ function get_row_rest($user, $days_credit_norm, $year){
 	//Return total credit hours number_format
 	return $credit_info['credit_hours_total'];
 }
+
+//Convert number of hours to days+hours marking with proper letter
+function get_time_str($hours){
+	//Make sure $hours is integer
+	$hours=(int)$hours;
+	
+	//Define variable for output
+	$str="";
+	
+	//Add number of full days
+	$str.=round(($hours-($hours%8))/8, 0).'';
+	
+	//Not only days
+	if($hours%8!=0){
+		$str.="д ";
+		$str.=($hours%8).'ч';
+	//Only days, zero hours
+	}else{
+		$str.=" ";
+	}
+	
+	//Return formatted number of days+hours
+	return $str;
+}
+
 ?>

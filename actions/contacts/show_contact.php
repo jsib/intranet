@@ -266,6 +266,9 @@ function get_credit_info($user, $days_credit_norm, $days_work_in_this_year, $yea
 
 //Get HTML with information about rest of vacation, sick leave, etc
 function get_extra_attendance_info($user){
+	//Bind global variables
+	$auth_user=$GLOBALS['user'];
+	
 	//Activate smarty
 	$smarty=new Smarty();
 	
@@ -291,6 +294,24 @@ function get_extra_attendance_info($user){
 		//Put credit info to smarty
 		$smarty->assign('credits_info', $credits_info);
 		
+		//Get number of transferred vacation credit from previous year
+		$transfer_days_res=db_query('SELECT `days_number`
+		                             FROM `phpbb_transferred_attendance_credit`
+		                             WHERE `user_id`='.$user['user_id'].
+									       ' AND `year`='.date('Y')
+								   );
+								   
+		if(db_count($transfer_days_res)>0){
+			//Take days number from database
+			$transfer_days_number=db_fetch($transfer_days_res)['days_number'];
+		}else{
+			//Put default value
+			$transfer_days_number=0;
+		}
+		
+		//Put number of transferred vacation credit to smarty
+		$smarty->assign('transfer_days_number', $transfer_days_number);
+		
 		//Build "since" phrase
 		if($hire_info['count_from_begin_of_this_year']===true){
 			$replacements['since_phrase']='с начала этого года';
@@ -300,7 +321,6 @@ function get_extra_attendance_info($user){
 	}
 	
 	//Return HTML flow
-	//return template_get("contacts/extra_attendance_info", $hire_info+$replacements);
 	return $smarty->fetch('contacts/extra_attendance_info.tpl');
 }
 

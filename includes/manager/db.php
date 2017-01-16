@@ -33,7 +33,7 @@ function db_connect($database="", $characterset='utf8')
 	} catch (PDOException $e) {
 		print "Error!: " . $e->getMessage() . "<br/>";
 		die();
-	}	
+	}
 }
 
 //Wrapper for mysql_query
