@@ -337,7 +337,7 @@ function get_user_employees($user){
 	return $html;
 }
 
-//Get attendance of employees info
+//Get attendance info for employees 
 function get_attendance_info($user){
 	//User id helper
 	$user_id=$user['user_id'];
@@ -346,7 +346,7 @@ function get_attendance_info($user){
 	$info_html='';
 
 	//Iterate over attendance statuses	
-	foreach(array(2=>'Отпуск', 3=>'Больничный', 4=>'За свой счёт', 5=>'Командировка') as $status_id_for=>$status_name_for){
+	foreach(array(2=>'Отпуск', 3=>'Больничный', 4=>'За свой счёт', 5=>'Командировка', 10=>'Переработка') as $status_id_for=>$status_name_for){
 		//Collect attendance info for this status
 		$info=get_attendance_gaps($user_id, date("Y"), $status_id_for);
 		
