@@ -78,19 +78,9 @@ function show_contact(){
 	//Get users previous id and next id for user switcher 
 	$switcher=get_users_switcher($user);
 	
-	//Get attendance info if user has proper rights
-	if( ($auth_user->data['user_id']==$user_id ||
-	    ($auth_user->data['timetable_editor']==1 && $user['my_timetable_editor_id']==$auth_user->data['user_id']) ||
-	    check_rights('hr_manager')) && $user['notimetable']!=1){	
-		
-		$replacements['attendance_info']=get_attendance_info($user);
-	}else{
-		$replacements['attendance_info']='';
-	}
-	
-	//Get extra attendance info
-	if(check_rights('hr_manager') && $user['notimetable']!=1){
-		$replacements['extra_attendance_info']=get_extra_attendance_info($user);
+	//Get attendance info
+	if(check_rights('hr_manager') || $auth_user->data['user_id']==$user['user_id']){
+		$replacements['extra_attendance_info']=get_attendance_info($user);
 	}else{
 		$replacements['extra_attendance_info']='';
 	}
@@ -113,10 +103,7 @@ function show_contact(){
 //Get number of attendance gaps for specified user, year and status
 function get_attendance_gaps($user_id, $year, $status){
 	//Here we store date when user had a attendance gap
-	$when="";
-	
-	//Here we store information how many days and hours were spent
-	$used="";
+	$when='';
 	
 	//Get attendance info from database
 	$attendance_res=db_query('SELECT * FROM `phpbb_timetable`
@@ -128,9 +115,6 @@ function get_attendance_gaps($user_id, $year, $status){
 	
 	//If there are some attendance gaps
 	if(db_count($attendance_res)>0){
-		//Write 'when' information only if there are some gaps
-		$when.='Когда: ';
-		
 		//Line wrapper flag
 		$lw_flag=0;
 		
@@ -139,6 +123,7 @@ function get_attendance_gaps($user_id, $year, $status){
 		
 		//Iterate over attendance results
 		while($fetch=db_fetch($attendance_res)){
+			
 			//Increase line wrapper flag value
 			$lw_flag++;
 			
@@ -165,21 +150,16 @@ function get_attendance_gaps($user_id, $year, $status){
 			//Add line wrapping if there are more then 10 records
 			if($lw_flag%10==0) $when.="<br/>";
 		}
-		
-		//Put line wrapping only if there are some gaps
-		$when.='<br/>';
 	}
 	
 	//Get how many gays were spent
-	$used.=round(($hours-($hours%8))/8, 0).'д ';
+	$used_days=($hours-($hours%8))/8;
 	
 	//Get how many hours were spent
-	if($hours%8!=0){
-		$used.=($hours%8).'ч';
-	}
+	$used_hours=$hours%8;
 	
 	//Return
-	return array('when'=>$when, 'used'=>$used);
+	return array('when'=>$when, 'used_days'=>$used_days, 'used_hours'=>$used_hours, 'hours'=>$hours);
 }
 
 //Get user's hire info
@@ -271,7 +251,7 @@ function get_credit_info($user, $days_credit_norm, $days_work_in_this_year, $yea
 }
 
 //Get HTML with information about rest of vacation, sick leave, etc
-function get_extra_attendance_info($user){
+function get_attendance_info($user){
 	//Bind global variables
 	$auth_user=$GLOBALS['user'];
 	
@@ -306,12 +286,37 @@ function get_extra_attendance_info($user){
 		}else{
 			$replacements['since_phrase']='с момента устройства на работу';
 		}
+		
+		//Put 'show_hr_information' rights to smarty
+		if(check_rights('hr_manager') && $user['notimetable']!=1){
+			$smarty->assign('show_hr_information', true);
+		}else{
+			$smarty->assign('show_hr_information', false);
+		}
+		
+		foreach(array(2=>'Отпуск', 3=>'Больничный', 4=>'За свой счёт', 5=>'Командировка', 10=>'Переработка') as $status_id_for=>$status_name_for){
+			//Collect attendance info for this status
+			$attendance_info[$status_id_for]=get_attendance_gaps($user['user_id'], date("Y"), $status_id_for);
+		}
+		
+		//Put attendance info to smarty
+		$smarty->assign('attendance_info', $attendance_info);
+
+		//Get rest vacation info
+		$rest_vacation['hours_total']=$credits_info['vacation']['credit_hours_total'] + $hire_info['transfer_days_number']*8 - $attendance_info[2]['hours'];
+		$rest_vacation['sign']=$rest_vacation['hours_total']/abs($rest_vacation['hours_total']);
+		$rest_vacation['hours']=abs($rest_vacation['hours_total']%8);
+		$rest_vacation['days']=(abs($rest_vacation['hours_total'])-$rest_vacation['hours'])/8;
+		$rest_vacation['sign_str']=substr((string)$rest_vacation['sign'], 0, 1);
+		
+		//Put rest vacation info to smarty
+		$smarty->assign('rest_vacation', $rest_vacation);
 	}
 	
 	//Return HTML flow
 	return $smarty->fetch('contacts/extra_attendance_info.tpl');
 }
-
+	
 //Get HTML with info about user's subordinates
 function get_user_employees($user){
 	//Get user's employees information from database
@@ -335,32 +340,6 @@ function get_user_employees($user){
 	
 	//Return HTML piece
 	return $html;
-}
-
-//Get attendance info for employees 
-function get_attendance_info($user){
-	//User id helper
-	$user_id=$user['user_id'];
-	
-	//Define HTML flow
-	$info_html='';
-
-	//Iterate over attendance statuses	
-	foreach(array(2=>'Отпуск', 3=>'Больничный', 4=>'За свой счёт', 5=>'Командировка', 10=>'Переработка') as $status_id_for=>$status_name_for){
-		//Collect attendance info for this status
-		$info=get_attendance_gaps($user_id, date("Y"), $status_id_for);
-		
-		//Build HTML piece
-		$info_html.=template_get('contacts/attendance_info_item',
-								 array('name'=>$status_name_for,
-									   'used'=>$info['used'],
-									   'when'=>$info['when']
-								 )
-					);
-	}
-	
-	//Return summary HTML
-	return template_get('contacts/attendance_info', array('info'=>$info_html));
 }
 
 //Get users switcher
