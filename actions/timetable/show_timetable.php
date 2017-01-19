@@ -4,17 +4,17 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/actions/contacts/show_contact.php');
 
 //Action function
 function show_timetable(){
-	//Получаем глобальные переменные
+	//Bind global variables
 	global $Month;
 	global $Year;
 	global $Redactor;
 	global $user;
 	global $MonthsFull;
 	
-	//Передаем флаг шефа инженеров в cookie
+	//Put engineer chief flag to cookie
 	setcookie("engineer_chief", $user->data['engineer_chief']);
 	
-	/*Получаем данные от пользователя*/
+	//Get month from browser
 	if(isset($_GET['month'])){
 		if(!preg_match("/^[0-9]{1,2}$/", $_GET['month'])){
 			return "Ошибка в формате входных данных (1).";
@@ -25,7 +25,7 @@ function show_timetable(){
 		$Month=(int)date("m");
 	}
 
-	/*Получаем данные от пользователя*/
+	//Get year from browser
 	if(isset($_GET['year'])){
 		if(!preg_match("/^[0-9]{4}$/", $_GET['year'])){
 			return "Ошибка в формате входных данных (2).";
@@ -36,7 +36,7 @@ function show_timetable(){
 		$Year=(int)date("Y");
 	}
 
-	/*Получаем данные от пользователя*/
+	//Get redactor from browser
 	if(isset($_GET['redactor'])){
 		$Redactor=(int)$_GET['redactor'];
 	}else{
@@ -51,21 +51,18 @@ function show_timetable(){
 		}
 	}
 	
-	/*Формируем таблицу*/
+	//Build table HTML
 	if(@$_GET['regime']=='report'){
 		$timetable_html=create_report();
 	}else{
 		$timetable_html=create_timetable();
 	}
 	
-	/*Проверяем чьими графиками работы мы можем управлять и можем ли вообще*/
+	//Check rights to edit users attendance information
 	if(!$timetable_html){
 		return "Вам не доступен ни один график работы для просмотра/редактирования";
 	}else{
-		//Определяем переменные
-		$html="";
-		
-		/*Формируем список годов*/
+		//Build years list
 		$years_html="";
 		$selectedFOR="";
 		$year_start=date("Y");
@@ -75,7 +72,7 @@ function show_timetable(){
 			$years_html.="<option value='$yearFOR' $selectedFOR>$yearFOR</option>";
 		}
 
-		/*Формируем список месяцев*/
+		//Build months list
 		$months_html="";
 		$selectedFOR="";
 		foreach($MonthsFull as $keyFOR=>$monthFOR){
@@ -83,7 +80,7 @@ function show_timetable(){
 			$months_html.="<option value='$keyFOR' $selectedFOR>$monthFOR</option>";
 		}	
 		
-		/*Формируем список редакторов*/
+		//Build redactors list
 		//IF
 		if(check_rights('timetable_show_all')){
 			//Определяем переменные
@@ -123,8 +120,7 @@ function show_timetable(){
 		}
 		
 		
-		/*НАЧАЛО: Определяем вид ссылок subgroup*/
-		//Определяем переменную
+		/*Begin: Define subgroup's links design*/
 		$temp_style="font-weight:bold;text-decoration:none;";
 		
 		//IF
@@ -135,10 +131,9 @@ function show_timetable(){
 			$subgroup_link_1=$temp_style;
 			$subgroup_link_2='';
 		}
-		/*КОНЕЦ: Определяем вид ссылок subgroup*/
+		/*End: Define subgroup's links design*/
 
-		/*НАЧАЛО: Определяем вид ссылок subgroup2*/
-		//Определяем переменную
+		/*Begin: Define subgroup2's links design*/
 		$temp_style="font-weight:bold;text-decoration:none;";
 		
 		//IF
@@ -149,9 +144,9 @@ function show_timetable(){
 			$subgroup2_link_1=$temp_style;
 			$subgroup2_link_2='';
 		}
-		/*КОНЕЦ: Определяем вид ссылок subgroup2*/
+		/*End: Define subgroup2's links design*/
 		
-		/*НАЧАЛО: Отображение subgroup2*/
+		/*Begin: Build subgroup2 HTML*/
 		if(@$_GET['regime']=='report'){
 			$subgroup2=template_get("timetable/subgroup2",
 									array(		'year'=>$Year,
@@ -162,7 +157,7 @@ function show_timetable(){
 		}else{
 			$subgroup2='';
 		}
-		/*КОНЕЦ: Отображение subgroup2*/
+		/*End: Build subgroup2 HTML*/
 		
 		//Проверка, даны ли вошедшему пользователю права на управления графиками кого-либо из редакторов{
 			//Случай 1. Пользователь перечислен в таблице БД `phpbb_timetable_editors_rights`{
@@ -187,40 +182,32 @@ function show_timetable(){
 			
 		//}
 		
-		/*НАЧАЛО: Отображение ссылки на раздел "Таблица"*/
+		/*Begin: Build link to switch regime to 'tablica'*/
 		if(check_rights('timetable_menu_tablica') || db_short_easy("SELECT `timetable_editor` FROM `phpbb_users` WHERE `user_id`={$user->data['user_id']}")==1 || $timetable_editor_same_rights){
-			$tablica=template_get("timetable/tablica",
-									array(		'year'=>$Year,
-												'month'=>$Month,
-												'redactor'=>$Redactor,
-												'subgroup_link_1'=>$subgroup_link_1
-										));
+			$tablica='<a href="/manager.php?action=show_timetable&year='.$Year.'&month='.$Month.'&redactor='.$Redactor.'" class="subgroup" style="'.$subgroup_link_1.'">Таблица</a>';
 		}else{
 			$tablica='';
 		}
 		
 		/*КОНЕЦ: Отображение ссылки на раздел "Таблица"*/
 		
-		/*НАЧАЛО: Формируем additional_hiddens для <SELECT>*/
-		//Определяем переменные
+		/*Begin: Build additional hiddens for SELECT*/
 		$temp_array=array();
 		$additional_hiddens="";
 		
-		//IF
 		if(@$_GET['regime']=='report') $temp_array['regime']='report';
 		if(@$_GET['report']=='year') $temp_array['report']='year';
 		
-		//FOREACH
 		foreach($temp_array as $nameFOR=>$valueFOR){
 			$additional_hiddens.="<input type='hidden' name='$nameFOR' value='$valueFOR' />";
 		}
-		/*КОНЕЦ: Формируем additional_hiddens для <SELECT>*/
+		/*End: Build additional hiddens for SELECT*/
 		
-		/*Неактивный <SELECT name='month'...*/
+		//For year report deactivate month SELECT 
 		@$_GET['report']=='year' ? $select_disabled='disabled' : $select_disabled='';
 		
-		/*Подключаем файл шаблона*/
-		$html.=template_get("timetable/show_timetable",
+		//Return HTML flow
+		return template_get("timetable/show_timetable",
 									array(		'year'=>$Year,
 												'month'=>$Month,
 												'redactor'=>$Redactor,
@@ -234,9 +221,6 @@ function show_timetable(){
 												'select_disabled'=>$select_disabled,
 												'tablica'=>$tablica
 									));
-													
-		//Возвращаем значение функции
-		return $html;
 	}
 }
 
@@ -675,7 +659,8 @@ function create_report(){
 				}
 				
 				//Get rest of vacations
-				$total[7]=get_row_rest($userWHILE, VACATION_DAYS_CREDIT, $Year)-$total[2];
+				$vacation_rest_str=get_row_rest($userWHILE, 2, $Year, $total[2])['str'];
+				
 			//Month report
 			}else{
 				//Вычисляем количество дней в месяце
@@ -709,7 +694,7 @@ function create_report(){
 			}
 			
 			//Format hours to day with hours
-			for($status=1;$status<=7;$status++){
+			for($status=1;$status<=6;$status++){
 				if($total[$status]>0){
 					$total_str[$status]=get_time_str($total[$status]);
 				}else{
@@ -735,7 +720,7 @@ function create_report(){
 			//Build extra column
 			if(@$_GET['report']=='year'){
 				$last_col_class='gnolast';
-				$new_last_col='<td class="glast">'.$total_str[7].'</td>';
+				$new_last_col='<td class="glast">'.$vacation_rest_str.'</td>';
 			}else{
 				$last_col_class='glast';
 				$new_last_col='';
@@ -753,20 +738,8 @@ function create_report(){
 	}
 	/*КОНЕЦ: Строим тело таблицы*/
 	
-	//Возвращаем значение функции
+	//Return HTML flow
 	return $html;
-}
-
-//Calculate rest of vacation days for employee
-function get_row_rest($user, $days_credit_norm, $year){
-	//Get datailed hire info
-	$hire_info=get_hire_info($user, $year);
-	
-	//Get vacations credits info
-	$credit_info=get_credit_info($user, $days_credit_norm, $hire_info['days_work_in_this_year'], $year);
-	
-	//Return total credit hours number_format
-	return $credit_info['credit_hours_total']+$hire_info['transfer_days_number']*8;
 }
 
 //Convert number of hours to days+hours marking with proper letter

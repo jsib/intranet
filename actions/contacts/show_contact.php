@@ -302,12 +302,14 @@ function get_attendance_info($user){
 		//Put attendance info to smarty
 		$smarty->assign('attendance_info', $attendance_info);
 
-		//Get rest vacation info
+		$rest_vacation=get_row_rest($user, 2, date("Y"), $attendance_info[2]['hours']);
+		
+		/*//Get rest vacation info
 		$rest_vacation['hours_total']=$credits_info['vacation']['credit_hours_total'] + $hire_info['transfer_days_number']*8 - $attendance_info[2]['hours'];
 		$rest_vacation['sign']=$rest_vacation['hours_total']/abs($rest_vacation['hours_total']);
 		$rest_vacation['hours']=abs($rest_vacation['hours_total']%8);
 		$rest_vacation['days']=(abs($rest_vacation['hours_total'])-$rest_vacation['hours'])/8;
-		$rest_vacation['sign_str']=substr((string)$rest_vacation['sign'], 0, 1);
+		$rest_vacation['sign_str']=substr((string)$rest_vacation['sign'], 0, 1);*/
 		
 		//Put rest vacation info to smarty
 		$smarty->assign('rest_vacation', $rest_vacation);
@@ -341,6 +343,55 @@ function get_user_employees($user){
 	//Return HTML piece
 	return $html;
 }
+
+//Get rest of vacation days for employee
+function get_row_rest($user, $status, $year, $hours_spent){
+	//Get datailed hire info
+	$hire_info=get_hire_info($user, $year);
+	
+	//Define days limit for statuses
+	$statuses=array(2=>VACATION_DAYS_CREDIT,
+	                3=>SICKLEAVE_DAYS_CREDIT
+				   );
+	
+	//Get vacations credits info
+	$credit_info=get_credit_info($user, $statuses[$status], $hire_info['days_work_in_this_year'], $year);
+	
+	//Get rest of vacations hours
+	$rest_hours_total=$credit_info['credit_hours_total']-$hours_spent;
+	
+	//Plus transfer days from previous year for vacation status
+	if($status==2){
+		$rest_hours_total+=$hire_info['transfer_days_number']*8;
+	}
+	
+	if($rest_hours_total!=0){
+		$rest_hours_total_abs=abs($rest_hours_total);
+		$rest_sign=$rest_hours_total/$rest_hours_total_abs;
+		$rest_hours=$rest_hours_total_abs%8;
+		$rest_days=($rest_hours_total_abs-$rest_hours)/8;
+		
+		//Get vacation rest sign string
+		if($rest_sign==1){
+			$rest_sign_str='';	
+		}else{
+			$rest_sign_str='-';
+		}
+	}else{
+		$rest_hours=0;
+		$rest_days=0;
+		$rest_sign_str='';
+	}
+	
+	return array('str'=>$rest_sign_str.$rest_days.'д '.$rest_hours.'ч',
+				 'hours_total'=>$rest_hours_total,
+				 'sign'=>$rest_sign,
+				 'hours'=>$rest_hours,
+				 'days'=>$rest_days,
+				 'rest_sign_str'=>$rest_sign_str,
+				);
+}
+
 
 //Get users switcher
 function get_users_switcher($user){
@@ -405,4 +456,6 @@ function get_users_switcher($user){
 	             'current'=>($current_id+1).' из '.$number_users
 				);
 }
+
+
 ?>

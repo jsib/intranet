@@ -15,7 +15,7 @@
 	<h4 class='a_i_b'>Отпуск</h4>
 	Использовано: <span id='vacation_used_days_number'>{$attendance_info[2]['used_days']}</span>д <span id='vacation_used_hours_number' {if $attendance_info[2]['used_hours']==0}style='display:none'{/if}>{$attendance_info[2]['used_hours']}</span></span>{if $attendance_info[2]['used_hours']>0}ч{/if}<br/>
 	{if $attendance_info[2]['hours']>0}Когда: {$attendance_info[2]['when']}<br/>{/if}
-	-------------
+	--- 
 	{if $show_hr_information==true}
 	<br/>Начислено в этом году: <span id='vacation_credit_days_number'>{$credits_info.vacation.credit_days}</span>д <span id='vacation_credit_hours_number'{if $credits_info.vacation.credit_hours==0}style='display:none'{/if}>{$credits_info.vacation.credit_hours}</span></span>{if $credits_info.vacation.credit_hours>0}ч{/if}<br/>
 	Перенесено с прошлого года:
@@ -24,7 +24,7 @@
 	{/if}
 	
 	<br/>Начислено итого: <span id='vacation_credit_days_number_plus_transferred'></span><br/>
-	-------------
+	---
 	{if $show_hr_information==false}
 	<input type='hidden' id='vacation_credit_days_number' value='{$credits_info.vacation.credit_days}'><input type='hidden' id='vacation_credit_hours_number' value='{$credits_info.vacation.credit_hours}'>
 	<input type='hidden' id='vacation_transfer_days_number' value='{$hire_info.transfer_days_number}'>

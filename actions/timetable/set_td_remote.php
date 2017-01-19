@@ -1,4 +1,7 @@
 <?php
+//Include script with functions to calculate rest of vacation days for employee
+require_once($_SERVER['DOCUMENT_ROOT'].'/actions/timetable/show_timetable.php');
+
 function set_td_remote(){
 	/*Получаем данные от пользователя*/
 	if(isset($_GET['td'])){
@@ -31,6 +34,9 @@ function set_td_remote(){
 	$year=(int)$temp[1];
 	$month=(int)$temp[2];
 	$day=(int)$temp[3];
+	
+	//Get user information
+	$user=db_easy('SELECT * FROM `phpbb_users` WHERE `user_id`='.$user_id);
 
 	/*Проверяем входной user_id*/
 	if(db_easy_count("SELECT * FROM `phpbb_users` WHERE `user_id`=$user_id")==0){
@@ -43,49 +49,17 @@ function set_td_remote(){
 			return "Ошибка! Редактирование предыдущих и будущих месяцев запрещено.";
 		}
 	}
-	
-	//*Проверяем количество использованных дней больничного и отпуска в текущем году для отдельного пользователя{
-	$check_array = array(0=>array(
-							'name_rus_rodit_padezh'=>'больничного',
-							'hours_per_day'=>8,
-							'max_days'=>5,
-							'code'=>3),
-						1=>array(
-							'name_rus_rodit_padezh'=>'отпуска',
-							'hours_per_day'=>8,
-							'max_days'=>20,
-							'code'=>2)						
-						);
-	foreach($check_array as $key=>$check){
-		
-		$status_rodit_pad=$check['name_rus_rodit_padezh'];
-		$status_hours_per_day=$check['hours_per_day'];
-		$status_max_days=$check['max_days'];
-		$status_code=$check['code'];
-
-		//Проверяем, заполнена ли уже данная ячейка и вычисляем количество часов в ней, если да{
-		$status_this_res=db_query("SELECT `hours` FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id AND `status`={$status_code}");
-		if(db_count($status_this_res)>0){
-			$status_this_hours=db_fetch($status_this_res)['hours'];
-		}else{ 
-			$status_this_hours=0;
-		}
-		//}
-		$status_res=db_query("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`={$status_code}");
-		$status_sum=0;
-		while($statusWHILE=db_fetch($status_res)){
-			$status_sum+=$statusWHILE['hours']; 
-		}
-		
-		if(($status_sum+$hours-$status_this_hours)>$status_max_days*$status_hours_per_day && $status==$status_code){
-			$status_rest_hours_total=$status_max_days*$status_hours_per_day-$status_sum;
-			$status_rest_hours=$status_rest_hours_total%$status_hours_per_day;
-			$status_rest_days=($status_rest_hours_total-$status_rest_hours)/$status_hours_per_day;
-		return "Ошибка! У вас осталось {$status_rest_days}д {$status_rest_hours}ч $status_rodit_pad."; 
+	//Проверяем количество использованных дней отпуска в текущем году для отдельного пользователя
+	foreach(array(2=>'отпуска', 3=>'больничного') as $status_for=>$name_rp_for){
+		if($status==$status_for){
+			$vacation_rest=check_rest_vacation_credit($year, $month, $day, $status, $hours, $user);
+			
+			if($vacation_rest!==true){
+				return 'Ошибка! Недостаточно дней/часов для '.$name_rp_for.', у вас осталось '.$vacation_rest;
+			}
 		}
 	}
-	//}
-
+	
 	//Запрос к базе
 	if(db_easy_count("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id")==0){
 		return db_result(db_query("INSERT INTO `phpbb_timetable` SET `year`=$year, `month`=$month, `day`=$day, `user_id`=$user_id, `status`=$status, `hours`=$hours"));
@@ -104,6 +78,35 @@ function set_td_remote(){
 				return db_easy_result("UPDATE `phpbb_timetable` SET `status`=$status, `hours`=$hours WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id");
 			}
 		//}
+	}
+}
+
+function check_rest_vacation_credit($year, $month, $day, $status, $this_cell_hours_new, $user){
+	//Define user id helper
+	$user_id=$user['user_id'];
+	
+	//Get number of hours were in this timetable cell already
+	$this_cell_status_res=db_query("SELECT `hours` FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id AND `status`={$status}");
+	if(db_count($this_cell_status_res)>0){
+		$this_cell_hours_old=db_fetch($this_cell_status_res)['hours'];
+	}else{ 
+		$this_cell_hours_old=0;
+	}
+	
+	//Get total number of hours with this status
+	$hours_spent_res=db_query("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`={$status}");
+	$hours_spent=0;
+	while($statusWHILE=db_fetch($hours_spent_res)){
+		$hours_spent+=$statusWHILE['hours'];
+	}
+
+	$rest_vacation=get_row_rest($user, $status, $year, $hours_spent);	
+	
+	if($rest_vacation['hours_total']<$this_cell_hours_new-$this_cell_hours_old){
+		//Return result rest days and hours
+		return $rest_vacation['str'];
+	}else{
+		return true;
 	}
 }
 ?>
