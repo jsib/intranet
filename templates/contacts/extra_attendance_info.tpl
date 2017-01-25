@@ -51,6 +51,9 @@
 	Использовано: {$attendance_info[10]['used_days']}д {if $attendance_info[10]['used_hours']>0}{$attendance_info[10]['used_hours']}ч{/if}<br/>
 	{if $attendance_info[10]['hours']>0}Когда: {$attendance_info[10]['when']}<br/>{/if}<br/>
 	
+	<h4 class='a_i_b'>Оплачиваемая командировка</h4>
+	Использовано: {$attendance_info[11]['used_days']}д {if $attendance_info[11]['used_hours']>0}{$attendance_info[11]['used_hours']}ч{/if}<br/>
+	{if $attendance_info[11]['hours']>0}Когда: {$attendance_info[11]['when']}<br/>{/if}<br/>	
 	
 {else}	
 	<span class='sm_e'>!!! Определите месяц и год устройства сотрудника на работу, чтобы получить расчет начислений</span><br/>

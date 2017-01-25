@@ -221,9 +221,15 @@ function get_hire_info($user, $year){
 }
 
 //Get user's vacations, sick leave credit days number
-function get_credit_info($user, $days_credit_norm, $days_work_in_this_year, $year){
+function get_credit_info($user, $status, $days_work_in_this_year, $year){
+	//Bind global variables
+	global $attendance_config;
+	
+	//Get year credit norm for this status 
+	$days_credit_norm=$attendance_config[$status]['days_credit_norm'];
+	
 	//For not current year, this option we use for reports, when we need report for previous years
-	if($year==date('Y')){
+	if($year==date('Y') && $attendance_config[$status]['use_full_credit_norm']==false){
 		//Get average days number per month in current year
 		$days_aver=(date('L')?366:365)/12;
 		
@@ -254,6 +260,7 @@ function get_credit_info($user, $days_credit_norm, $days_work_in_this_year, $yea
 function get_attendance_info($user){
 	//Bind global variables
 	$auth_user=$GLOBALS['user'];
+	global $attendance_config;
 	
 	//Activate smarty
 	$smarty=new Smarty();
@@ -273,8 +280,9 @@ function get_attendance_info($user){
 		$smarty->assign('hire_info',$hire_info);
 		
 		//Get vacations and sick leave credits info
-		foreach(array('vacation'=>VACATION_DAYS_CREDIT, 'sickleave'=>SICKLEAVE_DAYS_CREDIT) as $attendance_type=>$days_credit_norm){
-			$credits_info[$attendance_type]=get_credit_info($user, $days_credit_norm, $hire_info['days_work_in_this_year'], date('Y'));
+		foreach($attendance_config as $status=>$empty){
+			$attendance_type=$attendance_config[$status]['name'];
+			$credits_info[$attendance_type]=get_credit_info($user, $status, $hire_info['days_work_in_this_year'], date('Y'));
 		}
 		
 		//Put credit info to smarty
@@ -294,7 +302,7 @@ function get_attendance_info($user){
 			$smarty->assign('show_hr_information', false);
 		}
 		
-		foreach(array(2=>'Отпуск', 3=>'Больничный', 4=>'За свой счёт', 5=>'Командировка', 10=>'Переработка') as $status_id_for=>$status_name_for){
+		foreach(array(2=>'Отпуск', 3=>'Больничный', 4=>'За свой счёт', 5=>'Командировка', 10=>'Переработка', 11=>'Оплачиваемая командировка') as $status_id_for=>$status_name_for){
 			//Collect attendance info for this status
 			$attendance_info[$status_id_for]=get_attendance_gaps($user['user_id'], date("Y"), $status_id_for);
 		}
@@ -303,13 +311,6 @@ function get_attendance_info($user){
 		$smarty->assign('attendance_info', $attendance_info);
 
 		$rest_vacation=get_row_rest($user, 2, date("Y"), $attendance_info[2]['hours']);
-		
-		/*//Get rest vacation info
-		$rest_vacation['hours_total']=$credits_info['vacation']['credit_hours_total'] + $hire_info['transfer_days_number']*8 - $attendance_info[2]['hours'];
-		$rest_vacation['sign']=$rest_vacation['hours_total']/abs($rest_vacation['hours_total']);
-		$rest_vacation['hours']=abs($rest_vacation['hours_total']%8);
-		$rest_vacation['days']=(abs($rest_vacation['hours_total'])-$rest_vacation['hours'])/8;
-		$rest_vacation['sign_str']=substr((string)$rest_vacation['sign'], 0, 1);*/
 		
 		//Put rest vacation info to smarty
 		$smarty->assign('rest_vacation', $rest_vacation);
@@ -349,13 +350,8 @@ function get_row_rest($user, $status, $year, $hours_spent){
 	//Get datailed hire info
 	$hire_info=get_hire_info($user, $year);
 	
-	//Define days limit for statuses
-	$statuses=array(2=>VACATION_DAYS_CREDIT,
-	                3=>SICKLEAVE_DAYS_CREDIT
-				   );
-	
 	//Get vacations credits info
-	$credit_info=get_credit_info($user, $statuses[$status], $hire_info['days_work_in_this_year'], $year);
+	$credit_info=get_credit_info($user, $status, $hire_info['days_work_in_this_year'], $year);
 	
 	//Get rest of vacations hours
 	$rest_hours_total=$credit_info['credit_hours_total']-$hours_spent;

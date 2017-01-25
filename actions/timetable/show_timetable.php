@@ -412,6 +412,10 @@ function create_timetable(){
 						$status_html='п'.$addtext;
 						$color='#DBC9B3';
 						break;
+					case 11:
+						$status_html='К/О'.$addtext;
+						$color='#999999';
+						break;					
 					case 6:
 						$status_html="";
 						$color="#FFF;";
