@@ -296,7 +296,7 @@ const REGEXP_USERNAME="/^[a-zа-яё0-9 \.]{1,70}$/ui";
 
 $attendance_config=array(2=>array('name'=>'vacation',
                                   'days_credit_norm'=>20,
-								  'use_full_credit_norm'=>false),
+								  'use_full_credit_norm'=>true),
                          3=>array('name'=>'sickleave',
 						          'days_credit_norm'=>5,
 								  'use_full_credit_norm'=>true)
