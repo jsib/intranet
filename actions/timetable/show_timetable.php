@@ -612,7 +612,7 @@ function create_report(){
 		
 		//WHILE
 		while($userWHILE=db_fetch($usersRES)){
-			if($userWHILE['user_id']!=5911) continue;
+			//if($userWHILE['user_id']!=5911) continue;
 			
 			/*Пропускаем тех, у кого notimetable=1*/
 			if($userWHILE['notimetable']==1) continue;
@@ -654,7 +654,7 @@ function create_report(){
 			//Format hours to day with hours
 			for($status=1;$status<=6;$status++){
 				if($total[$status]>0){
-					$total_str[$status]=to_days_and_hours($total[$status]);
+					$total_str[$status]=to_days_and_hours( $total[$status], true );
 				}else{
 					$total_str[$status]="";
 				}
