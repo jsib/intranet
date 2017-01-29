@@ -4,10 +4,11 @@ function set_transfer_days_number(){
 	$user_id=(int)$_GET['user_id'];
 	$year=(int)$_GET['year'];
 	$days_number=(int)$_GET['days_number'];
+	$status=2;
 	
 	//Get number of transferred vacation credit with given criteria
 	$transfer_days_res=db_query('SELECT `days_number`
-								 FROM `phpbb_transferred_attendance_credit`
+								 FROM `phpbb_attendance_granted_benefits`
 								 WHERE `user_id`='.$user_id.'
 									   AND `year`='.$year
 							   );
@@ -21,9 +22,11 @@ function set_transfer_days_number(){
 			return 1;
 		}else{
 			//Use UPDATE syntax
-			if(db_easy_result('UPDATE `phpbb_transferred_attendance_credit`
+			if(db_easy_result('UPDATE `phpbb_attendance_granted_benefits`
 							   SET `days_number`='.$days_number.'
-							   WHERE `year`='.$year.' AND `user_id`='.$user_id
+							   WHERE `user_id`='.$user_id.'
+							         AND `year`='.$year.'
+									 AND `status`='.$status
 							 )){
 				return 1;
 			}else{
@@ -33,10 +36,11 @@ function set_transfer_days_number(){
 		}
 	}else{
 		//Use INSERT syntax
-		if(db_easy_result('INSERT INTO `phpbb_transferred_attendance_credit`
+		if(db_easy_result('INSERT INTO `phpbb_attendance_granted_benefits`
 		                   SET `days_number`='.$days_number.',
+							   `user_id`='.$user_id.',
 						       `year`='.$year.',
-						       `user_id`='.$user_id
+							   `status`='.$status
 						 )){
 			return 1;
 		}else{

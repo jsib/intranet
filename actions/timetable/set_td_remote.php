@@ -1,7 +1,4 @@
 <?php
-//Include script with functions to calculate rest of vacation days for employee
-require_once($_SERVER['DOCUMENT_ROOT'].'/actions/timetable/show_timetable.php');
-
 function set_td_remote(){
 	/*Получаем данные от пользователя*/
 	if(isset($_GET['td'])){
@@ -52,7 +49,7 @@ function set_td_remote(){
 	//Проверяем количество использованных дней отпуска в текущем году для отдельного пользователя
 	foreach(array(2=>'отпуска', 3=>'больничного') as $status_for=>$name_rp_for){
 		if($status==$status_for){
-			$vacation_rest=check_rest_vacation_credit($year, $month, $day, $status, $hours, $user);
+			$vacation_rest=check_for_available_benefits($year, $month, $day, $status, $hours, $user);
 			
 			if($vacation_rest!==true){
 				return 'Ошибка! Недостаточно дней/часов для '.$name_rp_for.', у вас осталось '.$vacation_rest;
@@ -81,30 +78,32 @@ function set_td_remote(){
 	}
 }
 
-function check_rest_vacation_credit($year, $month, $day, $status, $this_cell_hours_new, $user){
-	//Define user id helper
-	$user_id=$user['user_id'];
+function check_for_available_benefits($year, $month, $day, $status, $this_cell_hours_new, $user){
+	//Fetch from database current number of hours
+	$this_cell_status_res=db_query('SELECT `hours`
+	                                FROM `phpbb_timetable`
+									WHERE `year`='.$year.'
+									      AND `month`='.$month.'
+										  AND `day`='.$day.'
+										  AND `user_id`='.$user['user_id'].'
+										  AND `status`='.$status
+							      );
 	
-	//Get number of hours were in this timetable cell already
-	$this_cell_status_res=db_query("SELECT `hours` FROM `phpbb_timetable` WHERE `year`=$year AND `month`=$month AND `day`=$day AND `user_id`=$user_id AND `status`={$status}");
+	//Put fetched value to variable	
 	if(db_count($this_cell_status_res)>0){
-		$this_cell_hours_old=db_fetch($this_cell_status_res)['hours'];
+		$this_cell_hours_current=db_fetch($this_cell_status_res)['hours'];
 	}else{ 
-		$this_cell_hours_old=0;
+		$this_cell_hours_current=0;
 	}
 	
-	//Get total number of hours with this status
-	$hours_spent_res=db_query("SELECT * FROM `phpbb_timetable` WHERE `year`=$year AND `user_id`=$user_id AND `status`={$status}");
-	$hours_spent=0;
-	while($statusWHILE=db_fetch($hours_spent_res)){
-		$hours_spent+=$statusWHILE['hours'];
-	}
-
-	$rest_vacation=get_row_rest($user, $status, $year, $hours_spent);	
+	//Get benefits information
+	$attendance_benefit = new AttendanceBenefits($user, $year, $status);
+	$available_benefits=$attendance_benefit->get_available_benefits();
 	
-	if($rest_vacation['hours_total']<$this_cell_hours_new-$this_cell_hours_old){
-		//Return result rest days and hours
-		return $rest_vacation['str'];
+	//Return information about available benefits if not enough benefits
+	if($available_benefits < $this_cell_hours_new - $this_cell_hours_current){
+		return to_days_and_hours($available_benefits);
+	//Return 'true' if we have enough
 	}else{
 		return true;
 	}

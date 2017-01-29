@@ -294,11 +294,19 @@ const REGEXP_USERNAME="/^[a-zа-яё0-9 \.]{1,70}$/ui";
 //const VACATION_DAYS_CREDIT=20; //Number of days provided to employee for vacation
 //const SICKLEAVE_DAYS_CREDIT=5; //Number of days provided to employee for sick leaves
 
-$attendance_config=array(2=>array('name'=>'vacation',
-                                  'days_credit_norm'=>20,
-								  'use_full_credit_norm'=>true),
-                         3=>array('name'=>'sickleave',
-						          'days_credit_norm'=>5,
-								  'use_full_credit_norm'=>true)
-                        );
+$configuration['attendance']=array(2=>array(
+                                     'name'=>'vacation',
+									 'days_credit_norm'=>20,
+								     ),
+                                   3=>array(
+								     'name'=>'sickleave',
+						             'days_credit_norm'=>5,
+								     ),
+								   4=>array(
+								     'name'=>'zasvoischet'
+								     ),
+								   5=>array(
+								     'name'=>'comandirovka'
+								     )
+                                  );
 ?>

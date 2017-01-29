@@ -106,9 +106,13 @@ require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/db.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/service.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/uris.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/auth.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/dates.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/text.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/special_variables.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/smarty/Smarty.class.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/blocks/blocks.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/AttendanceBenefits.class.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/UserHire.class.php");
 
 /*Запись в статистику*/
 if(@$_GET['action']!='list_stat' && @$_GET['action']!='show_stat'){

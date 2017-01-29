@@ -512,6 +512,7 @@ function create_report(){
 	global $Year;
 	global $Redactor;
 	global $user; /*Переменная phpbb*/
+	$attendance_config=$GLOBALS['configuration']['attendance'];
 	
 	//Определяем переменные
 	$html="";
@@ -611,6 +612,8 @@ function create_report(){
 		
 		//WHILE
 		while($userWHILE=db_fetch($usersRES)){
+			if($userWHILE['user_id']!=5911) continue;
+			
 			/*Пропускаем тех, у кого notimetable=1*/
 			if($userWHILE['notimetable']==1) continue;
 			
@@ -628,42 +631,18 @@ function create_report(){
 			$day_total=0;
 			
 			//Year report
-			if(@$_GET['report']=='year'){
-				if($Year==date("Y")){
-					$monthMAX=date("n");
-				}else{
-					$monthMAX=12;
-				}
-				for($monthFOR=1;$monthFOR<=$monthMAX;$monthFOR++){
-					//Вычисляем количество дней в месяце
-					if($Year==date("Y") && $monthFOR==date("n")){
-						$day_numberFOR=date("j");
-					}else{
-						$day_numberFOR=cal_days_in_month(CAL_GREGORIAN, $monthFOR, $Year);
-					}
-					$day_total+=$day_numberFOR;
-					//show($monthFOR);
-					//show($day_total);
-
-					for($dayFOR=1;$dayFOR<=$day_numberFOR;$dayFOR++){
-						$day_of_weekFOR=date("N", strtotime("$Year-$Month-$dayFOR"));
-						if(isset($timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['status'])){
-							$status=$timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['status'];
-							$total[$status]+=$timetable[$userWHILE['user_id']][$monthFOR][$dayFOR]['hours'];	 	
-							if($status==6) $total_holidays++;
-						}else{
-							if($day_of_weekFOR==6 || $day_of_weekFOR==7){
-								$total_holidays++;
-							}else{
-								$status=1;
-								$total[$status]+=8;
-							}
-						}
-					}
-				}
+			if(@$_GET['report'] == 'year'){
+				//Get statistics for each status
+				$total=attendance_statistics_for_year_report($timetable, $userWHILE, $Year);
 				
-				//Get rest of vacations
-				$vacation_rest_str=get_row_rest($userWHILE, 2, $Year, $total[2])['str'];
+				//Get attendance benefit object
+				$attendance_benefit = new AttendanceBenefits($userWHILE, $Year, 2);
+				$vacation_available_benefits_str=to_days_and_hours( $attendance_benefit->get_available_benefits() );
+				
+				//show( 'granted_benefits: ' . to_days_and_hours( $attendance_benefit->get_granted_benefits() ) );
+				//show( 'available_benefits: ' . $attendance_benefit->get_available_benefits() );
+				//show( 'survive_benefits: ' . to_days_and_hours( $attendance_benefit->get_survive_benefits() ) );
+				//show( 'utilize_benefits: ' . to_days_and_hours( $attendance_benefit->get_utilize_benefits() ) );
 				
 			//Month report
 			}else{
@@ -691,7 +670,7 @@ function create_report(){
 						//For work days
 						}else{
 							$status=1;
-							$total[$status]+=8;							
+							$total[$status]+=8;
 						}
 					}
 				}
@@ -700,12 +679,12 @@ function create_report(){
 			//Format hours to day with hours
 			for($status=1;$status<=6;$status++){
 				if($total[$status]>0){
-					$total_str[$status]=get_time_str($total[$status]);
+					$total_str[$status]=to_days_and_hours($total[$status]);
 				}else{
 					$total_str[$status]="";
 				}
 			}
-			
+		
 			//IF
 			$line==db_count($usersRES) ? $trclass='vlast' : $trclass='vnolast';
 			
@@ -718,24 +697,30 @@ function create_report(){
 			//Определяем переменную
 			$html.="<td class='gfirst'><a href='/manager.php?action=show_contact&contact={$userWHILE['user_id']}'>{$userWHILE['username']}</a></td>";
 			
-			//Build row HTML
-			$html.="<td class='gnolast'>{$total_str[2]}</td><td class='gnolast'>{$total_str[3]}</td><td class='gnolast'>{$total_str[4]}</td><td class='gnolast'>{$total_str[5]}</td><td class='gnolast'>{$total_str[1]}</td>";
+			//Columns for most of statuses
+			$html.="<td class='gnolast'>{$total_str[2]}</td>
+			        <td class='gnolast'>{$total_str[3]}</td>
+					<td class='gnolast'>{$total_str[4]}</td>
+					<td class='gnolast'>{$total_str[5]}</td>
+					<td class='gnolast'>{$total_str[1]}</td>";
 			
-			//Build extra column
+			//Only for year report add column for vacation available benefits 
 			if(@$_GET['report']=='year'){
 				$last_col_class='gnolast';
-				$new_last_col='<td class="glast">'.$vacation_rest_str.'</td>';
+				$new_last_col='<td class="glast">'.$vacation_available_benefits_str.'</td>';
 			}else{
 				$last_col_class='glast';
 				$new_last_col='';
 			}
-			
-			//Build 
+
+			//Add column for total holidays
 			$html.='<td class="'.$last_col_class.'">'.$total_holidays.'</td>'.$new_last_col;
-			
+
 			
 			//Close TR tag
-			$html.="</tr>";			
+			$html.="</tr>";
+
+			unset($total_str);
 			
 		}	
 	}else{
@@ -746,28 +731,40 @@ function create_report(){
 	return $html;
 }
 
-//Convert number of hours to days+hours marking with proper letter
-function get_time_str($hours){
-	//Make sure $hours is integer
-	$hours=(int)$hours;
-	
-	//Define variable for output
-	$str="";
-	
-	//Add number of full days
-	$str.=round(($hours-($hours%8))/8, 0).'';
-	
-	//Not only days
-	if($hours%8!=0){
-		$str.="д ";
-		$str.=($hours%8).'ч';
-	//Only days, zero hours
-	}else{
-		$str.=" ";
+//Get attendance statistics for year report
+function attendance_statistics_for_year_report($timetable, $user, $year){
+	//Iterate over months
+	for($month_for=1; $month_for<=12; $month_for++){
+		//Count number of days for certain month
+		$day_number_for=cal_days_in_month(CAL_GREGORIAN, $month_for, $year);
+		
+		//Iterate over days
+		for($day_for=1; $day_for<=$day_number_for; $day_for++){
+			//Define day of the week
+			$day_of_week_for=date( "N", strtotime( $year . '-' . $month_for . '-' . $day_for ) );
+			
+			//Situation when status is defined in database
+			if( isset( $timetable[ $user['user_id'] ][ $month_for ][ $day_for ][ 'status' ] ) ){
+				//Get status from timetable array
+				$status=$timetable[ $user['user_id'] ][ $month_for ][ $day_for ][ 'status' ];
+				
+				//Add number of hours for certain status
+				$statistics[$status]+=$timetable[$user['user_id']][$month_for][$day_for]['hours'];	 	
+			//Situation when status is NOT defined in database
+			}else{
+				//This is holiday
+				if( $day_of_week_for==6 || $day_of_week_for==7 ){ 
+					$statistics[6]+=8;
+				//This is work day
+				}else{
+					$statistics[1]+=8;
+				}
+			}
+		}
 	}
 	
-	//Return formatted number of days+hours
-	return $str;
+	//Return statistics
+	return $statistics;
 }
 
 ?>

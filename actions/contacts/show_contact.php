@@ -162,105 +162,11 @@ function get_attendance_gaps($user_id, $year, $status){
 	return array('when'=>$when, 'used_days'=>$used_days, 'used_hours'=>$used_hours, 'hours'=>$hours);
 }
 
-//Get user's hire info
-function get_hire_info($user, $year){
-	//Get hire property of user which stored in database
-	$user_hire_month=date("m", strtotime($user['hire']));
-	$user_hire_year=date("Y", strtotime($user['hire']));
-	
-	//Get formatted date when employee begin working
-	$user_hire_date=$user_hire_month.'.'.$user_hire_year;
-	
-	//Get number of days which employee has worked already in this year
-	if($user_hire_year==date('Y')){
-		//If user start working this year
-		$count_from_begin_of_this_year=false;			
-		
-		//Count days from hire date
-		$days_work_in_this_year=(int)((strtotime('now')-strtotime(date('01.'.$user_hire_month.'.'.$user_hire_year)))/(60*60*24));
-	}else{
-		//If user start working one of previous years
-		$count_from_begin_of_this_year=true;	
-		
-		//Count days from 1st of Junuary of current year
-		$days_work_in_this_year=(int)((strtotime('now')-strtotime(date('01.01.Y')))/(60*60*24));
-	}
-	
-	//Get average days number per month in current year
-	$days_aver=(date('L')?366:365)/12;
-	
-	//Get number of transferred vacation credit from previous year
-	$transfer_days_res=db_query('SELECT `days_number`
-								 FROM `phpbb_transferred_attendance_credit`
-								 WHERE `user_id`='.$user['user_id'].
-									   ' AND `year`='.$year
-							   );
-							   
-	//Take days number from database
-	if(db_count($transfer_days_res)>0){
-		$transfer_days_number=db_fetch($transfer_days_res)['days_number'];
-	//Put default value
-	}else{
-		$transfer_days_number=0;
-	}		
-	
-	//Get number of months and rest of days which employee works
-	$months_work=(int)($days_work_in_this_year/$days_aver);
-	$days_work=$days_work_in_this_year%$days_aver;
-
-	//Get hire info
-	$hire_info['user_hire_date']=$user_hire_date;
-	$hire_info['count_from_begin_of_this_year']=$count_from_begin_of_this_year;
-	$hire_info['months_work']=$months_work;
-	$hire_info['days_work']=$days_work;
-	$hire_info['days_work_in_this_year']=$days_work_in_this_year;
-	$hire_info['transfer_days_number']=$transfer_days_number;
-	
-	//Return hire info
-	return $hire_info;
-}
-
-//Get user's vacations, sick leave credit days number
-function get_credit_info($user, $status, $days_work_in_this_year, $year){
-	//Bind global variables
-	global $attendance_config;
-	
-	//Get year credit norm for this status 
-	$days_credit_norm=$attendance_config[$status]['days_credit_norm'];
-	
-	//For not current year, this option we use for reports, when we need report for previous years
-	if($year==date('Y') && $attendance_config[$status]['use_full_credit_norm']==false){
-		//Get average days number per month in current year
-		$days_aver=(date('L')?366:365)/12;
-		
-		//Get credit in hours. Here we rely on $days_work_in_this_year variable which show how many days employee work in this year
-		$credit_hours_total=(int)(($days_credit_norm/12)*($days_work_in_this_year/$days_aver)*8);
-
-		//Get credit in days with hours
-		$credit_days=(int)($credit_hours_total/8);
-		$credit_hours=$credit_hours_total%8;
-
-	//For current year, this option we use for extra attendance information in user card
-	}else{
-		$credit_days=$days_credit_norm;
-		$credit_hours=0;
-		$credit_hours_total=$credit_days*8;
-	}
-	
-	//Get credit info
-	$credit_info['credit_days']=$credit_days;
-	$credit_info['credit_hours']=$credit_hours;
-	$credit_info['credit_hours_total']=$credit_hours_total;
-	
-	//Return credit info
-	return $credit_info;
-}
-
 //Get HTML with information about rest of vacation, sick leave, etc
 function get_attendance_info($user){
 	//Bind global variables
 	$auth_user=$GLOBALS['user'];
-	global $attendance_config;
+	$attendance_config=$GLOBALS['configuration']['attendance'];
 	
 	//Activate smarty
 	$smarty=new Smarty();
@@ -274,19 +180,25 @@ function get_attendance_info($user){
 	//Get hire and credit attendance info
 	if($user['hire']!='0000-00-00'){
 		//Get hire info
-		$hire_info=get_hire_info($user, date('Y'));
+		$user_hire=new UserHire($user);
+		$hire_info=$user_hire->get_info();
 		
 		//Put hire info to smarty
 		$smarty->assign('hire_info',$hire_info);
 		
-		//Get vacations and sick leave credits info
-		foreach($attendance_config as $status=>$empty){
-			$attendance_type=$attendance_config[$status]['name'];
-			$credits_info[$attendance_type]=get_credit_info($user, $status, $hire_info['days_work_in_this_year'], date('Y'));
+		//Put attandance benefits information to smarty
+		foreach($attendance_config as $status_for=>$attendance_for){
+			//Get attendance benefits object
+			$attendance_benefit = new AttendanceBenefits($user, date('Y'), $status_for);
+			
+			//Put number of survive attendance benefits
+			$attendance_benefit->get_survive_benefits();
+			$smarty->assign( $attendance_for['name'] . '_survive_benefits',  $attendance_benefit->survive_benefits );
+			 
+			//Put number of granted attendance benefits
+			$attendance_benefit->get_granted_benefits();
+			$smarty->assign( $attendance_for['name'] . '_granted_benefits', $attendance_benefit->granted_benefits ); 
 		}
-		
-		//Put credit info to smarty
-		$smarty->assign('credits_info', $credits_info);
 		
 		//Build "since" phrase
 		if($hire_info['count_from_begin_of_this_year']===true){
@@ -309,15 +221,10 @@ function get_attendance_info($user){
 		
 		//Put attendance info to smarty
 		$smarty->assign('attendance_info', $attendance_info);
-
-		$rest_vacation=get_row_rest($user, 2, date("Y"), $attendance_info[2]['hours']);
-		
-		//Put rest vacation info to smarty
-		$smarty->assign('rest_vacation', $rest_vacation);
 	}
 	
 	//Return HTML flow
-	return $smarty->fetch('contacts/extra_attendance_info.tpl');
+	return $smarty->fetch('contacts/attendance_info.tpl');
 }
 	
 //Get HTML with info about user's subordinates
@@ -344,50 +251,6 @@ function get_user_employees($user){
 	//Return HTML piece
 	return $html;
 }
-
-//Get rest of vacation days for employee
-function get_row_rest($user, $status, $year, $hours_spent){
-	//Get datailed hire info
-	$hire_info=get_hire_info($user, $year);
-	
-	//Get vacations credits info
-	$credit_info=get_credit_info($user, $status, $hire_info['days_work_in_this_year'], $year);
-	
-	//Get rest of vacations hours
-	$rest_hours_total=$credit_info['credit_hours_total']-$hours_spent;
-	
-	//Plus transfer days from previous year for vacation status
-	if($status==2){
-		$rest_hours_total+=$hire_info['transfer_days_number']*8;
-	}
-	
-	if($rest_hours_total!=0){
-		$rest_hours_total_abs=abs($rest_hours_total);
-		$rest_sign=$rest_hours_total/$rest_hours_total_abs;
-		$rest_hours=$rest_hours_total_abs%8;
-		$rest_days=($rest_hours_total_abs-$rest_hours)/8;
-		
-		//Get vacation rest sign string
-		if($rest_sign==1){
-			$rest_sign_str='';	
-		}else{
-			$rest_sign_str='-';
-		}
-	}else{
-		$rest_hours=0;
-		$rest_days=0;
-		$rest_sign_str='';
-	}
-	
-	return array('str'=>$rest_sign_str.$rest_days.'д '.$rest_hours.'ч',
-				 'hours_total'=>$rest_hours_total,
-				 'sign'=>$rest_sign,
-				 'hours'=>$rest_hours,
-				 'days'=>$rest_days,
-				 'rest_sign_str'=>$rest_sign_str,
-				);
-}
-
 
 //Get users switcher
 function get_users_switcher($user){

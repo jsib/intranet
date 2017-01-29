@@ -58,6 +58,12 @@ span.sm_s{
 
 span.sm_e{
 	color:red;
+} 
+
+/*i_w_t - input with text. used in attendancy info in show_contact page.*/
+div.i_w_t{
+	margin-top:4px;
+	margin-bottom:4px;
 }
 
 .remark{
@@ -101,4 +107,6 @@ div.user_card{
 div.user_card table{
 	margin-top:10px;
 }
+
+
 
