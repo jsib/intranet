@@ -632,48 +632,23 @@ function create_report(){
 			
 			//Year report
 			if(@$_GET['report'] == 'year'){
+				//Get attendance statistics object
+				$attendance_statistics=new AttendanceStatistics($timetable, $userWHILE, $Year);
+				
 				//Get statistics for each status
-				$total=attendance_statistics_for_year_report($timetable, $userWHILE, $Year);
+				$total=$attendance_statistics->get_year_report();
 				
 				//Get attendance benefit object
 				$attendance_benefit = new AttendanceBenefits($userWHILE, $Year, 2);
 				$vacation_available_benefits_str=to_days_and_hours( $attendance_benefit->get_available_benefits() );
 				
-				//show( 'granted_benefits: ' . to_days_and_hours( $attendance_benefit->get_granted_benefits() ) );
-				//show( 'available_benefits: ' . $attendance_benefit->get_available_benefits() );
-				//show( 'survive_benefits: ' . to_days_and_hours( $attendance_benefit->get_survive_benefits() ) );
-				//show( 'utilize_benefits: ' . to_days_and_hours( $attendance_benefit->get_utilize_benefits() ) );
-				
 			//Month report
 			}else{
-				//Вычисляем количество дней в месяце
-				if($Year==date("Y") && $Month==date("n")){
-					$day_number=date("j");
-				}else{
-					$day_number=cal_days_in_month(CAL_GREGORIAN, $Month, $Year);
-				}
-				$day_total=$day_number;
+				//Get attendance statistics object
+				$attendance_statistics=new AttendanceStatistics($timetable, $userWHILE, $Year, $Month);
 				
-				//Iterate over days in current month
-				for($dayFOR=1;$dayFOR<=$day_number;$dayFOR++){
-					$day_of_weekFOR=date("N", strtotime("$Year-$Month-$dayFOR"));
-					//Status defined for this user and employee
-					if(isset($timetable[$userWHILE['user_id']][$dayFOR]['status'])){
-						$status=$timetable[$userWHILE['user_id']][$dayFOR]['status'];
-						$total[$status]+=$timetable[$userWHILE['user_id']][$dayFOR]['hours'];
-						if($status==6) $total_holidays++;
-					//No status defined for this day and employee
-					}else{
-						//For holidays
-						if($day_of_weekFOR==6 || $day_of_weekFOR==7){
-							$total_holidays++;
-						//For work days
-						}else{
-							$status=1;
-							$total[$status]+=8;
-						}
-					}
-				}
+				//Get statistics for each status
+				$total=$attendance_statistics->get_month_report();
 			}
 			
 			//Format hours to day with hours
@@ -701,7 +676,7 @@ function create_report(){
 			$html.="<td class='gnolast'>{$total_str[2]}</td>
 			        <td class='gnolast'>{$total_str[3]}</td>
 					<td class='gnolast'>{$total_str[4]}</td>
-					<td class='gnolast'>{$total_str[5]}</td>
+					<td class='gnolast'>{$total_str[5]}</td> 
 					<td class='gnolast'>{$total_str[1]}</td>";
 			
 			//Only for year report add column for vacation available benefits 
@@ -714,7 +689,7 @@ function create_report(){
 			}
 
 			//Add column for total holidays
-			$html.='<td class="'.$last_col_class.'">'.$total_holidays.'</td>'.$new_last_col;
+			$html.='<td class="'.$last_col_class.'">'.$total_str[6].'</td>'.$new_last_col;
 
 			
 			//Close TR tag
@@ -730,41 +705,4 @@ function create_report(){
 	//Return HTML flow
 	return $html;
 }
-
-//Get attendance statistics for year report
-function attendance_statistics_for_year_report($timetable, $user, $year){
-	//Iterate over months
-	for($month_for=1; $month_for<=12; $month_for++){
-		//Count number of days for certain month
-		$day_number_for=cal_days_in_month(CAL_GREGORIAN, $month_for, $year);
-		
-		//Iterate over days
-		for($day_for=1; $day_for<=$day_number_for; $day_for++){
-			//Define day of the week
-			$day_of_week_for=date( "N", strtotime( $year . '-' . $month_for . '-' . $day_for ) );
-			
-			//Situation when status is defined in database
-			if( isset( $timetable[ $user['user_id'] ][ $month_for ][ $day_for ][ 'status' ] ) ){
-				//Get status from timetable array
-				$status=$timetable[ $user['user_id'] ][ $month_for ][ $day_for ][ 'status' ];
-				
-				//Add number of hours for certain status
-				$statistics[$status]+=$timetable[$user['user_id']][$month_for][$day_for]['hours'];	 	
-			//Situation when status is NOT defined in database
-			}else{
-				//This is holiday
-				if( $day_of_week_for==6 || $day_of_week_for==7 ){ 
-					$statistics[6]+=8;
-				//This is work day
-				}else{
-					$statistics[1]+=8;
-				}
-			}
-		}
-	}
-	
-	//Return statistics
-	return $statistics;
-}
-
 ?>

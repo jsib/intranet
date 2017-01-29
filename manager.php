@@ -112,6 +112,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/includes/special_variables.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/smarty/Smarty.class.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/blocks/blocks.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/AttendanceBenefits.class.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/AttendanceStatistics.class.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/UserHire.class.php");
 
 /*Запись в статистику*/
