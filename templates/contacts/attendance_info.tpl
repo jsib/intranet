@@ -34,6 +34,12 @@
 	
 		<h4 class='a_i_b'>Отпуск</h4>
 		
+		{if $show_hr_information==false}
+			<input type='hidden' id='vacation_credit_days_number' value='{$vacation_granted_benefits['days']}'>
+			<input type='hidden' id='vacation_credit_hours_number' value='{$vacation_granted_benefits['hours']}'>
+			<input type='hidden' id='vacation_transfer_days_number' value='{$vacation_survive_benefits['days']}'>
+		{/if}		
+		
 		Начислено: 
 		<span id='vacation_credit_days_number'>{$vacation_granted_benefits['days']}</span>д <span id='vacation_credit_hours_number' {if $vacation_granted_benefits['hours']==0}style='display:none'{/if}>{$vacation_granted_benefits['hours']}</span></span>{if $vacation_granted_benefits['hours']>0}ч{/if}<br/>
 
@@ -54,11 +60,6 @@
 		<b><span id='vacation_used_days_number'>{$attendance_info[2]['used_days']}</span>д <span id='vacation_used_hours_number' {if $attendance_info[2]['used_hours']==0}style='display:none'{/if}>{$attendance_info[2]['used_hours']}</span></span>{if $attendance_info[2]['used_hours']>0}ч{/if}</b><br/>
 		{if $attendance_info[2]['hours']>0}<i>Когда: {$attendance_info[2]['when']}<br/></i>{/if}
 		
-		{if $show_hr_information==false}
-			<input type='hidden' id='vacation_credit_days_number' value='{$vacation_granted_benefits['days']}'>
-			<input type='hidden' id='vacation_credit_hours_number' value='{$vacation_granted_benefits['hours']}'>
-			<input type='hidden' id='vacation_transfer_days_number' value='{$vacation_survive_benefits['days']}'>
-		{/if}
 		
 		<br/>
 		

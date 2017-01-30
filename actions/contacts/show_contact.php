@@ -315,6 +315,4 @@ function get_users_switcher($user){
 	             'current'=>($current_id+1).' из '.$number_users
 				);
 }
-
-
 ?>
