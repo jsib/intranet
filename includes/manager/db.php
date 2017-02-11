@@ -34,6 +34,26 @@ function db_connect($database="", $characterset='utf8')
 		print "Error!: " . $e->getMessage() . "<br/>";
 		die();
 	}
+	
+	//Подключение MySQLi 
+	global $mysqli;
+
+	$mysqli = new mysqli($dbhost, $dbuser, $dbpasswd2, $dbname);
+	
+	//Формируем сообщение об ошибке в случае необходимости
+	if ( $mysqli->connect_error ) {
+		$error = 'Не удалось подключиться к базе данных.' . PHP_EOL;
+		$error .= 'Код ошибки:' . PHP_EOL . $mysqli->connect_errno . PHP_EOL;
+		$error .= 'Текст ошибки:' . PHP_EOL . $mysqli->connect_error . PHP_EOL . PHP_EOL;
+		$error .= 'Отладочная информация:' . PHP_EOL;
+		print_error($error);
+		exit();
+	}
+	
+	//Устанавливаем кодировку и сортировку для работы с базой
+	$mysqli->query('SET NAMES \'' . $characterset . '\'');
+	$mysqli->query('SET CHARACTER SET \''. $characterset . '\'');
+	$mysqli->query('SET SESSION collation_connection = \'' . $characterset. '_general_ci\'');
 }
 
 //Wrapper for mysql_query

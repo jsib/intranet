@@ -39,6 +39,14 @@ function set_td_remote(){
 	if(db_easy_count("SELECT * FROM `phpbb_users` WHERE `user_id`=$user_id")==0){
 		return "Ошибка входных данных (user_id).";
 	}
+	
+	//Всем пользователям за исключением HR-менеджера на выходные дни запрещаем ставить любые статусы кроме К/О (№11)
+	if( !check_rights('hr_manager') ){
+		$attendance = new Attendance();
+		if( !$attendance->is_work_day($user_id, $day . '.' . $month . '.' . $year) && $status != 11 ){
+			return "Ошибка! На выходные дни запрещено ставить любые статусы кроме К/О";
+		}
+	}
 
 	/*Запрещаем редактировать предыдущие месяцы*/
 	if(!check_rights('edit_previous_month_timetables')){

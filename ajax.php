@@ -24,6 +24,8 @@ require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/service.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/uris.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/auth.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/dates.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/errors.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/Attendance.class.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/includes/manager/AttendanceBenefits.class.php");
 
 $html="";
