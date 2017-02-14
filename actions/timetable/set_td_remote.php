@@ -1,5 +1,8 @@
 <?php
 function set_td_remote(){
+	global $super_rights_users;
+	$auth_user = $GLOBALS['user'];
+	
 	/*Получаем данные от пользователя*/
 	if(isset($_GET['td'])){
 		if(!preg_match("/^[0-9]{1,8}\-[0-9]{4}\-[0-9]{1,2}\-[0-9]{1,2}\-[01]{1}-[01]{1}$/", $_GET['td'])){
@@ -26,11 +29,12 @@ function set_td_remote(){
 	$hours=(int)$_GET['hours'];
 	
 	/*Обрабатываем полученные данные*/
-	$temp=explode('-', $td);
-	$user_id=(int)$temp[0];
-	$year=(int)$temp[1];
-	$month=(int)$temp[2];
-	$day=(int)$temp[3];
+	$temp = explode('-', $td);
+	$user_id = (int) $temp[0];
+	$year = (int) $temp[1];
+	$month = (int) $temp[2];
+	$day = (int) $temp[3];
+	$date = $day . '.' . $month . '.' . $year;
 	
 	//Get user information
 	$user=db_easy('SELECT * FROM `phpbb_users` WHERE `user_id`='.$user_id);
@@ -40,20 +44,33 @@ function set_td_remote(){
 		return "Ошибка входных данных (user_id).";
 	}
 	
-	//Всем пользователям за исключением HR-менеджера на выходные дни запрещаем ставить любые статусы кроме К/О (№11)
-	if( !check_rights('hr_manager') ){
-		$attendance = new Attendance();
-		if( !$attendance->is_work_day($user_id, $day . '.' . $month . '.' . $year) && $status != 11 ){
-			return "Ошибка! На выходные дни запрещено ставить любые статусы кроме К/О";
+	//Создаем объект для определения статусов дней по учету рабочего времени
+	$attendance = new Attendance();
+
+	//Всем пользователям за исключением администраторов на выходные дни запрещаем ставить любые статусы кроме К/О (№11)
+	//Но если уже стоит статус К/О, то его можно поменять на статус "Выходной день" (№6)
+	if( !isset($super_rights_users[ $auth_user->data['username'] ]) ){
+		if( !$attendance->is_work_day($user_id, $date) &&
+		    ($status != 11 || ( $attendance->get_status($user_id, $day . '.' . $month . '.' . $year) == 11 && $status == 6 ) ) ) {
+			return "Ошибка! На выходные дни запрещено ставить любые статусы кроме К/О.";
 		}
 	}
 
-	/*Запрещаем редактировать предыдущие месяцы*/
+	//Всем пользователям кроме администратора запрещаем проставлять выходные
+	if( !isset($super_rights_users[ $auth_user->data['username'] ]) ){
+		//if( $attendance->is_work_day($user_id, $day . '.' . $month . '.' . $year) && ( $status == 1 || $status == 6 ) ){
+		if( $status == 6 ){
+			return "Ошибка! Назначение выходных доступно только администратору.";
+		}
+	}
+
+	//Запрещаем редактировать предыдущие месяцы
 	if(!check_rights('edit_previous_month_timetables')){
 		if($month!=date('n')){
 			return "Ошибка! Редактирование предыдущих и будущих месяцев запрещено.";
 		}
 	}
+	
 	//Проверяем количество использованных дней отпуска в текущем году для отдельного пользователя
 	foreach(array(2=>'отпуска', 3=>'больничного') as $status_for=>$name_rp_for){
 		if($status==$status_for){

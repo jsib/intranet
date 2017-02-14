@@ -56,5 +56,39 @@ class Attendance{
 			return false;
 		}
 	}
+	
+	public function get_status($user_id, $date){
+		//"Подключаем" глобальный объект для работы с базой данных
+		global $mysqli;
+		
+		//Разделяем дату на куски
+		$day = date( 'j', strtotime($date) );
+		$month = date( 'n', strtotime($date) );
+		$year = date( 'Y', strtotime($date) );
+		$week_day = date( 'N', strtotime($date) );
+
+		//Определяем статус по заданным $user_id и $date
+		$result = $mysqli->query( 'SELECT `status` FROM `phpbb_timetable`
+		                                    WHERE `user_id`=' . $user_id . '
+											  AND `day`=' . $day . '
+											  AND `month`=' . $month . '
+											  AND `year`=' . $year );
+		
+		//Проверяем, обозначен ли заданный статус для указанного дня
+		if( $result->num_rows > 0 ){
+			$row = $result->fetch_array();
+			return $row['status'];
+		}else{
+			//Статус "Выходной" (#6), явно не определен
+			if( $week_day==6 || $week_day==7 ){
+				return 6;
+			}
+			
+			//Статус "Рабочий день" (#1), явно не определен
+			if( $week_day >=1 && $week_day <= 5){
+				return 1;
+			}
+		}
+	}
 }
 ?>
