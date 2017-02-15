@@ -7,7 +7,6 @@
  * @subpackage Compiler
  * @author     Uwe Tews
  */
-
 /**
  * Smarty Internal Plugin Compile PHP Expression Class
  *
@@ -16,7 +15,6 @@
  */
 class Smarty_Internal_Compile_Private_Php extends Smarty_Internal_CompileBase
 {
-
     /**
      * Attribute definition: Overwrites base class.
      *
@@ -24,7 +22,6 @@ class Smarty_Internal_Compile_Private_Php extends Smarty_Internal_CompileBase
      * @see Smarty_Internal_CompileBase
      */
     public $required_attributes = array('code', 'type');
-
     /**
      * Compiles code for generating output from any expression
      *
@@ -105,7 +102,6 @@ class Smarty_Internal_Compile_Private_Php extends Smarty_Internal_CompileBase
                                 array('<?php ', '?>'), $_attr[ 'code' ]);
         }
     }
-
     /**
      * Lexer code for PHP tags
      *
@@ -203,7 +199,6 @@ class Smarty_Internal_Compile_Private_Php extends Smarty_Internal_CompileBase
         }
         $lex->value = substr($lex->data, $lex->counter, $close + strlen($closeTag) - $lex->counter);
     }
-
     /*
      * Call back function for $php_handling = PHP_QUOTE
      *
@@ -217,4 +212,4 @@ class Smarty_Internal_Compile_Private_Php extends Smarty_Internal_CompileBase
     {
         return htmlspecialchars($match[ 0 ], ENT_QUOTES);
     }
-}
+?>

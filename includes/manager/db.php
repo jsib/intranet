@@ -1,4 +1,4 @@
-<?
+<?php
 //Connect to database
 function db_connect($database="", $characterset='utf8')
 {

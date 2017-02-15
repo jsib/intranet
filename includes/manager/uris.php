@@ -1,5 +1,5 @@
-<?
-//поиск в $uri аргумента с именем $argument_name
+<?php
+//РїРѕРёСЃРє РІ $uri Р°СЂРіСѓРјРµРЅС‚Р° СЃ РёРјРµРЅРµРј $argument_name
 function uri_find_argument($argument_name, $uri){
     if(preg_match("/\?$argument_name\=/", $uri) || preg_match("/\&$argument_name\=/", $uri)){
         return true;
@@ -8,45 +8,45 @@ function uri_find_argument($argument_name, $uri){
     }
 }
 
-//заменяет в uri значение аргумент $argument_name на $argument_value
-//если в uri не был определен аргумент $argument_name, то он будет добавлен в получаемую строку
+//Р·Р°РјРµРЅСЏРµС‚ РІ uri Р·РЅР°С‡РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚ $argument_name РЅР° $argument_value
+//РµСЃР»Рё РІ uri РЅРµ Р±С‹Р» РѕРїСЂРµРґРµР»РµРЅ Р°СЂРіСѓРјРµРЅС‚ $argument_name, С‚Рѕ РѕРЅ Р±СѓРґРµС‚ РґРѕР±Р°РІР»РµРЅ РІ РїРѕР»СѓС‡Р°РµРјСѓСЋ СЃС‚СЂРѕРєСѓ
 function uri_change($argument_name, $argument_value, $uri){
-    //uri содержит "?"
+    //uri СЃРѕРґРµСЂР¶РёС‚ "?"
     if(preg_match("/\?/", $uri)){
-        //uri содержит искомый аргумент
+        //uri СЃРѕРґРµСЂР¶РёС‚ РёСЃРєРѕРјС‹Р№ Р°СЂРіСѓРјРµРЅС‚
         if(uri_find_argument($argument_name, $uri)){
-			//замена значения аргумента (при наличии значения)
+			//Р·Р°РјРµРЅР° Р·РЅР°С‡РµРЅРёСЏ Р°СЂРіСѓРјРµРЅС‚Р° (РїСЂРё РЅР°Р»РёС‡РёРё Р·РЅР°С‡РµРЅРёСЏ)
 			if($argument_value!=""){
 				$uri=preg_replace("/\?$argument_name\=[^\&\?]+/", "?$argument_name=$argument_value", $uri);
 				$uri=preg_replace("/\&$argument_name\=[^\&\?]+/", "&$argument_name=$argument_value", $uri);
-			//удаление аргумента (при пустом значении, при этом аргумент вообще есть)
+			//СѓРґР°Р»РµРЅРёРµ Р°СЂРіСѓРјРµРЅС‚Р° (РїСЂРё РїСѓСЃС‚РѕРј Р·РЅР°С‡РµРЅРёРё, РїСЂРё СЌС‚РѕРј Р°СЂРіСѓРјРµРЅС‚ РІРѕРѕР±С‰Рµ РµСЃС‚СЊ)
 			}else{
 				$uri=preg_replace("/\?$argument_name\=[^\&\?]+/", "?", $uri);
-				preg_replace("/\?\&/", "?", $uri); //на случай, если аргумент стоял после ? и за ним были еще аргументы (которые всегда предваряются &)
+				preg_replace("/\?\&/", "?", $uri); //РЅР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё Р°СЂРіСѓРјРµРЅС‚ СЃС‚РѕСЏР» РїРѕСЃР»Рµ ? Рё Р·Р° РЅРёРј Р±С‹Р»Рё РµС‰Рµ Р°СЂРіСѓРјРµРЅС‚С‹ (РєРѕС‚РѕСЂС‹Рµ РІСЃРµРіРґР° РїСЂРµРґРІР°СЂСЏСЋС‚СЃСЏ &)
 				$uri=preg_replace("/\&$argument_name\=[^\&\?]+/", "", $uri);
 			}
-        //uri не содержит искомого аргумента
+        //uri РЅРµ СЃРѕРґРµСЂР¶РёС‚ РёСЃРєРѕРјРѕРіРѕ Р°СЂРіСѓРјРµРЅС‚Р°
         }elseif($argument_value!=""){
             //show("uri 3: ".$argument_name."::". $argument_value. "::".$uri);
             $uri="{$uri}&{$argument_name}={$argument_value}";
         }
-    //uri не содержит "?", значит просто добавляем аргумент со значением
+    //uri РЅРµ СЃРѕРґРµСЂР¶РёС‚ "?", Р·РЅР°С‡РёС‚ РїСЂРѕСЃС‚Рѕ РґРѕР±Р°РІР»СЏРµРј Р°СЂРіСѓРјРµРЅС‚ СЃРѕ Р·РЅР°С‡РµРЅРёРµРј
     }else{
         $uri="{$uri}?{$argument_name}={$argument_value}";
     }
     return $uri;
 }
 
-//Функция uri_make будет учитывать эти изменения
+//Р¤СѓРЅРєС†РёСЏ uri_make Р±СѓРґРµС‚ СѓС‡РёС‚С‹РІР°С‚СЊ СЌС‚Рё РёР·РјРµРЅРµРЅРёСЏ
 function uri_prepare($argument, $value){
 	$GLOBALS['prepared_uri'][$argument]=$value;
 }
 
-//Чистит uri
+//Р§РёСЃС‚РёС‚ uri
 function uri_clean(){
 	$arguments=func_get_args();
 	
-	//Специальное поведение для отдельных окон
+	//РЎРїРµС†РёР°Р»СЊРЅРѕРµ РїРѕРІРµРґРµРЅРёРµ РґР»СЏ РѕС‚РґРµР»СЊРЅС‹С… РѕРєРѕРЅ
 	if(strripos($_SERVER['PHP_SELF'], 'statistics.php')){
 		foreach($arguments as $id=>$name){
 			if($name=='show_positions') unset($arguments[$id]);
@@ -60,12 +60,12 @@ function uri_clean(){
 	}
 }
 
-//Очень хорошо готовит uri. Использует $_SERVER['REQUEST_URI'] для этого.
+//РћС‡РµРЅСЊ С…РѕСЂРѕС€Рѕ РіРѕС‚РѕРІРёС‚ uri. РСЃРїРѕР»СЊР·СѓРµС‚ $_SERVER['REQUEST_URI'] РґР»СЏ СЌС‚РѕРіРѕ.
 function uri_make($argument_name=false, $argument_value="", $anchor=""){
 	if(!$argument_name){
 		return $_SERVER['REQUEST_URI'];
 	}else{
-		//Если входные параметры не в виде  массива
+		//Р•СЃР»Рё РІС…РѕРґРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РЅРµ РІ РІРёРґРµ  РјР°СЃСЃРёРІР°
 		if(!is_array($argument_name)){
 			$arguments[$argument_name]=$argument_value;
 		}else{
@@ -73,10 +73,10 @@ function uri_make($argument_name=false, $argument_value="", $anchor=""){
 			$anchor=$argument_value;
 		}
 		
-		//Получаем, введенный в браузере uri
+		//РџРѕР»СѓС‡Р°РµРј, РІРІРµРґРµРЅРЅС‹Р№ РІ Р±СЂР°СѓР·РµСЂРµ uri
 		$uri=$_SERVER['REQUEST_URI'];
 		
-		//Заменяем имя скрипта, если необходимо
+		//Р—Р°РјРµРЅСЏРµРј РёРјСЏ СЃРєСЂРёРїС‚Р°, РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ
 		if(isset($arguments['UriScript'])){
 			$UriScript=$arguments['UriScript'];
 			unset($arguments['UriScript']);
@@ -88,19 +88,19 @@ function uri_make($argument_name=false, $argument_value="", $anchor=""){
 			$uri=str_replace("/".$UriScript_browser, "/".$UriScript, $uri);
 		}
 		
-		//Заменяем значения уже имеющихся аргументов на новые
+		//Р—Р°РјРµРЅСЏРµРј Р·РЅР°С‡РµРЅРёСЏ СѓР¶Рµ РёРјРµСЋС‰РёС…СЃСЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ РЅР° РЅРѕРІС‹Рµ
 		foreach($arguments as $name=>$value){
 			$uri=uri_change($name, $value, $uri);
 		}
 
-		//Или добавляем аргументы, если их не было
+		//РР»Рё РґРѕР±Р°РІР»СЏРµРј Р°СЂРіСѓРјРµРЅС‚С‹, РµСЃР»Рё РёС… РЅРµ Р±С‹Р»Рѕ
 		foreach($GLOBALS['prepared_uri'] as $name=>$value){
 			if(!isset($arguments[$name])){
 				$uri=uri_change($name, $value, $uri);
 			}
 		}
 
-		//Убираем аргументы, если необходимо
+		//РЈР±РёСЂР°РµРј Р°СЂРіСѓРјРµРЅС‚С‹, РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ
 		if(isset($arguments['UriClean'])){
 			$UriClean=$arguments['UriClean'];
 			unset($arguments['UriClean']);
@@ -114,10 +114,10 @@ function uri_make($argument_name=false, $argument_value="", $anchor=""){
 			}
 		}
 		
-		//Добавляем якорь
+		//Р”РѕР±Р°РІР»СЏРµРј СЏРєРѕСЂСЊ
 		if($anchor!="") $uri.="#$anchor";
 		
-		//Возвращаем результат
+		//Р’РѕР·РІСЂР°С‰Р°РµРј СЂРµР·СѓР»СЊС‚Р°С‚
 		return $uri;
 	}
 }
@@ -126,7 +126,7 @@ function uri_make_v1($argument_name=false, $argument_value="", $anchor=""){
 	if(!$argument_name){
 		return $_SERVER['REQUEST_URI'];
 	}else{
-		//Если входные параметры не в виде  массива
+		//Р•СЃР»Рё РІС…РѕРґРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РЅРµ РІ РІРёРґРµ  РјР°СЃСЃРёРІР°
 		if(!is_array($argument_name)){
 			$arguments[$argument_name]=$argument_value;
 		}else{
@@ -134,10 +134,10 @@ function uri_make_v1($argument_name=false, $argument_value="", $anchor=""){
 			$anchor=$argument_value;
 		}
 		
-		//Получаем, введенный в браузере uri
+		//РџРѕР»СѓС‡Р°РµРј, РІРІРµРґРµРЅРЅС‹Р№ РІ Р±СЂР°СѓР·РµСЂРµ uri
 		$uri=$_SERVER['REQUEST_URI'];
 		
-		//Заменяем имя скрипта, если необходимо
+		//Р—Р°РјРµРЅСЏРµРј РёРјСЏ СЃРєСЂРёРїС‚Р°, РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ
 		if(isset($arguments['UriScript'])){
 			$UriScript=$arguments['UriScript'];
 			unset($arguments['UriScript']);
@@ -149,19 +149,19 @@ function uri_make_v1($argument_name=false, $argument_value="", $anchor=""){
 			$uri=str_replace("/".$UriScript_browser, "/".$UriScript, $uri);
 		}
 		
-		//Убираем все аргументы, если не определено противоположное поведение
+		//РЈР±РёСЂР°РµРј РІСЃРµ Р°СЂРіСѓРјРµРЅС‚С‹, РµСЃР»Рё РЅРµ РѕРїСЂРµРґРµР»РµРЅРѕ РїСЂРѕС‚РёРІРѕРїРѕР»РѕР¶РЅРѕРµ РїРѕРІРµРґРµРЅРёРµ
 		if(@$arguments['SaveArguments']!="yes"){
 			if(preg_match("/\?/", $uri)){
 				$uri=explode("?", $uri)[0];
 			}
 		}
 		
-		//Заменяем значения уже имеющихся аргументов на новые
+		//Р—Р°РјРµРЅСЏРµРј Р·РЅР°С‡РµРЅРёСЏ СѓР¶Рµ РёРјРµСЋС‰РёС…СЃСЏ Р°СЂРіСѓРјРµРЅС‚РѕРІ РЅР° РЅРѕРІС‹Рµ
 		foreach($arguments as $name=>$value){
 			$uri=uri_change($name, $value, $uri);
 		}
 		
-		//Убираем аргументы, если необходимо
+		//РЈР±РёСЂР°РµРј Р°СЂРіСѓРјРµРЅС‚С‹, РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ
 		if(isset($arguments['UriClean'])){
 			$UriClean=$arguments['UriClean'];
 			unset($arguments['UriClean']);
@@ -175,10 +175,10 @@ function uri_make_v1($argument_name=false, $argument_value="", $anchor=""){
 			}
 		}
 		
-		//Добавляем якорь
+		//Р”РѕР±Р°РІР»СЏРµРј СЏРєРѕСЂСЊ
 		if($anchor!="") $uri.="#$anchor";
 		
-		//Возвращаем результат
+		//Р’РѕР·РІСЂР°С‰Р°РµРј СЂРµР·СѓР»СЊС‚Р°С‚
 		return $uri;
 	}
 }

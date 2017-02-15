@@ -1,4 +1,4 @@
-<?
+<?php
 //Производит замены в шаблоне
 function template_get($template_name, $replacements=array())
 {
