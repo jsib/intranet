@@ -64,11 +64,15 @@ function set_td_remote(){
 		}
 	}
 
-	//Запрещаем редактировать предыдущие месяцы
+	//Запрещаем редактировать предыдущие месяцы начиная со второго числа
+        //следующего месяца
 	if(!check_rights('edit_previous_month_timetables')){
-		if($month!=date('n')){
-			return "Ошибка! Редактирование предыдущих и будущих месяцев запрещено.";
-		}
+            if($month != date('n') && !is_first_day_of_next_month($month, $year)){
+                return "Ошибка! Редактирование предыдущих и будущих месяцев" .
+                       " запрещено начиная со второго числа следующего месяца.";
+                    
+                    
+            }
 	}
 	
 	//Проверяем количество использованных дней отпуска в текущем году для отдельного пользователя
@@ -132,5 +136,40 @@ function check_for_available_benefits($year, $month, $day, $status, $this_cell_h
 	}else{
 		return true;
 	}
+}
+
+/*
+ * Is current day a first day of month which is very next to other
+ * month which is specified by month number and year number
+ * 
+ * @param int   $month_base     Month which we compare with
+ * @param int   $year_base      Year of $month_base
+ * 
+ * @return boolean
+  */
+function is_first_day_of_next_month($month_base, $year_base)
+{
+    $day_current = date("d");
+    $month_current = date("m");
+    $year_current = date("Y");
+    
+    //Check for first day of month
+    if ($day_current != 1) {
+        return false;
+    }
+    
+    //Compared month is the very next month of base month and both are in the
+    //same year
+    if ($year_current == $year_base && $month_current == $month_base+1) {
+        return true;
+    }
+    
+    //The base month is december and compared month is january of the very next
+    //year to the base year
+    if ($month_current==1 && $month_base==12 && $year_current==$year_base+1){
+        return true;
+    }
+    
+    return false;
 }
 ?>
